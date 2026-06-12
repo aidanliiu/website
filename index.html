@@ -8,75 +8,286 @@
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<div class="wrap">
-  <header class="site-header">
-    <a href="index.html" class="name">aidan liu</a>
-    <nav class="site-nav">
-      <a href="index.html" class="active">about</a>
-      <a href="activities.html">activities</a>
-      <a href="leadership.html">leadership &amp; sports</a>
-      <a href="writing.html">writing</a>
-      <a href="contact.html">contact</a>
-    </nav>
+
+  <header class="topbar">
+    <a href="#top" class="name">Aidan Liu</a>
+    <a href="#contact" class="contact-link">Contact</a>
   </header>
 
-  <section class="block">
-    <span class="num">01</span>
-    <h1>hey, i'm aidan.</h1>
-    <p>
-      I'm a student at Saratoga High School interested in machine learning, cybersecurity, and
-      building things that help people. This summer I'm part of the Stanford CARE Explorers
-      Program, and last year I co-founded an AI app for elderly care that's live on the App Store.
-    </p>
-    <p>
-      Outside of research, I lead our VEX Robotics team as Captain and Mechanical Lead, play
-      point/shooting guard for Saratoga Varsity Basketball, and serve as Chapter Director for
-      Art4Hearts International. I was also recently elected ASB Secretary for 2026–2027.
-    </p>
-    <p class="tagline">
-      activities ⋅ leadership &amp; sports ⋅ writing ⋅ contact
-    </p>
+  <!-- ============ 1. HERO ============ -->
+  <section class="hero" id="top">
+    <div class="hero-fade"></div>
+    <div class="hero-mark"></div>
+    <div class="hero-bottom">
+      <p class="tagline">Open to summer research, robotics, and leadership opportunities.</p>
+      <hr>
+      <div class="hero-social">
+        <a href="mailto:aidanliu2008@gmail.com">aidanliu2008@gmail.com</a>
+        <a href="tel:+16692988801">669-298-8801</a>
+        <a href="https://github.com/aidanliiu" target="_blank" rel="noopener">GitHub</a>
+        <a href="https://www.instagram.com/art4hearts" target="_blank" rel="noopener">Art4Hearts</a>
+      </div>
+    </div>
+    <div class="hero-info">
+      <div class="hero-info-left">
+        <span class="globe-icon" aria-hidden="true">&#127760;</span>
+        Saratoga, CA &mdash; open to opportunities locally &amp; beyond
+      </div>
+      <div class="hero-info-right">&copy; Aidan Liu 2026</div>
+    </div>
   </section>
 
-  <hr class="divider">
-
-  <section class="block">
-    <span class="num">02</span>
-    <h2>research &amp; technical work</h2>
-    <p>
-      Diabetes risk prediction with ML models on a CDC dataset (AWS Work Experience Program),
-      post-quantum cryptography research at the Silicon Valley Cybersecurity Institute, and an
-      NBA MVP prediction model published through Inspirit AI.
-    </p>
-    <p><a href="activities.html">see all activities &rarr;</a></p>
+  <!-- ============ 2. INTRO + FLOATING CARDS ============ -->
+  <section class="intro">
+    <div class="float-field">
+      <div class="float-card float-card--vex">
+        <svg class="float-card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"></circle><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"></path></svg>
+        <div class="float-card-label">VEX Robotics<span>Team Captain &amp; Mechanical Lead</span></div>
+      </div>
+      <div class="float-card float-card--ai">
+        <svg class="float-card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="7" y="7" width="10" height="10" rx="1"></rect><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 5l-2 2M5 19l2-2M17 19l-2-2"></path></svg>
+        <div class="float-card-label">AI &amp; ML Research<span>Stanford CARE &middot; AWS WEP &middot; Inspirit AI</span></div>
+      </div>
+      <div class="float-card float-card--art">
+        <svg class="float-card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20.5c-4-3-7.5-6.2-7.5-10A4.5 4.5 0 0 1 12 7a4.5 4.5 0 0 1 7.5 3.5c0 3.8-3.5 7-7.5 10z"></path></svg>
+        <div class="float-card-label">Art4Hearts Intl.<span>Chapter Director</span></div>
+      </div>
+      <div class="float-card float-card--ball">
+        <svg class="float-card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 3v18M3 12h18M5.6 5.6c2.4 2.4 4 4 6.4 6.4M18.4 5.6c-2.4 2.4-4 4-6.4 6.4M5.6 18.4c2.4-2.4 4-4 6.4-6.4M18.4 18.4c-2.4-2.4-4-4-6.4-6.4"></path></svg>
+        <div class="float-card-label">Varsity Basketball<span>Starter, PG/SG</span></div>
+      </div>
+      <div class="float-card float-card--asb">
+        <svg class="float-card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 15.8 6.8 18.6l1-5.8-4.3-4.1 5.9-.9z"></path></svg>
+        <div class="float-card-label">ASB Secretary<span>2026 – 2027</span></div>
+      </div>
+      <div class="float-card float-card--cyber">
+        <svg class="float-card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.5l7 3v5.2c0 4.3-2.9 7.9-7 9.3-4.1-1.4-7-5-7-9.3V5.5z"></path><path d="M9 12l2 2 4-4"></path></svg>
+        <div class="float-card-label">Cybersecurity<span>SVCSI Research</span></div>
+      </div>
+      <div class="float-card float-card--lift">
+        <svg class="float-card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12h16"></path><path d="M4 8v8M2 9.5v5M20 8v8M22 9.5v5"></path><path d="M7 9v6M17 9v6"></path></svg>
+        <div class="float-card-label">Weightlifting<span>Bench 185 &times; 6 &middot; Squat 255 &times; 4 &middot; Deadlift 255 &times; 5</span></div>
+      </div>
+      <div class="float-card float-card--violin">
+        <svg class="float-card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18V5l8-2v13"></path><circle cx="7" cy="18" r="2"></circle><circle cx="15" cy="16" r="2"></circle></svg>
+        <div class="float-card-label">Violin<span>6 years</span></div>
+      </div>
+    </div>
+    <div class="section-inner reveal">
+      <h1>Student, researcher &amp; team captain.</h1>
+      <p>
+        I'm Aidan Liu, a student at Saratoga High School working at the intersection of
+        machine learning, cybersecurity, and hands-on robotics — while leading teams in
+        student government, athletics, and community service.
+      </p>
+    </div>
   </section>
 
-  <hr class="divider">
-
-  <section class="block">
-    <span class="num">03</span>
-    <h2>leadership, robotics &amp; sports</h2>
-    <p>
-      Team Captain for VEX Robotics, ASB Secretary, Varsity Basketball starter, and Chapter
-      Director for Art4Hearts International — a 501(c)(3) with 6,000+ volunteers worldwide.
-    </p>
-    <p><a href="leadership.html">see all roles &rarr;</a></p>
+  <!-- ============ SELECTED WORKS DIVIDER ============ -->
+  <section class="selected-works">
+    <div class="selected-works-bottom">
+      <span class="selected-works-label">Selected Works <span class="arrow-down">&darr;</span></span>
+      <span class="selected-works-timer" id="page-timer">00:00</span>
+    </div>
   </section>
 
-  <hr class="divider">
+  <!-- ============ 3. STICKY ACTIVITY STACK ============ -->
+  <section class="stack-section" id="activities" style="--stack-count: 4;">
+    <div class="stack">
+    <div class="stack-viewport">
+      <div class="stack-intro section-inner">
+        <h2><span class="intro-word intro-word-left">My</span><span class="intro-word intro-word-right">works</span></h2>
+      </div>
 
-  <section class="block">
-    <span class="num">04</span>
-    <h2>say hi!</h2>
-    <p>
-      I'd love to connect about robotics, ML research, or anything else. Find my contact info
-      and links on the <a href="contact.html">contact page</a>.
-    </p>
+      <div class="stack-card">
+        <div class="stack-tag">01 &middot; AWS Work Experience Program</div>
+        <h3>Diabetes Risk Prediction with ML</h3>
+        <p>Compared machine learning models to predict diabetes risk using the CDC Diabetes Health Indicators dataset. Published to <a href="https://github.com/vishnub0/AWS-WEP" target="_blank" rel="noopener">GitHub</a>.</p>
+        <div class="stack-date">Jul – Aug 2025</div>
+      </div>
+
+      <div class="stack-card">
+        <div class="stack-tag">02 &middot; Co-Founder</div>
+        <h3>Elderly AI App</h3>
+        <p>Co-founded and published an AI app for elderly care, live on the <a href="https://apps.apple.com/us/app/elderlyai/id6748717895" target="_blank" rel="noopener">App Store</a>.</p>
+        <div class="stack-date">Jun – Aug 2025</div>
+      </div>
+
+      <div class="stack-card">
+        <div class="stack-tag">03 &middot; SVCSI</div>
+        <h3>Post-Quantum Cryptography Research</h3>
+        <p>Explored post-quantum cryptography algorithms, designed an original encryption algorithm, and wrote/presented a <a href="https://drive.google.com/file/d/1NOyVyaduviVALRvGwEAmc7xIMiMfBltP/view?usp=sharing" target="_blank" rel="noopener">research paper</a>.</p>
+        <div class="stack-date">Jul – Aug 2024</div>
+      </div>
+
+      <div class="stack-card">
+        <div class="stack-tag">04 &middot; Inspirit AI</div>
+        <h3>NBA MVP Model Predictions</h3>
+        <p>Published to <a href="https://www.curieuxreview.com/_files/ugd/60ed3c_e03ca30aedb840a7b4562ef1555d9e56.pdf" target="_blank" rel="noopener">The Curieux Review</a> (Jan '26), <a href="https://github.com/aidanliiu/NBA-MVP-Model-Predictions" target="_blank" rel="noopener">GitHub</a>, and Inspirit AI. Submitted to the Journal of Student Research — awaiting response.</p>
+        <div class="stack-date">Jul – Sep 2023</div>
+      </div>
+    </div>
+    </div>
   </section>
 
+  <!-- ============ 4. WHY ME ============ -->
+  <section class="why">
+    <div class="section-inner reveal">
+      <span class="logo-mark"></span>
+      <h2>Why me?</h2>
+      <p>
+        I show up for the team. As Captain and Mechanical Lead of our VEX Robotics team, I've
+        led builds, driven competitions, and mentored newer members. As Chapter Director of
+        Art4Hearts International and a teacher at the International Robotics Academy, I bring
+        the same hands-on, structure-first approach to community work that I bring to research
+        and engineering — clear plans, real reps, no fluff.
+      </p>
+    </div>
+  </section>
+
+  <!-- ============ 5. HOW I LEAD (stages) ============ -->
+  <section class="stages">
+    <div class="section-inner reveal">
+      <h2>How I lead</h2>
+
+      <div class="stage">
+        <div class="stage-num">Stage 1</div>
+        <div>
+          <h3>Build the team</h3>
+          <p>
+            As Team Captain and Mechanical Lead of VEX teams 95071H/V (2023–2026) and Club
+            Hardware Lead for Saratoga High VEX Robotics, I focus on getting the hardware right
+            and the team organized before competition crunch.
+          </p>
+        </div>
+      </div>
+
+      <div class="stage">
+        <div class="stage-num">Stage 2</div>
+        <div>
+          <h3>Teach &amp; mentor</h3>
+          <p>
+            At the International Robotics Academy I designed curriculum for four classes and
+            taught robotics and engineering to 10+ students. Through Seeds of Change, I founded
+            and ran an English outreach program that grew to 30+ teachers reaching 100+ students
+            across 5+ schools in Taiwan.
+          </p>
+        </div>
+      </div>
+
+      <div class="stage">
+        <div class="stage-num">Stage 3</div>
+        <div>
+          <h3>Give back &amp; represent</h3>
+          <p>
+            As Chapter Director for Art4Hearts International (a 501(c)(3) with 6,000+ volunteers
+            worldwide) and VP of our school's chapter, plus newly elected ASB Secretary and prior
+            Junior Class Treasurer, I represent my peers and keep service initiatives running.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 6. MY STORY ============ -->
+  <section class="story">
+    <div class="section-inner reveal">
+      <span class="logo-mark"></span>
+      <h2>My story</h2>
+      <p>
+        I grew up splitting my time between the basketball court, the workshop, and the
+        classroom — and I've never wanted to give any of them up. Basketball taught me
+        discipline and how to perform under pressure; robotics taught me how to build, break,
+        and rebuild things until they work; research gave me a way to ask bigger questions and
+        actually dig for answers.
+      </p>
+      <p>
+        Outside of school I picked up weightlifting in 2025 (PRs: bench 185 lbs &times; 6, squat
+        255 lbs &times; 4, deadlift 255 lbs &times; 5) and played violin for six years growing up.
+        I'm fluent in Mandarin, proficient in Spanish, and comfortable in Java, Python, C++, and
+        HTML.
+      </p>
+      <p>
+        Whatever I'm working on — a research paper, a robot, a club, or a team — I try to bring
+        the same mindset: build the structure first, put in the reps, and don't overcomplicate
+        what doesn't need it.
+      </p>
+      <div class="story-avatar">AL</div>
+    </div>
+  </section>
+
+  <!-- ============ 7. FOOTER ============ -->
   <footer class="site-footer">
-    Aidan Liu &middot; Saratoga, CA
+    <div class="footer-grid reveal">
+
+      <div class="footer-label" id="leadership">Leadership</div>
+      <div class="footer-col">
+        <div class="row"><span>ASB Secretary, elected — Saratoga High School</span><span class="right">2026 – 2027</span></div>
+        <div class="row"><span>Art4Hearts International Inc. — Chapter Director</span><span class="right">2025 – Current</span></div>
+        <div class="row"><span>Art4Hearts SHS Club — VP, Social Media &amp; Outreach</span><span class="right">2025 – Current</span></div>
+        <div class="row"><span>IRA — STEM/Robotics Teacher, Saratoga, CA</span><span class="right">2025 – Current</span></div>
+        <div class="row"><span>Junior Class Treasurer — Saratoga High School</span><span class="right">2025 – 2026</span></div>
+        <div class="row"><span>Seeds of Change — Founder, Program Manager &amp; Coach</span><span class="right">2021 – 2025</span></div>
+      </div>
+
+      <div class="footer-label">VEX V5 Robotics</div>
+      <div class="footer-col">
+        <div class="row"><span>Saratoga High VEX Robotics — Club Hardware Lead</span><span class="right">2025 – 2026</span></div>
+        <div class="row"><span>Team 95071V — Captain &amp; Mechanical Lead</span><span class="right">2025 – 2026</span></div>
+        <div class="row"><span>Team 95071V — Captain, Mechanical Lead &amp; Driver</span><span class="right">2024 – 2025</span></div>
+        <div class="row"><span>Team 95071H — Captain, Mechanical Lead &amp; Driver</span><span class="right">2023 – 2024</span></div>
+      </div>
+
+      <div class="footer-label">Basketball</div>
+      <div class="footer-col">
+        <div class="row"><span>Saratoga High Varsity — Starter (PG, SG)</span><span class="right">2024 – 2026</span></div>
+        <div class="row"><span>West San Jose Spartans Basketball Club — D2</span><span class="right">2017 – 2025</span></div>
+        <div class="row"><span>Saratoga High — JV Starter, moved to Varsity</span><span class="right">2023 – 2024</span></div>
+        <div class="row"><span>Saratoga High Track &amp; Field — JV Team</span><span class="right">Spring 2024</span></div>
+      </div>
+
+      <div class="footer-label" id="writing">Writing &amp; Papers</div>
+      <div class="footer-col">
+        <div class="row"><span>Diabetes Risk Prediction with ML — AWS WEP, <a href="https://github.com/vishnub0/AWS-WEP" target="_blank" rel="noopener">GitHub</a></span><span class="right">2025</span></div>
+        <div class="row"><span>Post-Quantum Cryptography — SVCSI, <a href="https://drive.google.com/file/d/1NOyVyaduviVALRvGwEAmc7xIMiMfBltP/view?usp=sharing" target="_blank" rel="noopener">paper</a></span><span class="right">2024</span></div>
+        <div class="row"><span>NBA MVP Model Predictions — <a href="https://www.curieuxreview.com/_files/ugd/60ed3c_e03ca30aedb840a7b4562ef1555d9e56.pdf" target="_blank" rel="noopener">Curieux Review</a>, <a href="https://github.com/aidanliiu/NBA-MVP-Model-Predictions" target="_blank" rel="noopener">GitHub</a></span><span class="right">2023</span></div>
+      </div>
+
+      <div class="footer-label">Skills</div>
+      <div class="footer-col footer-tags">
+        <span class="tag">Java</span>
+        <span class="tag">Python</span>
+        <span class="tag">C++</span>
+        <span class="tag">HTML</span>
+        <span class="tag">English (Native)</span>
+        <span class="tag">Mandarin (Fluent)</span>
+        <span class="tag">Spanish (Proficient)</span>
+      </div>
+
+      <div class="footer-label">Contact</div>
+      <div class="footer-col">
+        <div class="row"><span>Email</span><span class="right"><a href="mailto:aidanliu2008@gmail.com">aidanliu2008@gmail.com</a></span></div>
+        <div class="row"><span>Mobile</span><span class="right">669-298-8801</span></div>
+        <div class="row"><span>Based in</span><span class="right">Saratoga, CA</span></div>
+      </div>
+    </div>
+
+    <hr class="footer-divider">
+
+    <!-- ============ 8. CLOSING CTA ============ -->
+    <div class="closing section-inner reveal" id="contact">
+      <div class="eyebrow">Still with me?</div>
+      <div class="closing-mark"></div>
+      <p class="lead">Thanks for reading this far — let's talk research, robotics, or anything else.</p>
+      <div class="what-i-bring">What I bring</div>
+      <p class="skills-line">
+        Machine learning, post-quantum cryptography, robotics &amp; mechanical design, curriculum
+        design and teaching, team leadership, and bilingual/trilingual communication.
+      </p>
+      <a class="connect-btn" href="mailto:aidanliu2008@gmail.com">Let's connect ↗</a>
+    </div>
   </footer>
-</div>
+
+  <script src="script.js"></script>
 </body>
 </html>
