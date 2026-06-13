@@ -89,7 +89,10 @@ if (hero && heroMark) {
   const clamp = (v) => Math.min(Math.max(v, 0), maxScroll());
 
   const step = () => {
-    current += (target - current) * 0.09;
+    // Single, slightly slow ease toward the target — a Lenis-style
+    // smooth-scroll feel: each wheel notch nudges the target, and the
+    // page glides the rest of the way there over several frames.
+    current += (target - current) * 0.085;
     if (Math.abs(target - current) < 0.05) {
       current = target;
     }
@@ -109,7 +112,7 @@ if (hero && heroMark) {
     let delta = e.deltaY;
     if (e.deltaMode === 1) delta *= 18; // line mode
     else if (e.deltaMode === 2) delta *= window.innerHeight; // page mode
-    delta = Math.max(Math.min(delta, 120), -120);
+    delta = Math.max(Math.min(delta, 100), -100);
 
     target = clamp(target + delta);
     if (!ticking) {
@@ -168,9 +171,17 @@ if (hero && heroMark) {
     const rect = section.getBoundingClientRect();
     const vh = window.innerHeight;
     const scrolled = clamp01(-rect.top / (rect.height - vh || 1));
-    const total = scrolled * cards.length;
+    // Animations finish slightly before the section ends, so there's a
+    // bit of extra scroll on the last card's landed state before the
+    // page moves on to the next section.
+    const total = scrolled * (cards.length + 0.8);
 
     cards.forEach((card, i) => {
+      // Each card occupies its own unit of "total" progress: card i is
+      // fully held (p=0) until total reaches i, animates while total is
+      // in [i, i+1], and is fully landed (p=1) by the time the next
+      // card begins — so only one card animates at a time and every
+      // held card sits at the exact same stacked position.
       const p = clamp01(total - i);
       card.style.setProperty('--p', p.toFixed(3));
       if (i === 0) {
@@ -178,17 +189,22 @@ if (hero && heroMark) {
         card.style.setProperty('--ty', '0px');
         card.style.setProperty('--scale', (0.05 + p * 0.95).toFixed(3));
       } else {
-        // Later cards start lower and off to the side, next to the
-        // previous card and seen edge-on as a thin line (hinged at their
-        // top edge, rotated perpendicular), then slide in and fall
-        // forward/down like a flap to land flat on top, covering the
-        // previous card.
+        // Later cards start lower, seen edge-on as a thin squashed sliver
+        // near the bottom of the viewport, then unsquash and fall into
+        // place on top of the previous card.
         const ease = p * p * (3 - 2 * p); // smoothstep for a softer landing
-        const side = i % 2 === 0 ? -1 : 1;
-        card.style.setProperty('--ty', `${(1 - ease) * 46}vh`);
-        card.style.setProperty('--tx', `${(1 - ease) * side * 90}px`);
+        // Rotation/squash eases in much faster (cubic) so the card stays
+        // a thin sliver for most of its approach, then unfolds flat only
+        // at the very end of the fall.
+        const rxEase = p * p * p;
+        card.style.setProperty('--ty', `${(1 - ease) * 48}vh`);
+        // No horizontal offset — cards stack directly on top of each other.
+        card.style.setProperty('--tx', '0px');
         card.style.setProperty('--scale', '1');
-        card.style.setProperty('--rx', `${-(1 - ease) * 90}deg`);
+        // Rotate in 3D so the card lies edge-on (a thin perpendicular sliver)
+        // at rest, then unfolds flat as it lands. Held cards (p=0) all share
+        // the same -90deg rotation and 48vh offset, so they stack identically.
+        card.style.setProperty('--rx', `${-(1 - rxEase) * 90}deg`);
         card.style.opacity = '1';
       }
       card.style.zIndex = String(i + 1);
@@ -196,12 +212,11 @@ if (hero && heroMark) {
 
     if (intro) {
       const p0 = clamp01(total - 0);
-      // Intro text shrinks but stays visible as the first card grows out.
+      // "My works" stays fully visible, split apart on either side of the
+      // card so the card never covers it.
       intro.style.setProperty('--intro-opacity', '1');
-      // Shrink slightly at first, then settle back near the original size
-      // as the words spread apart.
       intro.style.setProperty('--intro-scale', (1 - p0 * 0.3 + p0 * p0 * 0.25).toFixed(3));
-      intro.style.setProperty('--intro-split', `${(p0 * 320).toFixed(1)}px`);
+      intro.style.setProperty('--intro-split', `${(p0 * 280).toFixed(1)}px`);
     }
 
     ticking = false;
@@ -260,3 +275,212 @@ if (pageTimer) {
   updateTimer();
   setInterval(updateTimer, 1000);
 }
+
+// "Get to know me" heading: split into words so they can fade/slide
+// in one at a time, staggered, as the section scrolls into view.
+const linksHeading = document.getElementById('links-heading');
+if (linksHeading) {
+  let i = 0;
+  const nodes = Array.from(linksHeading.childNodes);
+  const frag = document.createDocumentFragment();
+
+  nodes.forEach((node) => {
+    if (node.nodeType === Node.TEXT_NODE) {
+      node.textContent.split(/(\s+)/).forEach((chunk) => {
+        if (chunk.trim() === '') {
+          // Normalize any whitespace run (which may include newlines and
+          // indentation from the HTML source) to a single space so word
+          // gaps are consistent.
+          if (chunk !== '') frag.appendChild(document.createTextNode(' '));
+        } else {
+          const span = document.createElement('span');
+          span.className = 'word';
+          span.style.setProperty('--i', i++);
+          span.textContent = chunk;
+          frag.appendChild(span);
+        }
+      });
+    } else if (node.nodeType === Node.ELEMENT_NODE) {
+      // Treat elements like <em>word</em> as a single word, keeping
+      // the original tag for styling.
+      const wrapper = document.createElement(node.tagName);
+      wrapper.className = 'word';
+      wrapper.style.setProperty('--i', i++);
+      wrapper.textContent = node.textContent;
+      frag.appendChild(wrapper);
+    }
+  });
+
+  linksHeading.replaceChildren(frag);
+
+  // Toggle (not just add) the class so the word-by-word animation
+  // replays every time the heading scrolls into view, in either
+  // scroll direction.
+  const headingObserver = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      linksHeading.classList.toggle('is-visible', entry.isIntersecting);
+    });
+  }, { threshold: 0.4 });
+  headingObserver.observe(linksHeading);
+}
+
+// ============================================================
+// "Get to know me" black box: a small rounded rectangle that grows to
+// cover the entire screen as the links section scrolls into view, then
+// stays as the full background for the rest of the section.
+// ============================================================
+(() => {
+  const box = document.getElementById('links-box');
+  const bg = document.querySelector('.links-box-bg');
+  if (!box || !bg) return;
+
+  const clamp01 = (v) => Math.min(Math.max(v, 0), 1);
+  const clampPx = (v, max) => Math.min(Math.max(v, 0), max);
+  let ticking = false;
+
+  const update = () => {
+    const rect = box.getBoundingClientRect();
+    const vh = window.innerHeight;
+    const vw = window.innerWidth;
+    // Grows as the box's top edge scrolls up into view (0 when the box
+    // is one viewport-height below the top of the screen, 1 once its
+    // top reaches the top of the viewport). Once fully grown — at the
+    // very latest by the time the section reaches the top of the
+    // viewport — it covers the entire page edge-to-edge and stays that
+    // way for the rest of the scroll through the section.
+    const enter = clamp01(((vh - rect.top) / vh) * 1.3);
+
+    // Mirrors `enter`, but for the box's bottom edge scrolling up out of
+    // view — ramps 0→1 as the section scrolls away, driving the shrink
+    // and fade-out symmetrically with the grow/fade-in above.
+    const exit = clamp01((((vh - rect.bottom) / vh) - 0.25) * 0.9);
+
+    // Combined progress: grows in with `enter`, then shrinks back out
+    // with `exit` — same curve, same speed, in reverse.
+    const active = clamp01(enter - exit);
+
+    // Full height from the very start, so the black background already
+    // sits behind the heading/cards as soon as it's in view. It starts
+    // already close to the full width of the screen, then expands the
+    // rest of the way (its rounded corners flattening out) until it
+    // covers the entire width of the screen — then reverses on the way out.
+    const insetH = (1 - active) * vw * 0.03;
+    // Keep the black top edge tracking just above the box's actual top
+    // edge (small fixed gap) instead of a fraction of the viewport —
+    // avoids a large empty gray gap before the heading.
+    const insetTop = clampPx(rect.top - 120, vh);
+    // Mirror the top gap on the bottom edge, so the black background
+    // ends shortly after the cards instead of always filling to the
+    // bottom of the viewport.
+    const insetBottom = clampPx(vh - rect.bottom - 80, vh);
+    const radius = (1 - active) * 48;
+    bg.style.clipPath = `inset(${insetTop.toFixed(1)}px ${insetH.toFixed(1)}px ${insetBottom.toFixed(1)}px ${insetH.toFixed(1)}px round ${radius.toFixed(1)}px)`;
+
+    // Fade in as the box enters and fade back out as it exits, synced
+    // with the same `active` progress driving the expansion/shrink.
+    bg.style.opacity = active.toFixed(3);
+    ticking = false;
+  };
+
+  update();
+  window.addEventListener('scroll', () => {
+    if (!ticking) {
+      requestAnimationFrame(update);
+      ticking = true;
+    }
+  }, { passive: true });
+  window.addEventListener('resize', update);
+})();
+
+// ============================================================
+// "Get to know me" links grid: each button gets a randomized idle
+// drift, then on hover it snaps toward the cursor (magnetic pull +
+// slight tilt) while nearby buttons ease gently away.
+// ============================================================
+(() => {
+  const grid = document.getElementById('links-grid');
+  const buttons = Array.from(document.querySelectorAll('.link-btn'));
+  if (!grid || !buttons.length) return;
+
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  buttons.forEach((btn) => {
+    const dx = (Math.random() - 0.5) * 16;
+    const dy = (Math.random() - 0.5) * 16;
+    const dr = (Math.random() - 0.5) * 2;
+    const delay = Math.random() * -7;
+    btn.style.setProperty('--drift-x', `${dx.toFixed(1)}px`);
+    btn.style.setProperty('--drift-y', `${dy.toFixed(1)}px`);
+    btn.style.setProperty('--drift-r', `${dr.toFixed(2)}deg`);
+    btn.style.setProperty('--drift-delay', `${delay.toFixed(2)}s`);
+  });
+
+  if (reduceMotion) return;
+
+  let activeBtn = null;
+
+  buttons.forEach((btn) => {
+    btn.addEventListener('mouseenter', () => {
+      activeBtn = btn;
+      grid.classList.add('is-hovering');
+    });
+
+    btn.addEventListener('mousemove', (e) => {
+      const rect = btn.getBoundingClientRect();
+      const cx = rect.left + rect.width / 2;
+      const cy = rect.top + rect.height / 2;
+      const relX = (e.clientX - cx) / (rect.width / 2);
+      const relY = (e.clientY - cy) / (rect.height / 2);
+
+      btn.style.setProperty('--mx', `${(relX * 10).toFixed(1)}px`);
+      btn.style.setProperty('--my', `${(relY * 10).toFixed(1)}px`);
+      btn.style.setProperty('--mr', `${(relX * 1.5).toFixed(2)}deg`);
+
+      btn.style.setProperty('--lx', `${(relX * 6).toFixed(1)}px`);
+      btn.style.setProperty('--ly', `${(relY * 6).toFixed(1)}px`);
+    });
+
+    btn.addEventListener('mouseleave', () => {
+      activeBtn = null;
+      grid.classList.remove('is-hovering');
+      btn.style.setProperty('--mx', '0px');
+      btn.style.setProperty('--my', '0px');
+      btn.style.setProperty('--mr', '0deg');
+      btn.style.setProperty('--lx', '0px');
+      btn.style.setProperty('--ly', '0px');
+      buttons.forEach((b) => {
+        b.style.setProperty('--px', '0px');
+        b.style.setProperty('--py', '0px');
+      });
+    });
+  });
+
+  grid.addEventListener('mousemove', (e) => {
+    if (!activeBtn) return;
+    const gridRect = grid.getBoundingClientRect();
+    const mx = e.clientX;
+    const my = e.clientY;
+
+    buttons.forEach((btn) => {
+      if (btn === activeBtn) return;
+      const rect = btn.getBoundingClientRect();
+      const cx = rect.left + rect.width / 2;
+      const cy = rect.top + rect.height / 2;
+      const depth = parseFloat(btn.dataset.depth || '1');
+
+      let dx = cx - mx;
+      let dy = cy - my;
+      const dist = Math.sqrt(dx * dx + dy * dy) || 1;
+
+      const maxDist = Math.max(gridRect.width, gridRect.height) * 0.6;
+      const strength = Math.max(0, 1 - dist / maxDist);
+      const push = strength * 14 * depth;
+
+      const px = (dx / dist) * push;
+      const py = (dy / dist) * push;
+
+      btn.style.setProperty('--px', `${px.toFixed(1)}px`);
+      btn.style.setProperty('--py', `${py.toFixed(1)}px`);
+    });
+  }, { passive: true });
+})();

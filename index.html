@@ -6,12 +6,16 @@
 <title>Aidan Liu</title>
 <meta name="description" content="Aidan Liu — student, researcher, robotics team captain, and community organizer in Saratoga, CA.">
 <link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="links.css">
 </head>
 <body>
 
   <header class="topbar">
     <a href="#top" class="name">Aidan Liu</a>
-    <a href="#contact" class="contact-link">Contact</a>
+    <div class="topbar-right">
+      <a href="#more" class="contact-link">More</a>
+      <a href="#contact" class="contact-link">Contact</a>
+    </div>
   </header>
 
   <!-- ============ 1. HERO ============ -->
@@ -130,149 +134,82 @@
     </div>
   </section>
 
-  <!-- ============ 4. WHY ME ============ -->
-  <section class="why">
-    <div class="section-inner reveal">
-      <span class="logo-mark"></span>
-      <h2>Why me?</h2>
-      <p>
-        I show up for the team. As Captain and Mechanical Lead of our VEX Robotics team, I've
-        led builds, driven competitions, and mentored newer members. As Chapter Director of
-        Art4Hearts International and a teacher at the International Robotics Academy, I bring
-        the same hands-on, structure-first approach to community work that I bring to research
-        and engineering — clear plans, real reps, no fluff.
-      </p>
+  <!-- ============ 4. GET TO KNOW ME (links) ============ -->
+  <section class="links-section" id="more">
+    <div class="links-box" id="links-box">
+    <div class="links-box-bg" aria-hidden="true"></div>
+    <div class="links-intro section-inner">
+      <h2 class="links-heading" id="links-heading">
+        <em>Aidan</em> is more than what's on the page —
+        here's a closer look at the rest of it.
+      </h2>
     </div>
-  </section>
+    <div class="links-grid" id="links-grid">
+      <a class="link-btn link-btn--art link-btn--big" data-depth="1.1" data-action="paint" href="https://www.instagram.com/art4hearts" target="_blank" rel="noopener">
+        <span class="link-btn-bg" aria-hidden="true">
+          <svg class="link-btn-icon icon-art" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20.5c-4-3-7.5-6.2-7.5-10A4.5 4.5 0 0 1 12 7a4.5 4.5 0 0 1 7.5 3.5c0 3.8-3.5 7-7.5 10z"/></svg>
+        </span>
+        <span class="link-btn-text">
+          <span class="link-btn-label">Art4Hearts</span>
+          <span class="link-btn-sub">Instagram</span>
+        </span>
+      </a>
 
-  <!-- ============ 5. HOW I LEAD (stages) ============ -->
-  <section class="stages">
-    <div class="section-inner reveal">
-      <h2>How I lead</h2>
+      <a class="link-btn link-btn--wordle" data-depth="0.8" data-action="think" href="https://www.nytimes.com/games/wordle/index.html" target="_blank" rel="noopener">
+        <span class="link-btn-bg" aria-hidden="true">
+          <svg class="link-btn-icon icon-wordle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="6" height="6" rx="1"/><rect x="9" y="2" width="6" height="6" rx="1"/><rect x="16" y="2" width="6" height="6" rx="1"/><rect x="2" y="9" width="6" height="6" rx="1" fill="currentColor" stroke="none"/><rect x="9" y="9" width="6" height="6" rx="1"/><rect x="16" y="9" width="6" height="6" rx="1" fill="currentColor" stroke="none"/><rect x="2" y="16" width="6" height="6" rx="1"/><rect x="9" y="16" width="6" height="6" rx="1" fill="currentColor" stroke="none"/><rect x="16" y="16" width="6" height="6" rx="1"/></svg>
+        </span>
+        <span class="link-btn-text">
+          <span class="link-btn-label">Wordle &amp; Connections</span>
+          <span class="link-btn-sub">NYT games, daily</span>
+        </span>
+      </a>
 
-      <div class="stage">
-        <div class="stage-num">Stage 1</div>
-        <div>
-          <h3>Build the team</h3>
-          <p>
-            As Team Captain and Mechanical Lead of VEX teams 95071H/V (2023–2026) and Club
-            Hardware Lead for Saratoga High VEX Robotics, I focus on getting the hardware right
-            and the team organized before competition crunch.
-          </p>
-        </div>
-      </div>
+      <a class="link-btn link-btn--books" data-depth="0.7" data-action="read" href="#">
+        <span class="link-btn-bg" aria-hidden="true">
+          <svg class="link-btn-icon icon-books" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4.5A1.5 1.5 0 0 1 5.5 3H11v17H5.5A1.5 1.5 0 0 1 4 18.5z"/><path d="M13 3h5.5A1.5 1.5 0 0 1 20 4.5v14a1.5 1.5 0 0 1-1.5 1.5H13z"/><path d="M11 3v17"/></svg>
+        </span>
+        <span class="link-btn-text">
+          <span class="link-btn-label">Books</span>
+          <span class="link-btn-sub">What I've been reading</span>
+        </span>
+      </a>
 
-      <div class="stage">
-        <div class="stage-num">Stage 2</div>
-        <div>
-          <h3>Teach &amp; mentor</h3>
-          <p>
-            At the International Robotics Academy I designed curriculum for four classes and
-            taught robotics and engineering to 10+ students. Through Seeds of Change, I founded
-            and ran an English outreach program that grew to 30+ teachers reaching 100+ students
-            across 5+ schools in Taiwan.
-          </p>
-        </div>
-      </div>
+      <a class="link-btn link-btn--food link-btn--big" data-depth="0.9" data-action="eat" href="#">
+        <span class="link-btn-bg" aria-hidden="true">
+          <svg class="link-btn-icon icon-food" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 2v8a2 2 0 0 0 4 0V2M9 10v12M4 2v6a2 2 0 0 0 2 2M4 2v0"/><path d="M18 2c-2 1-3 3-3 6 0 2 1 3 3 3v11"/></svg>
+        </span>
+        <span class="link-btn-text">
+          <span class="link-btn-label">Favorite Restaurants</span>
+          <span class="link-btn-sub">My go-to spots, on the map</span>
+        </span>
+      </a>
 
-      <div class="stage">
-        <div class="stage-num">Stage 3</div>
-        <div>
-          <h3>Give back &amp; represent</h3>
-          <p>
-            As Chapter Director for Art4Hearts International (a 501(c)(3) with 6,000+ volunteers
-            worldwide) and VP of our school's chapter, plus newly elected ASB Secretary and prior
-            Junior Class Treasurer, I represent my peers and keep service initiatives running.
-          </p>
-        </div>
-      </div>
+      <a class="link-btn link-btn--lift" data-depth="0.6" data-action="lift" href="#">
+        <span class="link-btn-bg" aria-hidden="true">
+          <svg class="link-btn-icon icon-lift" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12h2M20 12h2M5 9v6M19 9v6M5 12h14"/><rect x="3" y="8" width="2" height="8" rx="0.5" fill="currentColor" stroke="none"/><rect x="19" y="8" width="2" height="8" rx="0.5" fill="currentColor" stroke="none"/></svg>
+        </span>
+        <span class="link-btn-text">
+          <span class="link-btn-label">Weightlifting</span>
+          <span class="link-btn-sub">My PPL routine</span>
+        </span>
+      </a>
+
+      <a class="link-btn link-btn--write" data-depth="0.5" data-action="write" href="#">
+        <span class="link-btn-bg" aria-hidden="true">
+          <svg class="link-btn-icon icon-write" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20l1-4L16 5l3 3L8 19l-4 1z"/><path d="M14 7l3 3"/></svg>
+        </span>
+        <span class="link-btn-text">
+          <span class="link-btn-label">Writing</span>
+          <span class="link-btn-sub">A few pieces of mine</span>
+        </span>
+      </a>
     </div>
-  </section>
-
-  <!-- ============ 6. MY STORY ============ -->
-  <section class="story">
-    <div class="section-inner reveal">
-      <span class="logo-mark"></span>
-      <h2>My story</h2>
-      <p>
-        I grew up splitting my time between the basketball court, the workshop, and the
-        classroom — and I've never wanted to give any of them up. Basketball taught me
-        discipline and how to perform under pressure; robotics taught me how to build, break,
-        and rebuild things until they work; research gave me a way to ask bigger questions and
-        actually dig for answers.
-      </p>
-      <p>
-        Outside of school I picked up weightlifting in 2025 (PRs: bench 185 lbs &times; 6, squat
-        255 lbs &times; 4, deadlift 255 lbs &times; 5) and played violin for six years growing up.
-        I'm fluent in Mandarin, proficient in Spanish, and comfortable in Java, Python, C++, and
-        HTML.
-      </p>
-      <p>
-        Whatever I'm working on — a research paper, a robot, a club, or a team — I try to bring
-        the same mindset: build the structure first, put in the reps, and don't overcomplicate
-        what doesn't need it.
-      </p>
-      <div class="story-avatar">AL</div>
     </div>
   </section>
 
   <!-- ============ 7. FOOTER ============ -->
   <footer class="site-footer">
-    <div class="footer-grid reveal">
-
-      <div class="footer-label" id="leadership">Leadership</div>
-      <div class="footer-col">
-        <div class="row"><span>ASB Secretary, elected — Saratoga High School</span><span class="right">2026 – 2027</span></div>
-        <div class="row"><span>Art4Hearts International Inc. — Chapter Director</span><span class="right">2025 – Current</span></div>
-        <div class="row"><span>Art4Hearts SHS Club — VP, Social Media &amp; Outreach</span><span class="right">2025 – Current</span></div>
-        <div class="row"><span>IRA — STEM/Robotics Teacher, Saratoga, CA</span><span class="right">2025 – Current</span></div>
-        <div class="row"><span>Junior Class Treasurer — Saratoga High School</span><span class="right">2025 – 2026</span></div>
-        <div class="row"><span>Seeds of Change — Founder, Program Manager &amp; Coach</span><span class="right">2021 – 2025</span></div>
-      </div>
-
-      <div class="footer-label">VEX V5 Robotics</div>
-      <div class="footer-col">
-        <div class="row"><span>Saratoga High VEX Robotics — Club Hardware Lead</span><span class="right">2025 – 2026</span></div>
-        <div class="row"><span>Team 95071V — Captain &amp; Mechanical Lead</span><span class="right">2025 – 2026</span></div>
-        <div class="row"><span>Team 95071V — Captain, Mechanical Lead &amp; Driver</span><span class="right">2024 – 2025</span></div>
-        <div class="row"><span>Team 95071H — Captain, Mechanical Lead &amp; Driver</span><span class="right">2023 – 2024</span></div>
-      </div>
-
-      <div class="footer-label">Basketball</div>
-      <div class="footer-col">
-        <div class="row"><span>Saratoga High Varsity — Starter (PG, SG)</span><span class="right">2024 – 2026</span></div>
-        <div class="row"><span>West San Jose Spartans Basketball Club — D2</span><span class="right">2017 – 2025</span></div>
-        <div class="row"><span>Saratoga High — JV Starter, moved to Varsity</span><span class="right">2023 – 2024</span></div>
-        <div class="row"><span>Saratoga High Track &amp; Field — JV Team</span><span class="right">Spring 2024</span></div>
-      </div>
-
-      <div class="footer-label" id="writing">Writing &amp; Papers</div>
-      <div class="footer-col">
-        <div class="row"><span>Diabetes Risk Prediction with ML — AWS WEP, <a href="https://github.com/vishnub0/AWS-WEP" target="_blank" rel="noopener">GitHub</a></span><span class="right">2025</span></div>
-        <div class="row"><span>Post-Quantum Cryptography — SVCSI, <a href="https://drive.google.com/file/d/1NOyVyaduviVALRvGwEAmc7xIMiMfBltP/view?usp=sharing" target="_blank" rel="noopener">paper</a></span><span class="right">2024</span></div>
-        <div class="row"><span>NBA MVP Model Predictions — <a href="https://www.curieuxreview.com/_files/ugd/60ed3c_e03ca30aedb840a7b4562ef1555d9e56.pdf" target="_blank" rel="noopener">Curieux Review</a>, <a href="https://github.com/aidanliiu/NBA-MVP-Model-Predictions" target="_blank" rel="noopener">GitHub</a></span><span class="right">2023</span></div>
-      </div>
-
-      <div class="footer-label">Skills</div>
-      <div class="footer-col footer-tags">
-        <span class="tag">Java</span>
-        <span class="tag">Python</span>
-        <span class="tag">C++</span>
-        <span class="tag">HTML</span>
-        <span class="tag">English (Native)</span>
-        <span class="tag">Mandarin (Fluent)</span>
-        <span class="tag">Spanish (Proficient)</span>
-      </div>
-
-      <div class="footer-label">Contact</div>
-      <div class="footer-col">
-        <div class="row"><span>Email</span><span class="right"><a href="mailto:aidanliu2008@gmail.com">aidanliu2008@gmail.com</a></span></div>
-        <div class="row"><span>Mobile</span><span class="right">669-298-8801</span></div>
-        <div class="row"><span>Based in</span><span class="right">Saratoga, CA</span></div>
-      </div>
-    </div>
-
-    <hr class="footer-divider">
 
     <!-- ============ 8. CLOSING CTA ============ -->
     <div class="closing section-inner reveal" id="contact">

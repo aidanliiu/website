@@ -59,6 +59,13 @@ header.topbar .name {
   font-weight: 500;
 }
 
+header.topbar .topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  pointer-events: auto;
+}
+
 header.topbar .contact-link {
   border-bottom: 1px solid currentColor;
   padding-bottom: 2px;
@@ -444,7 +451,7 @@ section {
    ============================================================ */
 
 .selected-works {
-  min-height: 120vh;
+  min-height: 70vh;
   display: flex;
   align-items: flex-start;
   padding: 64px 40px 0;
@@ -556,12 +563,13 @@ section {
   border: 1px solid var(--border);
   border-radius: 16px;
   padding: 40px 36px;
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   opacity: var(--p, 0);
   transform-origin: center top;
   transform: translateX(-50%) translateY(calc(-50% + var(--ty, 100vh))) translateX(var(--tx, 0px)) scale(var(--scale, 1)) rotateX(var(--rx, 0deg));
   transition: opacity 0.35s cubic-bezier(0.22, 1, 0.36, 1), transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
   will-change: transform, opacity;
+  backface-visibility: hidden;
 }
 
 .stack-card .stack-tag {
@@ -695,7 +703,7 @@ section {
 footer.site-footer {
   background: #fafafa;
   border-top: 1px solid var(--border);
-  padding: 100px 40px 60px;
+  padding: 460px 40px 60px;
 }
 
 .footer-grid {

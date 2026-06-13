@@ -1,0 +1,307 @@
+/* ============================================================
+   Links page — full-screen grid of buttons that drift gently and
+   react to the cursor (magnetic pull + tilt on hover).
+   ============================================================ */
+
+.links-section {
+  background: var(--bg);
+  min-height: 220vh;
+  padding-top: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* The black "box" that frames the links content. A fixed full-viewport
+   layer (.links-box-bg) covers the full height of the screen, starting
+   close to the full width of the screen, then expanding horizontally
+   (its rounded corners flattening out) until it covers the entire page
+   edge-to-edge as .links-box scrolls into view. It's fixed (not sticky)
+   so it reliably covers the whole viewport for as long as any part of
+   .links-box is on screen, with no gaps. Clip values and visibility are
+   set directly via JS, computed from how far the box has entered the
+   viewport. */
+.links-box {
+  position: relative;
+  flex: 1;
+}
+
+.links-box-bg {
+  position: fixed;
+  inset: 0;
+  background: #0a0a0a;
+  clip-path: inset(5vh 3vw 0 3vw round 48px);
+  z-index: 5;
+  pointer-events: none;
+  opacity: 0;
+  will-change: clip-path, opacity;
+  transition: clip-path 0.12s linear, opacity 0.12s linear;
+}
+
+.links-intro,
+.links-grid {
+  position: relative;
+  z-index: 6;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .links-box-bg {
+    clip-path: inset(0 0 0 0 round 0);
+  }
+}
+
+.links-intro {
+  padding: 24px 40px 0;
+  max-width: 1500px;
+}
+
+.links-heading {
+  font-size: clamp(32px, 4.6vw, 64px);
+  font-weight: 700;
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+  word-spacing: normal;
+  margin: 0;
+  text-indent: 1.5em;
+  color: #f4f4f2;
+}
+
+.links-heading em {
+  font-family: Georgia, "Times New Roman", serif;
+  font-style: italic;
+  font-weight: 400;
+}
+
+/* Each word fades + slides up into place, staggered left to right
+   as the section scrolls into view. */
+.links-heading .word {
+  display: inline-block;
+  opacity: 0;
+  transform: translateY(0.4em);
+  filter: blur(4px);
+  transition: opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1),
+              transform 0.6s cubic-bezier(0.22, 1, 0.36, 1),
+              filter 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+  transition-delay: calc(var(--i, 0) * 0.035s);
+}
+
+.links-heading.is-visible .word {
+  opacity: 1;
+  transform: translateY(0);
+  filter: blur(0);
+}
+
+.links-grid {
+  position: relative;
+  width: 100%;
+  flex: 1;
+  min-height: auto;
+  padding: 60px 40px 100px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-auto-rows: minmax(180px, 22vh);
+  grid-auto-flow: row dense;
+  gap: 18px;
+  box-sizing: border-box;
+}
+
+.link-btn {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: var(--accent-bg, #fff);
+  color: var(--fg);
+  text-decoration: none;
+  overflow: hidden;
+  will-change: transform;
+  transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+              box-shadow 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+              border-color 0.45s ease;
+}
+
+.link-btn--big {
+  grid-column: span 2;
+  grid-row: span 2;
+}
+
+/* Full-bleed background graphic: a big, off-center minimalist icon
+   that fills most of the card. */
+.link-btn-bg {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.link-btn-bg::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--accent-fg, var(--fg));
+  opacity: 0.06;
+}
+
+.link-btn-icon {
+  position: relative;
+  width: 62%;
+  height: 62%;
+  max-width: 200px;
+  max-height: 200px;
+  color: var(--accent-fg, var(--fg));
+  opacity: 0.9;
+  transform: translate(18%, 18%) rotate(-6deg);
+}
+
+.link-btn--big .link-btn-icon {
+  width: 70%;
+  height: 70%;
+  max-width: 280px;
+  max-height: 280px;
+}
+
+/* Text overlay, bottom-left, sitting on a subtle gradient so it
+   reads over the background icon. */
+.link-btn-text {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 18px 22px;
+  width: 100%;
+  background: linear-gradient(to top, rgba(255, 255, 255, 0.92) 0%, rgba(255, 255, 255, 0.7) 55%, rgba(255, 255, 255, 0) 100%);
+}
+
+.link-btn-label {
+  font-size: clamp(17px, 1.8vw, 24px);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.link-btn-sub {
+  font-size: 12px;
+  color: var(--muted);
+  letter-spacing: 0.02em;
+  transition: color 0.45s ease, transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Per-card accent colors */
+.link-btn--art     { --accent-bg: #ffe4ec; --accent-fg: #d6336c; }
+.link-btn--wordle  { --accent-bg: #eafbf0; --accent-fg: #2b9e5c; }
+.link-btn--books   { --accent-bg: #fef3e2; --accent-fg: #c2730c; }
+.link-btn--food    { --accent-bg: #fff0e6; --accent-fg: #e8590c; }
+.link-btn--lift    { --accent-bg: #eaf4ff; --accent-fg: #1c7ed6; }
+.link-btn--write   { --accent-bg: #f3ecff; --accent-fg: #7048e8; }
+
+/* Icons stay still at rest — they only animate when the card is hovered. */
+.link-btn:hover .icon-art     { animation: icon-pulse 1.4s ease-in-out infinite; }
+.link-btn:hover .icon-wordle  { animation: icon-pulse 1.4s ease-in-out infinite; }
+.link-btn:hover .icon-books   { animation: icon-wiggle 2s ease-in-out infinite; }
+.link-btn:hover .icon-food    { animation: icon-bob 1.7s ease-in-out infinite; }
+.link-btn:hover .icon-lift    { animation: icon-pop 1.6s ease-in-out infinite; }
+.link-btn:hover .icon-write   { animation: icon-wiggle 1.8s ease-in-out infinite; }
+
+@keyframes icon-bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+
+@keyframes icon-pop {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.12); }
+}
+
+@keyframes icon-wiggle {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-8deg); }
+  75% { transform: rotate(8deg); }
+}
+
+@keyframes icon-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(1.18); }
+}
+
+@keyframes icon-ring {
+  0%, 8%, 16% { transform: rotate(0deg); }
+  2%, 10% { transform: rotate(-14deg); }
+  4%, 12% { transform: rotate(14deg); }
+  20%, 100% { transform: rotate(0deg); }
+}
+
+@keyframes icon-spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes icon-flap {
+  0%, 100% { transform: scaleY(1); }
+  50% { transform: scaleY(0.6) translateY(-2px); }
+}
+
+/* On hover, the icon badge grows and pops to the foreground */
+.link-btn:hover .link-btn-visual {
+  transform: scale(1.12);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18);
+}
+
+.link-btn-visual {
+  transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.45s ease;
+}
+
+/* Hover state: snaps toward the cursor, scales up, brightens the
+   border — the stick figure (not a color invert) carries the "active"
+   feeling now. */
+.link-btn:hover,
+.link-btn.is-active {
+  border-color: var(--accent-fg, var(--fg));
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.18);
+  z-index: 5;
+  transform: translate(var(--mx, 0px), var(--my, 0px)) scale(1.06) rotate(var(--mr, 0deg));
+}
+
+.link-btn:hover .link-btn-label,
+.link-btn:hover .link-btn-sub {
+  transform: translate(var(--lx, 0px), var(--ly, 0px));
+}
+
+/* Non-hovered buttons ease slightly away from the cursor */
+.links-grid.is-hovering .link-btn:not(:hover) {
+  transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  transform: translate(var(--px, 0px), var(--py, 0px));
+}
+
+@media (max-width: 900px) {
+  .links-grid {
+    grid-template-columns: repeat(2, 1fr);
+    grid-auto-rows: minmax(140px, 24vh);
+    padding: 100px 20px 40px;
+    gap: 12px;
+  }
+}
+
+@media (max-width: 540px) {
+  .links-grid {
+    grid-template-columns: 1fr;
+    grid-auto-rows: minmax(120px, 26vh);
+  }
+  .link-btn--big {
+    grid-column: span 1;
+    grid-row: span 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .link-btn {
+    animation: none !important;
+    transition: none !important;
+  }
+  .link-btn:hover {
+    transform: none;
+  }
+}
