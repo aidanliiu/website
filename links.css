@@ -29,7 +29,7 @@
   position: fixed;
   inset: 0;
   background: #0a0a0a;
-  clip-path: inset(5vh 3vw 0 3vw round 48px);
+  clip-path: inset(5vh 1vw 0 1vw round 48px);
   z-index: 5;
   pointer-events: none;
   opacity: 0;
@@ -262,7 +262,7 @@
   border-color: var(--accent-fg, var(--fg));
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.18);
   z-index: 5;
-  transform: translate(var(--mx, 0px), var(--my, 0px)) scale(1.06) rotate(var(--mr, 0deg));
+  transform: translate(var(--mx, 0px), var(--my, 0px)) scale(1.1) rotate(var(--mr, 0deg));
 }
 
 .link-btn:hover .link-btn-label,
@@ -294,6 +294,129 @@
     grid-column: span 1;
     grid-row: span 1;
   }
+}
+
+/* ============================================================
+   Link info modal — shown when a card is clicked, with a short
+   blurb about that link before sending the user onward.
+   ============================================================ */
+.info-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.25s ease, visibility 0.25s ease;
+}
+
+.info-modal.is-open {
+  opacity: 1;
+  visibility: visible;
+}
+
+.info-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(10, 10, 10, 0.55);
+  backdrop-filter: blur(2px);
+}
+
+.info-modal-card {
+  position: relative;
+  z-index: 1;
+  max-width: 480px;
+  width: calc(100% - 48px);
+  max-height: calc(100vh - 80px);
+  overflow-y: auto;
+  background: #fff;
+  border-radius: 20px;
+  padding: 36px;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.3);
+  transform: translateY(16px) scale(0.98);
+  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.info-modal.is-open .info-modal-card {
+  transform: translateY(0) scale(1);
+}
+
+.info-modal-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 50%;
+  background: var(--bg, #f4f4f2);
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  color: var(--fg);
+  transition: background 0.2s ease;
+}
+
+.info-modal-close:hover {
+  background: var(--border);
+}
+
+.info-modal-body h3 {
+  margin: 0 0 6px;
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.info-modal-body .info-modal-tag {
+  display: inline-block;
+  margin-bottom: 16px;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.info-modal-body p {
+  margin: 0 0 18px;
+  line-height: 1.6;
+  color: var(--fg);
+}
+
+.info-modal-body .info-modal-list {
+  margin: 0 0 18px;
+  padding-left: 20px;
+  line-height: 1.7;
+  color: var(--fg);
+}
+
+.info-modal-body .info-modal-list li {
+  margin-bottom: 4px;
+}
+
+.info-modal-body .info-modal-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.info-modal-body .info-modal-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 20px;
+  border-radius: 999px;
+  background: var(--fg);
+  color: var(--bg);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 14px;
+  transition: opacity 0.2s ease;
+}
+
+.info-modal-body .info-modal-link:hover {
+  opacity: 0.85;
 }
 
 @media (prefers-reduced-motion: reduce) {

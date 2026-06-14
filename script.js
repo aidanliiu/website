@@ -184,10 +184,19 @@ if (hero && heroMark) {
       // held card sits at the exact same stacked position.
       const p = clamp01(total - i);
       card.style.setProperty('--p', p.toFixed(3));
+
+      // Once a card has landed, keep tracking progress past it — this
+      // drives a continued "growing toward the viewer" push as the next
+      // card arrives on top, so finished cards feel like they're looming
+      // larger / drifting off the front of the screen rather than just
+      // sitting still underneath.
+      const exitP = clamp01(total - (i + 1));
+      const exitScale = exitP * 0.18;
+
       if (i === 0) {
         // First card grows out from the center, replacing the intro text.
         card.style.setProperty('--ty', '0px');
-        card.style.setProperty('--scale', (0.05 + p * 0.95).toFixed(3));
+        card.style.setProperty('--scale', (0.05 + p * 0.95 + exitScale).toFixed(3));
       } else {
         // Later cards start lower, seen edge-on as a thin squashed sliver
         // near the bottom of the viewport, then unsquash and fall into
@@ -200,13 +209,17 @@ if (hero && heroMark) {
         card.style.setProperty('--ty', `${(1 - ease) * 48}vh`);
         // No horizontal offset — cards stack directly on top of each other.
         card.style.setProperty('--tx', '0px');
-        card.style.setProperty('--scale', '1');
+        card.style.setProperty('--scale', (1 + exitScale).toFixed(3));
         // Rotate in 3D so the card lies edge-on (a thin perpendicular sliver)
         // at rest, then unfolds flat as it lands. Held cards (p=0) all share
         // the same -90deg rotation and 48vh offset, so they stack identically.
         card.style.setProperty('--rx', `${-(1 - rxEase) * 90}deg`);
-        card.style.opacity = '1';
       }
+      // Opacity ramps to fully solid very quickly (within the first
+      // quarter of the card's fall) so it covers the stacked cards
+      // beneath it almost immediately, rather than staying see-through
+      // for most of the animation.
+      card.style.opacity = clamp01(p * 4).toFixed(3);
       card.style.zIndex = String(i + 1);
     });
 
@@ -232,19 +245,51 @@ if (hero && heroMark) {
   window.addEventListener('resize', update);
 })();
 
-// Generic reveal-on-scroll
-const revealEls = document.querySelectorAll('.reveal, .reveal-stagger');
+// Generic reveal-on-scroll. Driven by a manual scroll/resize check rather
+// than IntersectionObserver — simpler to reason about and avoids any
+// edge cases with rootMargin/threshold on elements inside absolutely
+// positioned / sticky containers (e.g. the "My works" stack heading).
+const revealEls = Array.from(document.querySelectorAll('.reveal, .reveal-zoom, .reveal-stagger'));
+const repeatableEls = Array.from(document.querySelectorAll('.reveal-zoom'));
+let pendingReveal = revealEls.slice();
 
-const revealObserver = new IntersectionObserver((entries) => {
-  entries.forEach((entry) => {
-    if (entry.isIntersecting) {
-      entry.target.classList.add('is-visible');
-      revealObserver.unobserve(entry.target);
+function checkReveals() {
+  const vh = window.innerHeight;
+  pendingReveal = pendingReveal.filter((el) => {
+    const rect = el.getBoundingClientRect();
+    if (rect.top < vh * 0.92 && rect.bottom > 0) {
+      el.classList.add('is-visible');
+      return false;
+    }
+    return true;
+  });
+
+  // .reveal-zoom elements replay their zoom-in every time they're
+  // scrolled out of view (above the viewport) and then back into view —
+  // e.g. scrolling back to the top of the home page and down again.
+  repeatableEls.forEach((el) => {
+    const rect = el.getBoundingClientRect();
+    const inView = rect.top < vh * 0.92 && rect.bottom > 0;
+    if (inView && !el.classList.contains('is-visible')) {
+      el.classList.add('is-visible');
+    } else if (!inView && rect.bottom < -40 && el.classList.contains('is-visible')) {
+      // Scrolled well above the element — reset so the animation can
+      // play again next time it comes into view. The -40px buffer avoids
+      // toggling on/off (and re-triggering the animation) from tiny
+      // back-and-forth scroll jitter right at the boundary.
+      el.classList.remove('is-visible');
     }
   });
-}, { threshold: 0.15, rootMargin: '0px 0px -10% 0px' });
 
-revealEls.forEach((el) => revealObserver.observe(el));
+  if (pendingReveal.length === 0 && repeatableEls.length === 0) {
+    window.removeEventListener('scroll', checkReveals);
+    window.removeEventListener('resize', checkReveals);
+  }
+}
+
+window.addEventListener('scroll', checkReveals, { passive: true });
+window.addEventListener('resize', checkReveals);
+checkReveals();
 
 // Floating cards "drift toward viewer" as the intro section scrolls into view
 const floatCards = document.querySelectorAll('.float-card');
@@ -325,6 +370,147 @@ if (linksHeading) {
 }
 
 // ============================================================
+// ============================================================
+// Link info modal — clicking a card with a data-info attribute opens a
+// short blurb about that link instead of (or before) navigating away.
+// ============================================================
+(() => {
+  const modal = document.getElementById('info-modal');
+  const body = document.getElementById('info-modal-body');
+  if (!modal || !body) return;
+
+  // Content keyed by each card's data-info attribute. Add more entries
+  // here as info modals are wired up for other cards.
+  const info = {
+    art4hearts: {
+      tag: 'Volunteering / Nonprofit',
+      title: 'Art4Hearts International',
+      body: `Art4Hearts International is a nonprofit that uses art as a way to bring
+        comfort, healing, and connection to people facing trauma and
+        adversity — running art-making workshops and community programs
+        under the motto "creating smiles through art, one heart at a time."`,
+      linkText: 'Visit art4heartsinternational.org ↗',
+      linkHref: 'https://art4heartsinternational.org/',
+      links: [
+        { text: 'Instagram ↗', href: 'https://www.instagram.com/art4hearts' },
+        { text: 'art4heartsinternational.org ↗', href: 'https://art4heartsinternational.org/' },
+      ],
+    },
+    books: {
+      tag: 'Reading list',
+      title: 'Books',
+      body: `Reading is one of my favorite ways to unwind, and these are
+        the books I find myself recommending most. A mix of memoir,
+        literary fiction, and historical storytelling — each one stuck
+        with me long after I finished it. Here are a few favorites I keep
+        coming back to:`,
+      list: [
+        'This Boy’s Life — Tobias Wolff',
+        'Song of Solomon — Toni Morrison',
+        'Homegoing — Yaa Gyasi',
+        'All the Light We Cannot See — Anthony Doerr',
+        'Short stories by F. Scott Fitzgerald',
+      ],
+    },
+    food: {
+      tag: 'Food',
+      title: 'Favorite Restaurants',
+      body: `I'm a bit obsessive about good food — I keep a running photo
+        album of everything I eat, which has grown to over 250 photos at
+        this point. One of my favorite spots is the Cupertino plaza, home
+        to Yogurtland, Marufuku Ramen, and Harumi Sushi — pretty much a
+        guaranteed good meal. Here's where to find more of my go-to places:`,
+      links: [
+        { text: 'My Google Maps list ↗', href: 'https://maps.app.goo.gl/BYuAG2xW6E6aQvM59' },
+      ],
+    },
+    lift: {
+      tag: 'Fitness',
+      title: 'Weightlifting',
+      body: `Basketball got me into the weight room, but lifting has
+        become its own thing for me — I put in extra work outside of team
+        practices, following my own push/pull/legs (PPL) split throughout
+        the week. And yes, I mog my brother on every machine. Here's the
+        actual routine I run:`,
+      links: [
+        { text: 'My PPL routine ↗', href: 'https://docs.google.com/document/d/18817g4gzQ7AMuSncTq-QOCjtzH-eZRZr/edit?usp=sharing&ouid=106465264769409867045&rtpof=true&sd=true' },
+      ],
+    },
+    write: {
+      tag: 'Writing',
+      title: 'Writing',
+      body: `Writing has become one of the things I take the most pride in
+        outside of academics. Below are a couple of pieces — essays,
+        in-class projects, and assessments — that I'm especially happy
+        with. I'm always looking for ways to keep practicing and pushing my
+        writing further:`,
+      links: [
+        { text: 'Piece 1 ↗', href: 'https://docs.google.com/document/d/1F9wYaebQ_mrBuzTv9wuOBZCY6AcvDSTIKRWUohhexB4/edit?usp=sharing' },
+        { text: 'Piece 2 ↗', href: 'https://docs.google.com/document/d/1CGBZ9vGQ9GslL6Am5bcAS84JiwbfE7Q9uka8AbG44z4/edit?usp=sharing' },
+      ],
+    },
+    wordle: {
+      tag: 'Daily habit',
+      title: 'Wordle & Connections',
+      body: `Part of my morning routine — Wordle (guess a five-letter word
+        in six tries) and Connections (sort sixteen words into four hidden
+        categories) from the New York Times. I've played both every single
+        day for a long time now, and keeping the streak alive has turned
+        into a genuine point of pride.`,
+      links: [
+        { text: 'Wordle ↗', href: 'https://www.nytimes.com/games/wordle/index.html' },
+        { text: 'Connections ↗', href: 'https://www.nytimes.com/games/connections' },
+      ],
+    },
+  };
+
+  const open = (key) => {
+    const data = info[key];
+    if (!data) return;
+    const links = data.links || (data.linkHref ? [{ text: data.linkText, href: data.linkHref }] : []);
+    const linksHtml = links.length
+      ? `<div class="info-modal-links">${links
+          .map((l) => `<a class="info-modal-link" href="${l.href}" target="_blank" rel="noopener">${l.text}</a>`)
+          .join(' ')}</div>`
+      : '';
+    const listHtml = data.list
+      ? `<ul class="info-modal-list">${data.list.map((item) => `<li>${item}</li>`).join('')}</ul>`
+      : '';
+    body.innerHTML = `
+      <span class="info-modal-tag">${data.tag}</span>
+      <h3>${data.title}</h3>
+      <p>${data.body}</p>
+      ${listHtml}
+      ${linksHtml}
+    `;
+    modal.classList.add('is-open');
+    modal.setAttribute('aria-hidden', 'false');
+  };
+
+  const close = () => {
+    modal.classList.remove('is-open');
+    modal.setAttribute('aria-hidden', 'true');
+  };
+
+  document.querySelectorAll('[data-info]').forEach((card) => {
+    card.addEventListener('click', (e) => {
+      const key = card.getAttribute('data-info');
+      if (!info[key]) return;
+      e.preventDefault();
+      open(key);
+    });
+  });
+
+  modal.querySelectorAll('[data-close]').forEach((el) => {
+    el.addEventListener('click', close);
+  });
+
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && modal.classList.contains('is-open')) close();
+  });
+})();
+
+// ============================================================
 // "Get to know me" black box: a small rounded rectangle that grows to
 // cover the entire screen as the links section scrolls into view, then
 // stays as the full background for the rest of the section.
@@ -364,7 +550,7 @@ if (linksHeading) {
     // already close to the full width of the screen, then expands the
     // rest of the way (its rounded corners flattening out) until it
     // covers the entire width of the screen — then reverses on the way out.
-    const insetH = (1 - active) * vw * 0.03;
+    const insetH = (1 - active) * vw * 0.01;
     // Keep the black top edge tracking just above the box's actual top
     // edge (small fixed gap) instead of a fraction of the viewport —
     // avoids a large empty gray gap before the heading.
@@ -483,4 +669,133 @@ if (linksHeading) {
       btn.style.setProperty('--py', `${py.toFixed(1)}px`);
     });
   }, { passive: true });
+})();
+
+// Corgis running across the hero: each one wanders left/right at its own
+// speed, occasionally stopping to rest, then picking a (possibly new)
+// direction and pace again — like Google Colab's corgis but a bit more alive.
+(() => {
+  const track = document.querySelector('.corgi-track');
+  if (!track) return;
+  const corgis = Array.from(track.querySelectorAll('.corgi'));
+  if (!corgis.length) return;
+
+  const REF_SPEED = 100; // px/s — baseline used for leg/bob animation speed
+
+  const state = corgis.map((el) => {
+    const rtl = el.classList.contains('corgi--rtl');
+    const width = el.offsetWidth || 68;
+    const trackWidth = track.clientWidth || window.innerWidth;
+    return {
+      el,
+      legs: el.querySelectorAll('.leg'),
+      svg: el.querySelector('.corgi-svg'),
+      width,
+      dir: rtl ? -1 : 1,
+      x: rtl ? trackWidth : -width,
+      speed: 70 + Math.random() * 90,
+      paused: false,
+      pauseUntil: 0,
+    };
+  });
+
+  const applyFacing = (c) => {
+    c.el.classList.toggle('corgi--ltr', c.dir === 1);
+    c.el.classList.toggle('corgi--rtl', c.dir === -1);
+  };
+
+  const applyPace = (c) => {
+    const scale = REF_SPEED / c.speed;
+    const duration = `${(0.5 * scale).toFixed(3)}s`;
+    if (c.svg) c.svg.style.animationDuration = duration;
+    c.legs.forEach((leg) => { leg.style.animationDuration = duration; });
+  };
+
+  state.forEach((c) => {
+    applyFacing(c);
+    applyPace(c);
+  });
+
+  let last = performance.now();
+
+  const frame = (now) => {
+    const dt = Math.min((now - last) / 1000, 0.1);
+    last = now;
+    const trackWidth = track.clientWidth || window.innerWidth;
+
+    state.forEach((c) => {
+      if (c.paused) {
+        if (now >= c.pauseUntil) {
+          c.paused = false;
+          c.el.classList.remove('is-paused');
+          // Pick a new pace, and sometimes a new direction, after resting.
+          c.speed = 70 + Math.random() * 90;
+          if (Math.random() < 0.5) {
+            c.dir *= -1;
+            applyFacing(c);
+          }
+          applyPace(c);
+        }
+      } else {
+        c.x += c.dir * c.speed * dt;
+
+        // Wrap around when fully off-screen.
+        if (c.dir === 1 && c.x > trackWidth + 20) {
+          c.x = -c.width - 20;
+        } else if (c.dir === -1 && c.x < -c.width - 20) {
+          c.x = trackWidth + 20;
+        }
+
+        // Small random chance per second to stop and rest a while.
+        if (Math.random() < 0.12 * dt) {
+          c.paused = true;
+          c.pauseUntil = now + 1500 + Math.random() * 2500;
+          c.el.classList.add('is-paused');
+        } else if (Math.random() < 0.04 * dt) {
+          // Occasionally turn around mid-stride without stopping.
+          c.dir *= -1;
+          applyFacing(c);
+        }
+      }
+
+      c.el.style.left = `${c.x}px`;
+    });
+
+    requestAnimationFrame(frame);
+  };
+
+  requestAnimationFrame(frame);
+})();
+
+// Page enter/exit zoom transition (Robin Clédière style), only for jumps
+// into the "My works" stack section — not on the home page itself, and not
+// for the links grid.
+(() => {
+  const root = document.documentElement;
+  root.classList.remove('page-enter');
+
+  const EXIT_MS = 450;
+
+  document.querySelectorAll('a[href^="#"]').forEach((link) => {
+    if (link.closest('.links-section')) return;
+
+    const targetId = link.getAttribute('href').slice(1);
+    if (targetId !== 'activities') return;
+
+    const target = document.getElementById(targetId);
+    if (!target) return;
+
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      root.classList.add('page-exit');
+      setTimeout(() => {
+        target.scrollIntoView({ behavior: 'instant' });
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            root.classList.remove('page-exit');
+          });
+        });
+      }, EXIT_MS);
+    });
+  });
 })();
