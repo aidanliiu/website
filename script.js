@@ -210,10 +210,14 @@ if (hero && heroMark) {
         // No horizontal offset — cards stack directly on top of each other.
         card.style.setProperty('--tx', '0px');
         card.style.setProperty('--scale', (1 + exitScale).toFixed(3));
-        // Rotate in 3D so the card lies edge-on (a thin perpendicular sliver)
-        // at rest, then unfolds flat as it lands. Held cards (p=0) all share
-        // the same -90deg rotation and 48vh offset, so they stack identically.
-        card.style.setProperty('--rx', `${-(1 - rxEase) * 90}deg`);
+        // Rotate in 3D so the card leans back into the stack at rest, then
+        // unfolds flat as it lands. Held cards (p=0) all share the same
+        // -48deg tilt and 48vh offset, so they recede behind one another
+        // like a fanned deck, then flatten to face the viewer as they land.
+        card.style.setProperty('--rx', `${-(1 - rxEase) * 48}deg`);
+        // Push held cards back in depth so the fanned stack reads as a
+        // receding deck; landed cards (p=1) sit flush at tz=0.
+        card.style.setProperty('--tz', `${-(1 - ease) * (cards.length - i) * 18}px`);
       }
       // Opacity ramps to fully solid very quickly (within the first
       // quarter of the card's fall) so it covers the stacked cards
@@ -245,6 +249,21 @@ if (hero && heroMark) {
   window.addEventListener('resize', update);
 })();
 
+// "My works" heading: the second word cycles through a short list of
+// related nouns on a timer, sliding vertically like a flip board.
+(() => {
+  const track = document.querySelector('.intro-cycle-track');
+  if (!track) return;
+  const items = track.children;
+  if (items.length < 2) return;
+
+  let idx = 0;
+  setInterval(() => {
+    idx = (idx + 1) % items.length;
+    track.style.transform = `translateY(-${idx * 1.3}em)`;
+  }, 2200);
+})();
+
 // Generic reveal-on-scroll. Driven by a manual scroll/resize check rather
 // than IntersectionObserver — simpler to reason about and avoids any
 // edge cases with rootMargin/threshold on elements inside absolutely
@@ -272,11 +291,12 @@ function checkReveals() {
     const inView = rect.top < vh * 0.92 && rect.bottom > 0;
     if (inView && !el.classList.contains('is-visible')) {
       el.classList.add('is-visible');
-    } else if (!inView && rect.bottom < -40 && el.classList.contains('is-visible')) {
+    } else if (!inView && rect.bottom < -150 && el.classList.contains('is-visible')) {
       // Scrolled well above the element — reset so the animation can
-      // play again next time it comes into view. The -40px buffer avoids
-      // toggling on/off (and re-triggering the animation) from tiny
-      // back-and-forth scroll jitter right at the boundary.
+      // play again next time it comes into view. The larger buffer avoids
+      // toggling on/off (and re-triggering the animation, which causes a
+      // visible jitter/snap) from small back-and-forth scroll jiggles
+      // right at the boundary.
       el.classList.remove('is-visible');
     }
   });
@@ -289,7 +309,14 @@ function checkReveals() {
 
 window.addEventListener('scroll', checkReveals, { passive: true });
 window.addEventListener('resize', checkReveals);
-checkReveals();
+
+// Defer the very first check until after layout has settled. Running it
+// synchronously at script-load time can make absolutely-positioned /
+// sticky elements (like the "My works" stack heading) report an
+// "in view" bounding rect before the page has actually been scrolled,
+// which would consume their zoom-in animation off-screen — leaving
+// nothing left to play when the user actually scrolls to them.
+requestAnimationFrame(() => requestAnimationFrame(checkReveals));
 
 // Floating cards "drift toward viewer" as the intro section scrolls into view
 const floatCards = document.querySelectorAll('.float-card');

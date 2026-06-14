@@ -419,15 +419,17 @@ section {
   inset: 0;
   pointer-events: none;
   z-index: 1;
+  perspective: 1800px;
 }
 
 .float-card {
   position: absolute;
-  border-radius: 12px;
+  border-radius: 14px;
   overflow: hidden;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.12);
   opacity: 0;
-  transform: translate(var(--from-x, 0), var(--from-y, 0)) scale(0.15);
+  transform: translate(var(--from-x, 0), var(--from-y, 0)) scale(0.15) rotate(var(--rot, 0deg));
   animation:
     floatMove var(--cycle-duration, 14s) linear infinite var(--cycle-delay, 0s),
     floatFade var(--cycle-duration, 14s) ease-in-out infinite var(--cycle-delay, 0s);
@@ -435,13 +437,15 @@ section {
 
 /* Continuous linear sweep: card travels from the field center straight
    through its resting spot and on past it, growing the whole way — no
-   pause at the "resting" point, so motion never appears to stop. */
+   pause at the "resting" point, so motion never appears to stop.
+   A fixed per-card tilt (--rot) keeps it rotated like a scattered
+   mockup collage throughout the travel. */
 @keyframes floatMove {
   0% {
-    transform: translate(var(--from-x, 0), var(--from-y, 0)) scale(0.15);
+    transform: translate(var(--from-x, 0), var(--from-y, 0)) scale(0.15) rotate(var(--rot, 0deg));
   }
   100% {
-    transform: translate(calc(var(--from-x, 0) * -0.4), calc(var(--from-y, 0) * -0.4)) scale(1.3);
+    transform: translate(calc(var(--from-x, 0) * -0.4), calc(var(--from-y, 0) * -0.4)) scale(1.3) rotate(var(--rot, 0deg));
   }
 }
 
@@ -449,7 +453,7 @@ section {
    independent of the (always-moving) transform above. */
 @keyframes floatFade {
   0%, 100% { opacity: 0; }
-  8%, 88% { opacity: 1; }
+  18%, 78% { opacity: 1; }
 }
 
 .float-card-icon {
@@ -538,14 +542,14 @@ section {
 
 /* hand-placed positions + sizes, desktop, plus the offset each card
    travels from (roughly the field center) to reach its resting spot */
-.float-card--vex    { top: 8%;   left: 6%;   width: 220px; height: 220px; --from-x: calc(44vw - 110px); --from-y: calc(42vh - 110px); --cycle-duration: 16s; --cycle-delay: 0s; }
-.float-card--ai     { top: 6%;   right: 14%; width: 160px; height: 160px; --from-x: calc(-36vw + 80px); --from-y: calc(44vh - 80px); --cycle-duration: 14s; --cycle-delay: 2.5s; }
-.float-card--art    { top: 46%;  left: 3%;   width: 200px; height: 200px; --from-x: calc(47vw - 100px); --from-y: calc(4vh - 100px); --cycle-duration: 18s; --cycle-delay: 5s; }
-.float-card--ball   { bottom: 16%; right: 8%; width: 150px; height: 150px; --from-x: calc(-42vw + 75px); --from-y: calc(-34vh + 75px); --cycle-duration: 15s; --cycle-delay: 7.5s; }
-.float-card--asb    { top: 40%;  left: 36%;  width: 100px; height: 100px; --from-x: calc(14vw - 50px); --from-y: calc(10vh - 50px); --cycle-duration: 13s; --cycle-delay: 1.2s; }
-.float-card--cyber  { bottom: 8%; left: 38%;  width: 170px; height: 170px; --from-x: calc(12vw - 85px); --from-y: calc(-42vh + 85px); --cycle-duration: 17s; --cycle-delay: 4s; }
-.float-card--lift   { top: 25%;  left: 46%;  width: 120px; height: 120px; --from-x: calc(4vw - 60px); --from-y: calc(25vh - 60px); --cycle-duration: 12s; --cycle-delay: 6.2s; }
-.float-card--violin { bottom: 30%; right: 30%; width: 130px; height: 130px; --from-x: calc(-20vw + 65px); --from-y: calc(-20vh + 65px); --cycle-duration: 19s; --cycle-delay: 8.7s; }
+.float-card--vex    { top: 8%;   left: 6%;   width: 220px; height: 220px; --from-x: calc(44vw - 110px); --from-y: calc(42vh - 110px); --cycle-duration: 16s; --cycle-delay: 0s; --rot: -6deg; }
+.float-card--ai     { top: 6%;   right: 14%; width: 160px; height: 160px; --from-x: calc(-36vw + 80px); --from-y: calc(44vh - 80px); --cycle-duration: 14s; --cycle-delay: 2.5s; --rot: 5deg; }
+.float-card--art    { top: 46%;  left: 3%;   width: 200px; height: 200px; --from-x: calc(47vw - 100px); --from-y: calc(4vh - 100px); --cycle-duration: 18s; --cycle-delay: 5s; --rot: 4deg; }
+.float-card--ball   { bottom: 16%; right: 8%; width: 150px; height: 150px; --from-x: calc(-42vw + 75px); --from-y: calc(-34vh + 75px); --cycle-duration: 15s; --cycle-delay: 7.5s; --rot: -8deg; }
+.float-card--asb    { top: 40%;  left: 36%;  width: 100px; height: 100px; --from-x: calc(14vw - 50px); --from-y: calc(10vh - 50px); --cycle-duration: 13s; --cycle-delay: 1.2s; --rot: 7deg; }
+.float-card--cyber  { bottom: 8%; left: 38%;  width: 170px; height: 170px; --from-x: calc(12vw - 85px); --from-y: calc(-42vh + 85px); --cycle-duration: 17s; --cycle-delay: 4s; --rot: -5deg; }
+.float-card--lift   { top: 25%;  left: 46%;  width: 120px; height: 120px; --from-x: calc(4vw - 60px); --from-y: calc(25vh - 60px); --cycle-duration: 12s; --cycle-delay: 6.2s; --rot: 3deg; }
+.float-card--violin { bottom: 30%; right: 30%; width: 130px; height: 130px; --from-x: calc(-20vw + 65px); --from-y: calc(-20vh + 65px); --cycle-duration: 19s; --cycle-delay: 8.7s; --rot: -4deg; }
 
 .float-card--ai .float-card-label,
 .float-card--asb .float-card-label {
@@ -691,6 +695,25 @@ section {
   --intro-word-x: var(--intro-split, 0px);
 }
 
+.intro-cycle {
+  display: inline-block;
+  height: 1.3em;
+  overflow: hidden;
+  vertical-align: bottom;
+}
+
+.intro-cycle-track {
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.6s cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+.intro-cycle-track span {
+  height: 1.3em;
+  line-height: 1.3em;
+  display: block;
+}
+
 .stack-card {
   position: absolute;
   top: 50%;
@@ -703,7 +726,7 @@ section {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   opacity: var(--p, 0);
   transform-origin: center top;
-  transform: translateX(-50%) translateY(calc(-50% + var(--ty, 100vh))) translateX(var(--tx, 0px)) scale(var(--scale, 1)) rotateX(var(--rx, 0deg));
+  transform: translateX(-50%) translateY(calc(-50% + var(--ty, 100vh))) translateX(var(--tx, 0px)) translateZ(var(--tz, 0px)) scale(var(--scale, 1)) rotateX(var(--rx, 0deg));
   transition: opacity 0.35s cubic-bezier(0.22, 1, 0.36, 1), transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
   will-change: transform, opacity;
   backface-visibility: hidden;
@@ -1007,6 +1030,23 @@ footer.site-footer {
 @keyframes zoom-reveal-in {
   from { opacity: 0; transform: scale(0.8); }
   to   { opacity: 1; transform: scale(1); }
+}
+
+@keyframes zoom-reveal-fade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* The "My works" heading's children are continuously pushed apart via
+   --intro-split as the user scrolls through this section. Animating this
+   heading's own transform (scale) at the same time as that translate causes
+   visible jitter, because the child translate is computed in the heading's
+   currently-animating scaled coordinate space. Fade in opacity only here —
+   the scroll-driven --intro-scale on .stack-intro already gives this
+   element its "settling in" zoom feel. */
+.stack-intro h2.reveal-zoom.is-visible {
+  animation: zoom-reveal-fade 1.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  transform: scale(1);
 }
 
 .reveal-stagger > * {
