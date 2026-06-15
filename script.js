@@ -404,12 +404,21 @@ if (linksHeading) {
 (() => {
   const modal = document.getElementById('info-modal');
   const body = document.getElementById('info-modal-body');
-  if (!modal || !body) return;
+  const card = modal ? modal.querySelector('.info-modal-card') : null;
+  if (!modal || !body || !card) return;
+
+  // Each entry's accent color matches its card's --accent-fg in
+  // links.css, and the icon mirrors the big background icon used on
+  // the card itself, so the modal feels like a continuation of it.
+  const icon = (path) =>
+    `<svg class="info-modal-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">${path}</svg>`;
 
   // Content keyed by each card's data-info attribute. Add more entries
   // here as info modals are wired up for other cards.
   const info = {
     art4hearts: {
+      accent: '#e0266f',
+      icon: icon('<path d="M12 20.5c-4-3-7.5-6.2-7.5-10A4.5 4.5 0 0 1 12 7a4.5 4.5 0 0 1 7.5 3.5c0 3.8-3.5 7-7.5 10z"/>'),
       tag: 'Volunteering / Nonprofit',
       title: 'Art4Hearts International',
       body: `Art4Hearts International is a nonprofit that uses art as a way to bring
@@ -424,6 +433,8 @@ if (linksHeading) {
       ],
     },
     books: {
+      accent: '#d6790a',
+      icon: icon('<path d="M4 4.5A1.5 1.5 0 0 1 5.5 3H11v17H5.5A1.5 1.5 0 0 1 4 18.5z"/><path d="M13 3h5.5A1.5 1.5 0 0 1 20 4.5v14a1.5 1.5 0 0 1-1.5 1.5H13z"/><path d="M11 3v17"/>'),
       tag: 'Reading list',
       title: 'Books',
       body: `Reading is one of my favorite ways to unwind, and these are
@@ -440,6 +451,8 @@ if (linksHeading) {
       ],
     },
     food: {
+      accent: '#f1530a',
+      icon: icon('<path d="M7 2v8a2 2 0 0 0 4 0V2M9 10v12M4 2v6a2 2 0 0 0 2 2M4 2v0"/><path d="M18 2c-2 1-3 3-3 6 0 2 1 3 3 3v11"/>'),
       tag: 'Food',
       title: 'Favorite Restaurants',
       body: `I'm a bit obsessive about good food — I keep a running photo
@@ -452,6 +465,8 @@ if (linksHeading) {
       ],
     },
     lift: {
+      accent: '#0a6fe0',
+      icon: icon('<path d="M2 12h2M20 12h2M5 9v6M19 9v6M5 12h14"/><rect x="3" y="8" width="2" height="8" rx="0.5" fill="currentColor" stroke="none"/><rect x="19" y="8" width="2" height="8" rx="0.5" fill="currentColor" stroke="none"/>'),
       tag: 'Fitness',
       title: 'Weightlifting',
       body: `Basketball got me into the weight room, but lifting has
@@ -464,6 +479,8 @@ if (linksHeading) {
       ],
     },
     write: {
+      accent: '#6f2ff0',
+      icon: icon('<path d="M4 20l1-4L16 5l3 3L8 19l-4 1z"/><path d="M14 7l3 3"/>'),
       tag: 'Writing',
       title: 'Writing',
       body: `Writing has become one of the things I take the most pride in
@@ -477,6 +494,8 @@ if (linksHeading) {
       ],
     },
     wordle: {
+      accent: '#15a85a',
+      icon: icon('<rect x="2" y="2" width="6" height="6" rx="1"/><rect x="9" y="2" width="6" height="6" rx="1"/><rect x="16" y="2" width="6" height="6" rx="1"/><rect x="2" y="9" width="6" height="6" rx="1" fill="currentColor" stroke="none"/><rect x="9" y="9" width="6" height="6" rx="1"/><rect x="16" y="9" width="6" height="6" rx="1" fill="currentColor" stroke="none"/><rect x="2" y="16" width="6" height="6" rx="1"/><rect x="9" y="16" width="6" height="6" rx="1" fill="currentColor" stroke="none"/><rect x="16" y="16" width="6" height="6" rx="1"/>'),
       tag: 'Daily habit',
       title: 'Wordle & Connections',
       body: `Part of my morning routine — Wordle (guess a five-letter word
@@ -497,18 +516,22 @@ if (linksHeading) {
     const links = data.links || (data.linkHref ? [{ text: data.linkText, href: data.linkHref }] : []);
     const linksHtml = links.length
       ? `<div class="info-modal-links">${links
-          .map((l) => `<a class="info-modal-link" href="${l.href}" target="_blank" rel="noopener">${l.text}</a>`)
+          .map((l, i) => `<a class="info-modal-link${i > 0 ? ' info-modal-link--secondary' : ''}" href="${l.href}" target="_blank" rel="noopener">${l.text}</a>`)
           .join(' ')}</div>`
       : '';
     const listHtml = data.list
       ? `<ul class="info-modal-list">${data.list.map((item) => `<li>${item}</li>`).join('')}</ul>`
       : '';
+    card.style.setProperty('--accent', data.accent || '#6f2ff0');
     body.innerHTML = `
-      <span class="info-modal-tag">${data.tag}</span>
-      <h3>${data.title}</h3>
-      <p>${data.body}</p>
-      ${listHtml}
-      ${linksHtml}
+      <div class="info-modal-visual">${data.icon || ''}</div>
+      <div class="info-modal-content">
+        <span class="info-modal-tag">${data.tag}</span>
+        <h3>${data.title}</h3>
+        <p>${data.body}</p>
+        ${listHtml}
+        ${linksHtml}
+      </div>
     `;
     modal.classList.add('is-open');
     modal.setAttribute('aria-hidden', 'false');
@@ -651,6 +674,11 @@ if (linksHeading) {
 
       btn.style.setProperty('--lx', `${(relX * 6).toFixed(1)}px`);
       btn.style.setProperty('--ly', `${(relY * 6).toFixed(1)}px`);
+
+      // "Lean back" 3D tilt — top of the card tips away from the cursor,
+      // like the project cards on noteworthy.studio.
+      btn.style.setProperty('--rx', `${(relY * -22).toFixed(2)}deg`);
+      btn.style.setProperty('--ry', `${(relX * 22).toFixed(2)}deg`);
     });
 
     btn.addEventListener('mouseleave', () => {
@@ -661,6 +689,8 @@ if (linksHeading) {
       btn.style.setProperty('--mr', '0deg');
       btn.style.setProperty('--lx', '0px');
       btn.style.setProperty('--ly', '0px');
+      btn.style.setProperty('--rx', '0deg');
+      btn.style.setProperty('--ry', '0deg');
       buttons.forEach((b) => {
         b.style.setProperty('--px', '0px');
         b.style.setProperty('--py', '0px');
@@ -825,4 +855,71 @@ if (linksHeading) {
       }, EXIT_MS);
     });
   });
+})();
+
+// Top-right pill nav: highlight the tab matching the section in view.
+(() => {
+  const nav = document.getElementById('tabnav');
+  if (!nav) return;
+
+  const items = Array.from(nav.querySelectorAll('.tabnav-item'));
+
+  // Don't leave the clicked tab focused — that would keep its label
+  // expanded (via :focus) even after the user scrolls away and moves
+  // the mouse off the nav.
+  items.forEach((item) => {
+    item.addEventListener('click', () => {
+      requestAnimationFrame(() => item.blur());
+    });
+  });
+  const sections = items
+    .map((item) => {
+      const id = item.getAttribute('href').slice(1);
+      const target = document.getElementById(id);
+      return target ? { item, target } : null;
+    })
+    .filter(Boolean);
+
+  if (!sections.length) return;
+
+  const setActive = (item) => {
+    items.forEach((i) => i.classList.toggle('is-active', i === item));
+  };
+
+  const observer = new IntersectionObserver(
+    (entries) => {
+      let best = null;
+      let bestRatio = 0;
+      entries.forEach((entry) => {
+        if (entry.isIntersecting && entry.intersectionRatio > bestRatio) {
+          bestRatio = entry.intersectionRatio;
+          best = entry.target;
+        }
+      });
+      if (best) {
+        const match = sections.find((s) => s.target === best);
+        if (match) setActive(match.item);
+      }
+    },
+    { threshold: [0.2, 0.4, 0.6], rootMargin: '-30% 0px -30% 0px' }
+  );
+
+  sections.forEach(({ target }) => observer.observe(target));
+})();
+
+// Shrink "Aidan Liu" to "A.L." once the user scrolls past the hero/home
+// section.
+(() => {
+  const header = document.querySelector('header.topbar');
+  const hero = document.getElementById('top');
+  if (!header || !hero) return;
+
+  const observer = new IntersectionObserver(
+    ([entry]) => {
+      header.classList.toggle('is-scrolled', !entry.isIntersecting);
+    },
+    { threshold: 0, rootMargin: '-80px 0px 0px 0px' }
+  );
+
+  observer.observe(hero);
 })();
