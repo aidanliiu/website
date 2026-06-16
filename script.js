@@ -924,7 +924,8 @@ if (linksHeading) {
   const belt    = document.querySelector('.awards-belt');
   if (!section || !track) return;
 
-  const DWELL = 600; // px of extra scroll after last card is reached
+  const DWELL_START = 600; // px of scroll before horizontal movement begins
+  const DWELL_END   = 600; // px of extra scroll after last card is reached
 
   let maxTranslation = 0;
   let activeScrollable = 0; // scroll range for horizontal movement only (no dwell)
@@ -948,17 +949,20 @@ if (linksHeading) {
     const beltPad = belt ? parseFloat(getComputedStyle(belt).paddingLeft) || 48 : 48;
     maxTranslation = Math.max(setWidth * 2 - beltW + beltPad, setWidth);
 
-    // activeScrollable drives horizontal speed (0.6× ratio = 1.67px/px)
-    // DWELL is added on top so the last card holds while the user keeps scrolling
+    // activeScrollable drives horizontal speed; DWELL_START and DWELL_END
+    // are added on top so the first/last cards hold while the user scrolls.
     activeScrollable = Math.round(maxTranslation * 0.6);
-    section.style.minHeight = `calc(100vh + ${activeScrollable + DWELL}px)`;
+    section.style.minHeight = `calc(100vh + ${DWELL_START + activeScrollable + DWELL_END}px)`;
   };
 
   const computeTarget = () => {
-    const rect    = section.getBoundingClientRect();
+    const rect = section.getBoundingClientRect();
     if (activeScrollable <= 0) return 0;
-    // Clamp scrolled to activeScrollable — once reached, track stays put (dwell)
-    const scrolled = Math.min(Math.max(-rect.top, 0), activeScrollable);
+    // raw = how far the section top has scrolled above the viewport top
+    const raw = -rect.top;
+    // Start dwell: hold at 0 until DWELL_START px have passed;
+    // end dwell: clamp so track stops at maxTranslation for the last DWELL_END px.
+    const scrolled = Math.min(Math.max(raw - DWELL_START, 0), activeScrollable);
     return (scrolled / activeScrollable) * maxTranslation;
   };
 
