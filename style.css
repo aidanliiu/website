@@ -125,6 +125,68 @@ header.topbar .tabnav {
   -webkit-backdrop-filter: blur(14px) saturate(160%);
 }
 
+/* Hamburger button */
+header.topbar .tabnav-hamburger {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  border: none;
+  background: transparent;
+  color: #555;
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
+  transition: background 0.25s ease, color 0.25s ease;
+}
+
+header.topbar .tabnav-hamburger:hover {
+  background: rgba(0, 0, 0, 0.06);
+  color: #1a1a1a;
+}
+
+header.topbar .tabnav-ham-icon {
+  width: 18px;
+  height: 18px;
+}
+
+/* Hamburger → X animation */
+header.topbar .ham-line {
+  transform-origin: center;
+  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+              opacity 0.2s ease;
+}
+
+header.topbar .tabnav.is-open .ham-line-1 {
+  transform: translateY(5px) rotate(45deg);
+}
+header.topbar .tabnav.is-open .ham-line-2 {
+  opacity: 0;
+  transform: scaleX(0);
+}
+header.topbar .tabnav.is-open .ham-line-3 {
+  transform: translateY(-5px) rotate(-45deg);
+}
+
+/* Hidden nav items — collapse to zero width, reveal on .is-open */
+header.topbar .tabnav-expandable {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  max-width: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: max-width 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+              opacity 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+header.topbar .tabnav.is-open .tabnav-expandable {
+  max-width: 480px;
+  opacity: 1;
+}
+
 header.topbar .tabnav-item {
   display: flex;
   align-items: center;
@@ -137,7 +199,8 @@ header.topbar .tabnav-item {
   font-weight: 500;
   letter-spacing: 0.01em;
   white-space: nowrap;
-  transition: background 0.35s cubic-bezier(0.22, 1, 0.36, 1), color 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+  transition: background 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+              color 0.35s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 header.topbar .tabnav-icon {
@@ -146,14 +209,19 @@ header.topbar .tabnav-icon {
   flex-shrink: 0;
 }
 
+/* Labels hidden by default on expandable items; Contact always shows its label */
 header.topbar .tabnav-label {
   display: inline-block;
   max-width: 0;
   overflow: hidden;
   opacity: 0;
   transform: translateX(-4px);
-  transition: max-width 0.35s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.25s ease, transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+  transition: max-width 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+              opacity 0.25s ease,
+              transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
 }
+
+/* Contact label shows on hover only (same as other items) */
 
 header.topbar .tabnav-item:hover,
 header.topbar .tabnav-item.is-active {

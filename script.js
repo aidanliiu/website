@@ -899,6 +899,47 @@ if (linksHeading) {
   sections.forEach(({ target }) => observer.observe(target));
 })();
 
+// Hamburger nav: click to open/close, close on outside click or nav-item click.
+(() => {
+  const nav = document.getElementById('tabnav');
+  if (!nav) return;
+  const hamburger = nav.querySelector('.tabnav-hamburger');
+  const expandable = nav.querySelector('.tabnav-expandable');
+  if (!hamburger || !expandable) return;
+  const hiddenItems = Array.from(expandable.querySelectorAll('.tabnav-item'));
+
+  const open = () => {
+    nav.classList.add('is-open');
+    hamburger.setAttribute('aria-expanded', 'true');
+    expandable.removeAttribute('aria-hidden');
+    hiddenItems.forEach(a => a.removeAttribute('tabindex'));
+  };
+  const close = () => {
+    nav.classList.remove('is-open');
+    hamburger.setAttribute('aria-expanded', 'false');
+    expandable.setAttribute('aria-hidden', 'true');
+    hiddenItems.forEach(a => a.setAttribute('tabindex', '-1'));
+  };
+
+  hamburger.addEventListener('click', (e) => {
+    e.stopPropagation();
+    nav.classList.contains('is-open') ? close() : open();
+  });
+
+  // Close when clicking a nav item
+  hiddenItems.forEach(item => item.addEventListener('click', close));
+
+  // Close when clicking outside
+  document.addEventListener('click', (e) => {
+    if (!nav.contains(e.target)) close();
+  });
+
+  // Close on Escape
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') close();
+  });
+})();
+
 // Shrink "Aidan Liu" to "A.L." once the user scrolls past the hero/home
 // section.
 (() => {
