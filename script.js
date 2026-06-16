@@ -914,3 +914,76 @@ if (linksHeading) {
   );
   observer.observe(hero);
 })();
+
+// ============================================================
+// Awards horizontal scroll conveyor
+// ============================================================
+(() => {
+  const section = document.querySelector('.awards-section');
+  const track   = document.querySelector('.awards-track');
+  const belt    = document.querySelector('.awards-belt');
+  if (!section || !track) return;
+
+  const DWELL = 600; // px of extra scroll after last card is reached
+
+  let maxTranslation = 0;
+  let activeScrollable = 0; // scroll range for horizontal movement only (no dwell)
+  let currentX  = 0;
+  let targetX   = 0;
+  let rafRunning = false;
+
+  const measure = () => {
+    // Fallback: 13 cards × 290px + 12 gaps × 18px + 18px set-padding
+    const sets = track.querySelectorAll('.awards-set');
+    const n = sets.length > 0 ? sets[0].querySelectorAll('.award-card').length : 13;
+    const calcSetW = n * 290 + Math.max(0, n - 1) * 18 + 18;
+
+    // DOM measurement (track has 2 identical sets end-to-end)
+    const domSetW = track.scrollWidth > 400 ? Math.round(track.scrollWidth / 2) : 0;
+    const setWidth = Math.max(domSetW, calcSetW);
+
+    // Reach the last card of Set 2. Account for belt's padding-left (48px)
+    // so the right edge of the last card isn't clipped behind it.
+    const beltW = belt ? belt.clientWidth : window.innerWidth;
+    const beltPad = belt ? parseFloat(getComputedStyle(belt).paddingLeft) || 48 : 48;
+    maxTranslation = Math.max(setWidth * 2 - beltW + beltPad, setWidth);
+
+    // activeScrollable drives horizontal speed (0.6× ratio = 1.67px/px)
+    // DWELL is added on top so the last card holds while the user keeps scrolling
+    activeScrollable = Math.round(maxTranslation * 0.6);
+    section.style.minHeight = `calc(100vh + ${activeScrollable + DWELL}px)`;
+  };
+
+  const computeTarget = () => {
+    const rect    = section.getBoundingClientRect();
+    if (activeScrollable <= 0) return 0;
+    // Clamp scrolled to activeScrollable — once reached, track stays put (dwell)
+    const scrolled = Math.min(Math.max(-rect.top, 0), activeScrollable);
+    return (scrolled / activeScrollable) * maxTranslation;
+  };
+
+  const tick = () => {
+    targetX = computeTarget();
+    const diff = targetX - currentX;
+    if (Math.abs(diff) > 0.1) {
+      currentX += diff * 0.12;
+      track.style.transform = `translateX(-${currentX.toFixed(2)}px)`;
+      requestAnimationFrame(tick);
+    } else {
+      currentX = targetX;
+      track.style.transform = `translateX(-${currentX.toFixed(2)}px)`;
+      rafRunning = false;
+    }
+  };
+
+  const scheduleUpdate = () => {
+    if (!rafRunning) { rafRunning = true; requestAnimationFrame(tick); }
+  };
+
+  if (window.ResizeObserver) {
+    new ResizeObserver(() => { measure(); scheduleUpdate(); }).observe(track);
+  }
+  window.addEventListener('scroll', scheduleUpdate, { passive: true });
+  window.addEventListener('resize', () => { measure(); scheduleUpdate(); });
+  window.addEventListener('load',   () => { measure(); scheduleUpdate(); });
+})();
