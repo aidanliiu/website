@@ -1090,7 +1090,7 @@ footer.site-footer {
   flex: 1;
   overflow: hidden;
   display: flex;
-  align-items: stretch;
+  align-items: center;
   padding: 28px 48px;
   box-sizing: border-box;
 }
@@ -1101,46 +1101,91 @@ footer.site-footer {
    scrollWidth return ~belt-width instead of the real content width. */
 .awards-track {
   display: flex;
-  align-items: stretch;
+  align-items: center;
   width: max-content;
   will-change: transform;
 }
 
-/* One set = all 26 card slots. Two sets placed end-to-end. */
+/* One set of 13 cards. */
 .awards-set {
   display: flex;
   gap: 18px;
   flex-shrink: 0;
-  padding-right: 18px; /* gap between the two sets */
   align-items: stretch;
 }
 
 /* Individual award card — taller, wider, with visual icon area */
 .award-card {
   width: 290px;
+  height: 380px;
   flex-shrink: 0;
-  border-top: 1px solid rgba(17, 17, 17, 0.13);
-  padding: 20px 0 0;
+  background: #fff;
+  border-radius: 12px;
+  border: 1.5px solid rgba(17, 17, 17, 0.1);
+  border-top-width: 3px;
+  padding: 18px 16px 0;
   display: flex;
   flex-direction: column;
+  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+              box-shadow 0.3s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-/* Gold accent on championship/notable cards */
-.award-card--gold {
-  border-top-color: rgba(155, 95, 0, 0.45);
+.award-card:hover {
+  transform: translateY(-5px);
 }
+
+@media (prefers-reduced-motion: reduce) {
+  .award-card { transition: none; }
+  .award-card:hover { transform: none; box-shadow: none; }
+}
+
+/* ── Category colour tokens ── */
+
+/* VEX Robotics — electric blue */
+.award-card--vex {
+  border-color: rgba(34, 85, 204, 0.3);
+  border-top-color: #2255cc;
+}
+.award-card--vex:hover { box-shadow: 0 10px 32px rgba(34, 85, 204, 0.2); }
+.award-card--vex .award-cat { color: rgba(34, 85, 204, 0.9); }
+.award-card--vex .award-icon { background: rgba(34, 85, 204, 0.05); color: rgba(34, 85, 204, 0.3); }
+
+/* Varsity Basketball — burnt orange */
+.award-card--vball {
+  border-color: rgba(196, 64, 0, 0.3);
+  border-top-color: #c44000;
+}
+.award-card--vball:hover { box-shadow: 0 10px 32px rgba(196, 64, 0, 0.2); }
+.award-card--vball .award-cat { color: rgba(196, 64, 0, 0.9); }
+.award-card--vball .award-icon { background: rgba(196, 64, 0, 0.05); color: rgba(196, 64, 0, 0.3); }
+
+/* JV Basketball — dark teal */
+.award-card--jv {
+  border-color: rgba(26, 110, 92, 0.3);
+  border-top-color: #1a6e5c;
+}
+.award-card--jv:hover { box-shadow: 0 10px 32px rgba(26, 110, 92, 0.2); }
+.award-card--jv .award-cat { color: rgba(26, 110, 92, 0.9); }
+.award-card--jv .award-icon { background: rgba(26, 110, 92, 0.05); color: rgba(26, 110, 92, 0.3); }
+
+/* Board Recognition — gold */
+.award-card--gold {
+  border-color: rgba(155, 95, 0, 0.3);
+  border-top-color: #9b5f00;
+}
+.award-card--gold:hover { box-shadow: 0 10px 32px rgba(155, 95, 0, 0.2); }
 
 .award-cat {
   font-size: 10px;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: rgba(17, 17, 17, 0.35);
-  margin: 0 0 10px;
+  margin: 0 0 8px;
   display: block;
 }
 
 .award-card--gold .award-cat {
-  color: rgba(140, 85, 0, 0.65);
+  color: rgba(140, 85, 0, 0.85);
 }
 
 .award-year {
@@ -1168,10 +1213,11 @@ footer.site-footer {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(17, 17, 17, 0.03);
-  border-radius: 5px;
-  margin: 16px 0 14px;
+  background: rgba(17, 17, 17, 0.04);
+  border-radius: 8px;
+  margin: 12px 0 12px;
   min-height: 72px;
+  overflow: hidden;
   color: rgba(17, 17, 17, 0.18);
 }
 
@@ -1180,21 +1226,33 @@ footer.site-footer {
   height: 60px;
 }
 
+.award-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: 8px;
+  display: block;
+}
+
+.award-icon--zoom img {
+  object-fit: cover;
+}
+
 .award-card--gold .award-icon {
-  background: rgba(155, 95, 0, 0.04);
+  background: rgba(155, 95, 0, 0.05);
   color: rgba(155, 95, 0, 0.32);
 }
 
 .award-sub {
-  font-size: 12px;
-  color: rgba(17, 17, 17, 0.4);
-  margin: 0 0 20px;
-  line-height: 1.55;
+  font-size: 11.5px;
+  color: rgba(17, 17, 17, 0.55);
+  margin: 0 0 16px;
+  line-height: 1.5;
 }
 
 @media (max-width: 700px) {
-  .awards-belt { padding: 20px 22px; }
-  .award-card  { width: 220px; }
+  .awards-belt { padding: 20px 16px; }
+  .award-card  { width: 220px; border-radius: 10px; padding: 16px 14px 0; border-top-width: 3px; }
 }
 
 /* ============================================================

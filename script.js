@@ -934,20 +934,15 @@ if (linksHeading) {
   let rafRunning = false;
 
   const measure = () => {
-    // Fallback: 13 cards × 290px + 12 gaps × 18px + 18px set-padding
-    const sets = track.querySelectorAll('.awards-set');
-    const n = sets.length > 0 ? sets[0].querySelectorAll('.award-card').length : 13;
-    const calcSetW = n * 290 + Math.max(0, n - 1) * 18 + 18;
-
-    // DOM measurement (track has 2 identical sets end-to-end)
-    const domSetW = track.scrollWidth > 400 ? Math.round(track.scrollWidth / 2) : 0;
-    const setWidth = Math.max(domSetW, calcSetW);
-
-    // Reach the last card of Set 2. Account for belt's padding-left (48px)
-    // so the right edge of the last card isn't clipped behind it.
-    const beltW = belt ? belt.clientWidth : window.innerWidth;
+    const beltW   = belt ? belt.clientWidth : window.innerWidth;
     const beltPad = belt ? parseFloat(getComputedStyle(belt).paddingLeft) || 48 : 48;
-    maxTranslation = Math.max(setWidth * 2 - beltW + beltPad, setWidth);
+
+    // Single-set mode: scroll until the last card's right edge is flush with
+    // the belt's right padding (mirror of the left padding on the first card).
+    // maxTranslation = trackWidth - beltContentWidth
+    //                = track.scrollWidth - (beltW - 2 * beltPad)
+    const trackW = track.scrollWidth;
+    maxTranslation = Math.max(trackW - beltW + 2 * beltPad, 0);
 
     // activeScrollable drives horizontal speed; DWELL_START and DWELL_END
     // are added on top so the first/last cards hold while the user scrolls.
