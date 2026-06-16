@@ -379,24 +379,19 @@ section {
 .corgi--cream .p-light   { fill: #fffaf0; }
 .corgi--cream .p-accent  { fill: #e0bd8c; }
 
-.hero-mark {
-  width: 18px;
-  height: 18px;
-  background: #f4f4f2;
+.scroll-hint {
   position: fixed;
   top: 0;
   left: 0;
-  opacity: 0;
-  transform: translate(calc(50vw - 9px), calc(50vh - 9px));
-  animation: fadeIn 0.8s ease forwards;
-  transition: background-color 0.4s linear, opacity 0.8s ease;
   pointer-events: none;
-  will-change: transform, background-color;
-  z-index: 50;
+  z-index: 9999;
+  color: #f4f4f2;
+  opacity: 1;
+  transition: color 0.3s linear, opacity 0.4s ease;
 }
 
-@keyframes fadeIn {
-  to { opacity: 1; }
+.scroll-hint svg {
+  display: block;
 }
 
 .hero-bottom {
@@ -1060,6 +1055,150 @@ footer.site-footer {
 }
 
 /* ============================================================
+   5. AWARDS TIMELINE (scroll-driven horizontal conveyor belt)
+   ============================================================ */
+
+/* Override generic section rules — overflow:visible is required so
+   position:sticky inside works correctly (overflow:hidden on an ancestor
+   breaks sticky). */
+.awards-section {
+  overflow: visible;
+  padding: 0;
+  margin-top: 96px;
+  background: #fff;
+  color: var(--fg);
+}
+
+/* The sticky panel fills exactly one viewport height and stays pinned
+   while the outer section scrolls past it, creating the "extra scroll
+   room" that JS converts into horizontal movement. */
+.awards-sticky {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: #fff;
+}
+
+/* Header + hint removed — timeline is now a pure divider strip */
+.awards-header,
+.awards-hint { display: none; }
+
+/* Belt: full-height horizontal window, cards stretch edge-to-edge */
+.awards-belt {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  align-items: stretch;
+  padding: 28px 48px;
+  box-sizing: border-box;
+}
+
+/* Track: the full double-length strip that slides horizontally.
+   width: max-content prevents the belt's flex algorithm from
+   shrinking the track down to belt-width, which would make
+   scrollWidth return ~belt-width instead of the real content width. */
+.awards-track {
+  display: flex;
+  align-items: stretch;
+  width: max-content;
+  will-change: transform;
+}
+
+/* One set = all 26 card slots. Two sets placed end-to-end. */
+.awards-set {
+  display: flex;
+  gap: 18px;
+  flex-shrink: 0;
+  padding-right: 18px; /* gap between the two sets */
+  align-items: stretch;
+}
+
+/* Individual award card — taller, wider, with visual icon area */
+.award-card {
+  width: 290px;
+  flex-shrink: 0;
+  border-top: 1px solid rgba(17, 17, 17, 0.13);
+  padding: 20px 0 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Gold accent on championship/notable cards */
+.award-card--gold {
+  border-top-color: rgba(155, 95, 0, 0.45);
+}
+
+.award-cat {
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(17, 17, 17, 0.35);
+  margin: 0 0 10px;
+  display: block;
+}
+
+.award-card--gold .award-cat {
+  color: rgba(140, 85, 0, 0.65);
+}
+
+.award-year {
+  font-size: clamp(28px, 3.8vw, 44px);
+  font-weight: 300;
+  color: var(--fg);
+  margin: 0 0 6px;
+  line-height: 1;
+  letter-spacing: -0.04em;
+}
+
+.award-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--fg);
+  margin: 0;
+  line-height: 1.3;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+}
+
+/* Icon / visual area — fills remaining card height */
+.award-icon {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(17, 17, 17, 0.03);
+  border-radius: 5px;
+  margin: 16px 0 14px;
+  min-height: 72px;
+  color: rgba(17, 17, 17, 0.18);
+}
+
+.award-icon svg {
+  width: 60px;
+  height: 60px;
+}
+
+.award-card--gold .award-icon {
+  background: rgba(155, 95, 0, 0.04);
+  color: rgba(155, 95, 0, 0.32);
+}
+
+.award-sub {
+  font-size: 12px;
+  color: rgba(17, 17, 17, 0.4);
+  margin: 0 0 20px;
+  line-height: 1.55;
+}
+
+@media (max-width: 700px) {
+  .awards-belt { padding: 20px 22px; }
+  .award-card  { width: 220px; }
+}
+
+/* ============================================================
    8. CLOSING CTA
    ============================================================ */
 
@@ -1163,126 +1302,86 @@ footer.site-footer {
 }
 
 .coffee-link:hover {
-  color: #1a1a1a;
-}
-
-.closing p.lead {
-  font-size: 16px;
-  color: #444;
-  margin-bottom: 56px;
-}
-
-.closing .what-i-bring {
-  font-size: 14px;
-  color: var(--muted);
-  margin-bottom: 8px;
-}
-
-.closing p.skills-line {
-  color: #444;
-  margin-bottom: 40px;
-}
-
-.connect-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  background: #111;
-  color: #fff;
-  text-decoration: none;
-  font-weight: 600;
-  font-size: 15px;
-  padding: 16px 28px;
-  border-radius: 10px;
-  transition: transform 0.2s ease, background 0.2s ease;
-}
-
-.connect-btn:hover {
-  transform: translateY(-2px);
-  background: #000;
+  color: #111;
 }
 
 /* ============================================================
-   reveal-on-scroll (shared)
+   Contact section
    ============================================================ */
-
-.reveal {
-  opacity: 0;
-  transform: translateY(28px);
-  transition: opacity 0.8s ease, transform 0.8s ease;
+.contact-section {
+  min-height: 60vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg);
+  padding: 120px 40px;
+  text-align: left;
 }
 
-.reveal.is-visible {
+.contact-inner {
+  max-width: 760px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.contact-eyebrow {
+  font-size: clamp(14px, 1.4vw, 18px);
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin: 0;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.55s ease, transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.contact-email {
+  display: block;
+  font-size: clamp(28px, 4.5vw, 60px);
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  color: var(--fg);
+  text-decoration: none;
+  line-height: 1.1;
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.6s ease 0.08s, transform 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.08s, color 0.2s ease;
+}
+
+.contact-email:hover {
+  color: var(--muted);
+}
+
+.contact-socials {
+  display: flex;
+  gap: 28px;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.55s ease 0.16s, transform 0.55s cubic-bezier(0.22, 1, 0.36, 1) 0.16s;
+}
+
+.contact-socials a {
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+  text-decoration: none;
+  border-bottom: 1px solid currentColor;
+  padding-bottom: 2px;
+  transition: color 0.2s ease;
+}
+
+.contact-socials a:hover {
+  color: var(--fg);
+}
+
+/* Reveal: triggered by generic .is-visible class from script.js */
+.contact-eyebrow.is-visible,
+.contact-email.is-visible,
+.contact-socials.is-visible {
   opacity: 1;
   transform: translateY(0);
-}
-
-/* Slow zoom-in reveal, for the intro ("student, researcher & team
-   captain") copy and the "My works" heading. */
-.reveal-zoom {
-  opacity: 0;
-  transform: scale(0.8);
-  transform-origin: center;
-}
-
-/* Use a one-shot keyframe animation rather than a transition: an
-   animation always plays from its 0% state when the class is added,
-   regardless of whether the "before" styles were ever painted, so this
-   can't get skipped/short-circuited the way a transition can. */
-.reveal-zoom.is-visible {
-  animation: zoom-reveal-in 1.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-@keyframes zoom-reveal-in {
-  from { opacity: 0; transform: scale(0.8); }
-  to   { opacity: 1; transform: scale(1); }
-}
-
-@keyframes zoom-reveal-fade {
-  from { opacity: 0; }
-  to   { opacity: 1; }
-}
-
-/* The "My works" heading's children are continuously pushed apart via
-   --intro-split as the user scrolls through this section. Animating this
-   heading's own transform (scale) at the same time as that translate causes
-   visible jitter, because the child translate is computed in the heading's
-   currently-animating scaled coordinate space. Fade in opacity only here —
-   the scroll-driven --intro-scale on .stack-intro already gives this
-   element its "settling in" zoom feel. */
-.stack-intro h2.reveal-zoom.is-visible {
-  animation: zoom-reveal-fade 1.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  transform: scale(1);
-}
-
-.reveal-stagger > * {
-  opacity: 0;
-  transform: translateY(18px);
-  transition: opacity 0.6s ease, transform 0.6s ease;
-}
-
-.reveal-stagger.is-visible > * {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-.reveal-stagger.is-visible > *:nth-child(1) { transition-delay: 0.05s; }
-.reveal-stagger.is-visible > *:nth-child(2) { transition-delay: 0.1s; }
-.reveal-stagger.is-visible > *:nth-child(3) { transition-delay: 0.15s; }
-.reveal-stagger.is-visible > *:nth-child(4) { transition-delay: 0.2s; }
-.reveal-stagger.is-visible > *:nth-child(5) { transition-delay: 0.25s; }
-.reveal-stagger.is-visible > *:nth-child(6) { transition-delay: 0.3s; }
-
-@media (prefers-reduced-motion: reduce) {
-  .reveal,
-  .reveal-stagger > * {
-    opacity: 1 !important;
-    transform: none !important;
-    transition: none !important;
-    animation: none !important;
-  }
-  .hero-mark {
-    animation: none;
-    opacity: 1;
-  }
 }

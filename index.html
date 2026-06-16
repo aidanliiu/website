@@ -24,6 +24,10 @@
         <svg class="tabnav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="3" width="8" height="8" rx="1.5"/><rect x="3" y="13" width="8" height="8" rx="1.5"/><rect x="13" y="13" width="8" height="8" rx="1.5"/></svg>
         <span class="tabnav-label">Work</span>
       </a>
+      <a href="#awards" class="tabnav-item" data-tab="awards">
+        <svg class="tabnav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        <span class="tabnav-label">Awards</span>
+      </a>
       <div class="tabnav-sep" aria-hidden="true"></div>
       <a href="#links-box" class="tabnav-item" data-tab="more">
         <svg class="tabnav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="5" cy="12" r="1.4" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.4" fill="currentColor" stroke="none"/><circle cx="19" cy="12" r="1.4" fill="currentColor" stroke="none"/></svg>
@@ -36,10 +40,18 @@
     </nav>
   </header>
 
+  <!-- cursor-following scroll arrow — must be a direct child of body so
+       position:fixed is always relative to the viewport -->
+  <div class="scroll-hint" aria-hidden="true">
+    <svg viewBox="0 0 40 40" width="40" height="40" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="20" cy="20" r="18" stroke-width="1.2" opacity="0.6"/>
+      <polyline points="13 18 20 25 27 18" stroke-width="1.6"/>
+    </svg>
+  </div>
+
   <!-- ============ 1. HERO ============ -->
   <section class="hero" id="top">
     <div class="hero-fade"></div>
-    <div class="hero-mark"></div>
     <div class="corgi-track" aria-hidden="true">
       <div class="corgi corgi--ltr corgi--sable" style="top: 12%;">
         <svg class="corgi-svg" viewBox="0 0 80 50" xmlns="http://www.w3.org/2000/svg">
@@ -127,8 +139,7 @@
       <hr>
       <div class="hero-social">
         <a href="mailto:aidanliu2008@gmail.com">aidanliu2008@gmail.com</a>
-        <a href="tel:+16692988801">669-298-8801</a>
-        <a href="https://www.linkedin.com/in/aidan-liu-9b52531b0/" target="_blank" rel="noopener">LinkedIn</a>
+<a href="https://www.linkedin.com/in/aidan-liu-9b52531b0/" target="_blank" rel="noopener">LinkedIn</a>
         <a href="https://github.com/aidanliiu" target="_blank" rel="noopener">GitHub</a>
         <a href="https://www.instagram.com/aidanliiu/" target="_blank" rel="noopener">Instagram</a>
       </div>
@@ -235,6 +246,211 @@
     </div>
   </section>
 
+  <!-- ============ 5. AWARDS ============ -->
+  <section class="awards-section" id="awards">
+    <div class="awards-sticky">
+      <div class="awards-belt">
+        <div class="awards-track">
+
+          <!-- SVG shorthand macros (inlined per card for full portability) -->
+          <!-- GEAR = VEX Robotics  |  BBALL = Basketball  |  STAR = Board Recognition -->
+
+          <!-- ── Set 1 (13 unique awards, newest → oldest) ── -->
+          <div class="awards-set">
+            <div class="award-card award-card--gold">
+              <span class="award-cat">VEX Robotics</span>
+              <p class="award-year">Mar '26</p>
+              <p class="award-name">Nationals Tournament Champion</p>
+              <div class="award-icon" aria-hidden="true"><svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><circle cx="32" cy="32" r="9"/><path d="M32 6v7M32 51v7M6 32h7M51 32h7M13.1 13.1l5 5M45.9 45.9l5 5M13.1 50.9l5-5M45.9 18.1l5-5"/><circle cx="32" cy="32" r="18" stroke-width="1" stroke-dasharray="3 3"/></svg></div>
+              <p class="award-sub">Division (Red) Champion · Team 95071V</p>
+            </div>
+            <div class="award-card">
+              <span class="award-cat">Varsity Basketball</span>
+              <p class="award-year">2025–26</p>
+              <p class="award-name">2nd Team All-League</p>
+              <div class="award-icon" aria-hidden="true"><svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><circle cx="32" cy="32" r="22"/><path d="M10 32h44M32 10v44M14.5 14.5c8 8 8 27 0 35M49.5 14.5c-8 8-8 27 0 35"/></svg></div>
+              <p class="award-sub">SCVAL El Camino Division</p>
+            </div>
+            <div class="award-card">
+              <span class="award-cat">Varsity Basketball</span>
+              <p class="award-year">2025–26</p>
+              <p class="award-name">CCS Scholastic Award</p>
+              <div class="award-icon" aria-hidden="true"><svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><circle cx="32" cy="32" r="22"/><path d="M10 32h44M32 10v44M14.5 14.5c8 8 8 27 0 35M49.5 14.5c-8 8-8 27 0 35"/></svg></div>
+              <p class="award-sub">CIF Central Coast Section</p>
+            </div>
+            <div class="award-card">
+              <span class="award-cat">Varsity Basketball</span>
+              <p class="award-year">2025–26</p>
+              <p class="award-name">All Tournament Award</p>
+              <div class="award-icon" aria-hidden="true"><svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><circle cx="32" cy="32" r="22"/><path d="M10 32h44M32 10v44M14.5 14.5c8 8 8 27 0 35M49.5 14.5c-8 8-8 27 0 35"/></svg></div>
+              <p class="award-sub">San Marin Mustangs Invitational</p>
+            </div>
+            <div class="award-card">
+              <span class="award-cat">VEX Robotics</span>
+              <p class="award-year">2025–26</p>
+              <p class="award-name">Worlds, Nationals &amp; States Qualified</p>
+              <div class="award-icon" aria-hidden="true"><svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><circle cx="32" cy="32" r="9"/><path d="M32 6v7M32 51v7M6 32h7M51 32h7M13.1 13.1l5 5M45.9 45.9l5 5M13.1 50.9l5-5M45.9 18.1l5-5"/><circle cx="32" cy="32" r="18" stroke-width="1" stroke-dasharray="3 3"/></svg></div>
+              <p class="award-sub">Team 95071V</p>
+            </div>
+            <div class="award-card award-card--gold">
+              <span class="award-cat">Board Recognition</span>
+              <p class="award-year">Dec '25</p>
+              <p class="award-name">Roaring &amp; Soaring Honoree</p>
+              <div class="award-icon" aria-hidden="true"><svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><polygon points="32,8 37.5,24 54,24 41,34 46,50 32,40 18,50 23,34 10,24 26.5,24"/></svg></div>
+              <p class="award-sub">Los Gatos-Saratoga UHSD Board of Trustees</p>
+            </div>
+            <div class="award-card award-card--gold">
+              <span class="award-cat">VEX Robotics</span>
+              <p class="award-year">Feb '25</p>
+              <p class="award-name">Create Award Winner</p>
+              <div class="award-icon" aria-hidden="true"><svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><circle cx="32" cy="32" r="9"/><path d="M32 6v7M32 51v7M6 32h7M51 32h7M13.1 13.1l5 5M45.9 45.9l5 5M13.1 50.9l5-5M45.9 18.1l5-5"/><circle cx="32" cy="32" r="18" stroke-width="1" stroke-dasharray="3 3"/></svg></div>
+              <p class="award-sub">NorthCal Silicon Valley Signature Event</p>
+            </div>
+            <div class="award-card">
+              <span class="award-cat">VEX Robotics</span>
+              <p class="award-year">2024–25</p>
+              <p class="award-name">Nationals &amp; States Qualified</p>
+              <div class="award-icon" aria-hidden="true"><svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><circle cx="32" cy="32" r="9"/><path d="M32 6v7M32 51v7M6 32h7M51 32h7M13.1 13.1l5 5M45.9 45.9l5 5M13.1 50.9l5-5M45.9 18.1l5-5"/><circle cx="32" cy="32" r="18" stroke-width="1" stroke-dasharray="3 3"/></svg></div>
+              <p class="award-sub">Team 95071V</p>
+            </div>
+            <div class="award-card">
+              <span class="award-cat">Varsity Basketball</span>
+              <p class="award-year">2024–25</p>
+              <p class="award-name">MVP Award</p>
+              <div class="award-icon" aria-hidden="true"><svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><circle cx="32" cy="32" r="22"/><path d="M10 32h44M32 10v44M14.5 14.5c8 8 8 27 0 35M49.5 14.5c-8 8-8 27 0 35"/></svg></div>
+              <p class="award-sub">James Lick Tournament</p>
+            </div>
+            <div class="award-card">
+              <span class="award-cat">Varsity Basketball</span>
+              <p class="award-year">2024–25</p>
+              <p class="award-name">League Champion</p>
+              <div class="award-icon" aria-hidden="true"><svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><circle cx="32" cy="32" r="22"/><path d="M10 32h44M32 10v44M14.5 14.5c8 8 8 27 0 35M49.5 14.5c-8 8-8 27 0 35"/></svg></div>
+              <p class="award-sub">SCVAL El Camino Division</p>
+            </div>
+            <div class="award-card">
+              <span class="award-cat">Varsity Basketball</span>
+              <p class="award-year">2024–25</p>
+              <p class="award-name">2nd Team All-League</p>
+              <div class="award-icon" aria-hidden="true"><svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><circle cx="32" cy="32" r="22"/><path d="M10 32h44M32 10v44M14.5 14.5c8 8 8 27 0 35M49.5 14.5c-8 8-8 27 0 35"/></svg></div>
+              <p class="award-sub">SCVAL El Camino Division</p>
+            </div>
+            <div class="award-card">
+              <span class="award-cat">VEX Robotics</span>
+              <p class="award-year">2023–24</p>
+              <p class="award-name">Worlds, Nationals &amp; States Qualified</p>
+              <div class="award-icon" aria-hidden="true"><svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><circle cx="32" cy="32" r="9"/><path d="M32 6v7M32 51v7M6 32h7M51 32h7M13.1 13.1l5 5M45.9 45.9l5 5M13.1 50.9l5-5M45.9 18.1l5-5"/><circle cx="32" cy="32" r="18" stroke-width="1" stroke-dasharray="3 3"/></svg></div>
+              <p class="award-sub">Team 95071H</p>
+            </div>
+            <div class="award-card">
+              <span class="award-cat">JV Basketball</span>
+              <p class="award-year">2023–24</p>
+              <p class="award-name">2nd Team All-League</p>
+              <div class="award-icon" aria-hidden="true"><svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><circle cx="32" cy="32" r="22"/><path d="M10 32h44M32 10v44M14.5 14.5c8 8 8 27 0 35M49.5 14.5c-8 8-8 27 0 35"/></svg></div>
+              <p class="award-sub">SCVAL El Camino Division</p>
+            </div>
+          </div><!-- /.awards-set Set 1 -->
+
+          <!-- ── Set 2 (duplicate for seamless loop, screen-reader hidden) ── -->
+          <div class="awards-set" aria-hidden="true">
+            <div class="award-card award-card--gold">
+              <span class="award-cat">VEX Robotics</span>
+              <p class="award-year">Mar '26</p>
+              <p class="award-name">Nationals Tournament Champion</p>
+              <div class="award-icon" aria-hidden="true"><svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><circle cx="32" cy="32" r="9"/><path d="M32 6v7M32 51v7M6 32h7M51 32h7M13.1 13.1l5 5M45.9 45.9l5 5M13.1 50.9l5-5M45.9 18.1l5-5"/><circle cx="32" cy="32" r="18" stroke-width="1" stroke-dasharray="3 3"/></svg></div>
+              <p class="award-sub">Division (Red) Champion · Team 95071V</p>
+            </div>
+            <div class="award-card">
+              <span class="award-cat">Varsity Basketball</span>
+              <p class="award-year">2025–26</p>
+              <p class="award-name">2nd Team All-League</p>
+              <div class="award-icon" aria-hidden="true"><svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><circle cx="32" cy="32" r="22"/><path d="M10 32h44M32 10v44M14.5 14.5c8 8 8 27 0 35M49.5 14.5c-8 8-8 27 0 35"/></svg></div>
+              <p class="award-sub">SCVAL El Camino Division</p>
+            </div>
+            <div class="award-card">
+              <span class="award-cat">Varsity Basketball</span>
+              <p class="award-year">2025–26</p>
+              <p class="award-name">CCS Scholastic Award</p>
+              <div class="award-icon" aria-hidden="true"><svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><circle cx="32" cy="32" r="22"/><path d="M10 32h44M32 10v44M14.5 14.5c8 8 8 27 0 35M49.5 14.5c-8 8-8 27 0 35"/></svg></div>
+              <p class="award-sub">CIF Central Coast Section</p>
+            </div>
+            <div class="award-card">
+              <span class="award-cat">Varsity Basketball</span>
+              <p class="award-year">2025–26</p>
+              <p class="award-name">All Tournament Award</p>
+              <div class="award-icon" aria-hidden="true"><svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><circle cx="32" cy="32" r="22"/><path d="M10 32h44M32 10v44M14.5 14.5c8 8 8 27 0 35M49.5 14.5c-8 8-8 27 0 35"/></svg></div>
+              <p class="award-sub">San Marin Mustangs Invitational</p>
+            </div>
+            <div class="award-card">
+              <span class="award-cat">VEX Robotics</span>
+              <p class="award-year">2025–26</p>
+              <p class="award-name">Worlds, Nationals &amp; States Qualified</p>
+              <div class="award-icon" aria-hidden="true"><svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><circle cx="32" cy="32" r="9"/><path d="M32 6v7M32 51v7M6 32h7M51 32h7M13.1 13.1l5 5M45.9 45.9l5 5M13.1 50.9l5-5M45.9 18.1l5-5"/><circle cx="32" cy="32" r="18" stroke-width="1" stroke-dasharray="3 3"/></svg></div>
+              <p class="award-sub">Team 95071V</p>
+            </div>
+            <div class="award-card award-card--gold">
+              <span class="award-cat">Board Recognition</span>
+              <p class="award-year">Dec '25</p>
+              <p class="award-name">Roaring &amp; Soaring Honoree</p>
+              <div class="award-icon" aria-hidden="true"><svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><polygon points="32,8 37.5,24 54,24 41,34 46,50 32,40 18,50 23,34 10,24 26.5,24"/></svg></div>
+              <p class="award-sub">Los Gatos-Saratoga UHSD Board of Trustees</p>
+            </div>
+            <div class="award-card award-card--gold">
+              <span class="award-cat">VEX Robotics</span>
+              <p class="award-year">Feb '25</p>
+              <p class="award-name">Create Award Winner</p>
+              <div class="award-icon" aria-hidden="true"><svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><circle cx="32" cy="32" r="9"/><path d="M32 6v7M32 51v7M6 32h7M51 32h7M13.1 13.1l5 5M45.9 45.9l5 5M13.1 50.9l5-5M45.9 18.1l5-5"/><circle cx="32" cy="32" r="18" stroke-width="1" stroke-dasharray="3 3"/></svg></div>
+              <p class="award-sub">NorthCal Silicon Valley Signature Event</p>
+            </div>
+            <div class="award-card">
+              <span class="award-cat">VEX Robotics</span>
+              <p class="award-year">2024–25</p>
+              <p class="award-name">Nationals &amp; States Qualified</p>
+              <div class="award-icon" aria-hidden="true"><svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><circle cx="32" cy="32" r="9"/><path d="M32 6v7M32 51v7M6 32h7M51 32h7M13.1 13.1l5 5M45.9 45.9l5 5M13.1 50.9l5-5M45.9 18.1l5-5"/><circle cx="32" cy="32" r="18" stroke-width="1" stroke-dasharray="3 3"/></svg></div>
+              <p class="award-sub">Team 95071V</p>
+            </div>
+            <div class="award-card">
+              <span class="award-cat">Varsity Basketball</span>
+              <p class="award-year">2024–25</p>
+              <p class="award-name">MVP Award</p>
+              <div class="award-icon" aria-hidden="true"><svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><circle cx="32" cy="32" r="22"/><path d="M10 32h44M32 10v44M14.5 14.5c8 8 8 27 0 35M49.5 14.5c-8 8-8 27 0 35"/></svg></div>
+              <p class="award-sub">James Lick Tournament</p>
+            </div>
+            <div class="award-card">
+              <span class="award-cat">Varsity Basketball</span>
+              <p class="award-year">2024–25</p>
+              <p class="award-name">League Champion</p>
+              <div class="award-icon" aria-hidden="true"><svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><circle cx="32" cy="32" r="22"/><path d="M10 32h44M32 10v44M14.5 14.5c8 8 8 27 0 35M49.5 14.5c-8 8-8 27 0 35"/></svg></div>
+              <p class="award-sub">SCVAL El Camino Division</p>
+            </div>
+            <div class="award-card">
+              <span class="award-cat">Varsity Basketball</span>
+              <p class="award-year">2024–25</p>
+              <p class="award-name">2nd Team All-League</p>
+              <div class="award-icon" aria-hidden="true"><svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><circle cx="32" cy="32" r="22"/><path d="M10 32h44M32 10v44M14.5 14.5c8 8 8 27 0 35M49.5 14.5c-8 8-8 27 0 35"/></svg></div>
+              <p class="award-sub">SCVAL El Camino Division</p>
+            </div>
+            <div class="award-card">
+              <span class="award-cat">VEX Robotics</span>
+              <p class="award-year">2023–24</p>
+              <p class="award-name">Worlds, Nationals &amp; States Qualified</p>
+              <div class="award-icon" aria-hidden="true"><svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><circle cx="32" cy="32" r="9"/><path d="M32 6v7M32 51v7M6 32h7M51 32h7M13.1 13.1l5 5M45.9 45.9l5 5M13.1 50.9l5-5M45.9 18.1l5-5"/><circle cx="32" cy="32" r="18" stroke-width="1" stroke-dasharray="3 3"/></svg></div>
+              <p class="award-sub">Team 95071H</p>
+            </div>
+            <div class="award-card">
+              <span class="award-cat">JV Basketball</span>
+              <p class="award-year">2023–24</p>
+              <p class="award-name">2nd Team All-League</p>
+              <div class="award-icon" aria-hidden="true"><svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><circle cx="32" cy="32" r="22"/><path d="M10 32h44M32 10v44M14.5 14.5c8 8 8 27 0 35M49.5 14.5c-8 8-8 27 0 35"/></svg></div>
+              <p class="award-sub">SCVAL El Camino Division</p>
+            </div>
+          </div><!-- /.awards-set Set 2 -->
+
+        </div><!-- /.awards-track -->
+      </div><!-- /.awards-belt -->
+    </div><!-- /.awards-sticky -->
+  </section><!-- /#awards -->
+
+  <!-- ============ 6. LINKS ============ -->
   <!-- ============ 4. GET TO KNOW ME (links) ============ -->
   <section class="links-section" id="more">
     <div class="links-box" id="links-box">
@@ -255,7 +471,6 @@
           <span class="link-btn-sub">A nonprofit I volunteer with</span>
         </span>
       </a>
-
       <a class="link-btn link-btn--wordle" data-ghost="Play" data-depth="0.8" data-action="think" data-info="wordle" href="https://www.nytimes.com/games/wordle/index.html" target="_blank" rel="noopener">
         <span class="link-btn-bg" aria-hidden="true">
           <svg class="link-btn-icon icon-wordle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="6" height="6" rx="1"/><rect x="9" y="2" width="6" height="6" rx="1"/><rect x="16" y="2" width="6" height="6" rx="1"/><rect x="2" y="9" width="6" height="6" rx="1" fill="currentColor" stroke="none"/><rect x="9" y="9" width="6" height="6" rx="1"/><rect x="16" y="9" width="6" height="6" rx="1" fill="currentColor" stroke="none"/><rect x="2" y="16" width="6" height="6" rx="1"/><rect x="9" y="16" width="6" height="6" rx="1" fill="currentColor" stroke="none"/><rect x="16" y="16" width="6" height="6" rx="1"/></svg>
@@ -265,7 +480,6 @@
           <span class="link-btn-sub">I play daily to keep my streak</span>
         </span>
       </a>
-
       <a class="link-btn link-btn--books" data-ghost="Read" data-depth="0.7" data-action="read" data-info="books" href="#">
         <span class="link-btn-bg" aria-hidden="true">
           <svg class="link-btn-icon icon-books" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4.5A1.5 1.5 0 0 1 5.5 3H11v17H5.5A1.5 1.5 0 0 1 4 18.5z"/><path d="M13 3h5.5A1.5 1.5 0 0 1 20 4.5v14a1.5 1.5 0 0 1-1.5 1.5H13z"/><path d="M11 3v17"/></svg>
@@ -275,7 +489,6 @@
           <span class="link-btn-sub">What I've been reading</span>
         </span>
       </a>
-
       <a class="link-btn link-btn--food link-btn--big" data-ghost="Eat" data-depth="0.9" data-action="eat" data-info="food" href="#">
         <span class="link-btn-bg" aria-hidden="true">
           <svg class="link-btn-icon icon-food" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 2v8a2 2 0 0 0 4 0V2M9 10v12M4 2v6a2 2 0 0 0 2 2M4 2v0"/><path d="M18 2c-2 1-3 3-3 6 0 2 1 3 3 3v11"/></svg>
@@ -285,7 +498,6 @@
           <span class="link-btn-sub">My go-to spots, on the map</span>
         </span>
       </a>
-
       <a class="link-btn link-btn--lift" data-ghost="Lift" data-depth="0.6" data-action="lift" data-info="lift" href="#">
         <span class="link-btn-bg" aria-hidden="true">
           <svg class="link-btn-icon icon-lift" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12h2M20 12h2M5 9v6M19 9v6M5 12h14"/><rect x="3" y="8" width="2" height="8" rx="0.5" fill="currentColor" stroke="none"/><rect x="19" y="8" width="2" height="8" rx="0.5" fill="currentColor" stroke="none"/></svg>
@@ -295,7 +507,6 @@
           <span class="link-btn-sub">My PPL routine</span>
         </span>
       </a>
-
       <a class="link-btn link-btn--write" data-ghost="Write" data-depth="0.5" data-action="write" data-info="write" href="#">
         <span class="link-btn-bg" aria-hidden="true">
           <svg class="link-btn-icon icon-write" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20l1-4L16 5l3 3L8 19l-4 1z"/><path d="M14 7l3 3"/></svg>
@@ -311,11 +522,9 @@
 
   <!-- ============ 7. FOOTER ============ -->
   <footer class="site-footer">
-
     <!-- ============ 8. CLOSING CTA ============ -->
     <div class="closing section-inner reveal" id="contact">
       <div class="eyebrow">Still with me?</div>
-
       <div class="coffee-wrap" aria-hidden="true">
         <div class="steam">
           <span class="steam-particle"></span>
@@ -329,7 +538,6 @@
         </svg>
       </div>
       <a class="coffee-link" href="mailto:aidanliu2008@gmail.com">Perfect! Coffee's hot — let's talk. ☕</a>
-
       <p class="lead">Thanks for reading this far — let's talk research, robotics, or anything else.</p>
       <div class="what-i-bring">What I bring</div>
       <p class="skills-line">
@@ -351,6 +559,6 @@
     </div>
   </div>
 
-  <script src="script.js"></script>
+<script src="script.js"></script>
 </body>
 </html>

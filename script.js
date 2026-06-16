@@ -1,9 +1,10 @@
-// Hero mark: always follows the cursor; its fill color flips from
-// white to black as the page brightens while scrolling.
+// Hero arrow: follows the cursor like the old mark but shaped as a
+// downward chevron to hint at scrolling. Color flips white → black
+// as the hero brightens on scroll, then fades out as it exits.
 const hero = document.querySelector('.hero');
-const heroMark = document.querySelector('.hero-mark');
+const scrollHint = document.querySelector('.scroll-hint');
 
-if (hero && heroMark) {
+if (hero && scrollHint) {
   let mouseX = window.innerWidth / 2;
   let mouseY = window.innerHeight / 2;
   let markX = mouseX;
@@ -13,13 +14,12 @@ if (hero && heroMark) {
   const lerp = (a, b, t) => a + (b - a) * t;
 
   const render = () => {
-    // Mark eases toward the cursor with a noticeable trailing delay; only
-    // its color shifts instantly as the page brightens.
     markX = lerp(markX, mouseX, 0.07);
     markY = lerp(markY, mouseY, 0.07);
-    const c = Math.round(lerp(244, 17, progress)); // #f4f4f2 -> #111111
-    heroMark.style.transform = `translate(${markX - 9}px, ${markY - 9}px)`;
-    heroMark.style.backgroundColor = `rgb(${c}, ${c}, ${c})`;
+    const c = Math.round(244 - progress * 227); // white → dark as hero brightens
+    const bob = Math.sin(Date.now() / 600) * 5; // ±5px vertical bob
+    scrollHint.style.transform = `translate(${markX - 20}px, ${markY - 20 + bob}px)`;
+    scrollHint.style.color = `rgb(${c},${c},${c})`;
     requestAnimationFrame(render);
   };
   requestAnimationFrame(render);
@@ -34,21 +34,14 @@ if (hero && heroMark) {
     mouseY = window.innerHeight / 2;
   });
 
-  // Hero glow + page brightens to white over several scrolls.
-  // The hero is 2.4x viewport tall, so this plays out across the
-  // full scrollable distance of the hero and reaches pure white
-  // exactly as the hero scrolls out — no seam with the section below.
   let scrollTicking = false;
   const updateHeroGlow = () => {
     const rect = hero.getBoundingClientRect();
     const vh = window.innerHeight;
     const scrollRange = rect.height - vh;
     const raw = Math.min(Math.max(-rect.top / scrollRange, 0), 1);
-    progress = 1 - Math.pow(1 - raw, 2); // ease-out
+    progress = 1 - Math.pow(1 - raw, 2);
 
-    // Saturate the white fade slightly before the hero's true end so
-    // sub-pixel rounding near the boundary never leaves a sliver of the
-    // dark hero background visible above the next section.
     const fadeProgress = Math.min(progress / 0.96, 1);
 
     hero.style.setProperty('--glow-scale', (0.25 + progress * 1.65).toFixed(3));
@@ -56,10 +49,9 @@ if (hero && heroMark) {
     hero.style.setProperty('--fade-opacity', Math.pow(fadeProgress, 2).toFixed(3));
     hero.style.setProperty('--content-opacity', Math.max(1 - progress, 0).toFixed(3));
 
-    // Hide the cursor mark as the hero scrolls out so it never sits on top
-    // of the next section's text.
-    const markFade = 1 - Math.min(Math.max((progress - 0.85) / 0.15, 0), 1);
-    heroMark.style.opacity = markFade.toFixed(3);
+    // Fade the arrow out as the hero exits so it never floats over body text.
+    const hintFade = 1 - Math.min(Math.max((progress - 0.85) / 0.15, 0), 1);
+    scrollHint.style.opacity = hintFade.toFixed(3);
 
     scrollTicking = false;
   };
@@ -918,8 +910,7 @@ if (linksHeading) {
     ([entry]) => {
       header.classList.toggle('is-scrolled', !entry.isIntersecting);
     },
-    { threshold: 0, rootMargin: '-80px 0px 0px 0px' }
+    { threshold: 0 }
   );
-
   observer.observe(hero);
 })();
