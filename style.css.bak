@@ -1,6 +1,6 @@
 :root {
   --fg: #111111;
-  --muted: #666666;
+  --muted: #8a8a8a;
   --bg: #ffffff;
   --border: #ececec;
   --dark: #0a0a0a;
@@ -21,7 +21,7 @@ body {
   margin: 0;
   background: var(--bg);
   color: var(--fg);
-  font-family: 'Plus Jakarta Sans', -apple-system, "Helvetica Neue", Arial, sans-serif;
+  font-family: -apple-system, "Helvetica Neue", Arial, sans-serif;
   font-size: 16px;
   line-height: 1.65;
   -webkit-font-smoothing: antialiased;
@@ -40,11 +40,6 @@ a {
   color: inherit;
 }
 
-h1, h2, h3 {
-  text-wrap: balance;
-  letter-spacing: -0.02em;
-}
-
 /* ---------- top bar (sticky on every section) ---------- */
 
 header.topbar {
@@ -55,10 +50,10 @@ header.topbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 20px 40px;
+  padding: 28px 40px;
   z-index: 100;
-  font-size: 13px;
-  letter-spacing: 0.01em;
+  font-size: 14px;
+  letter-spacing: 0.02em;
   mix-blend-mode: difference;
   color: #fff;
   pointer-events: none;
@@ -122,6 +117,7 @@ header.topbar .tabnav {
   pointer-events: auto;
   mix-blend-mode: normal;
   background: rgba(255, 255, 255, 0.78);
+  border: 1px solid rgba(0, 0, 0, 0.06);
   border-radius: 999px;
   padding: 6px;
   box-shadow: 0 12px 30px -16px rgba(0, 0, 0, 0.25), 0 2px 8px -2px rgba(0, 0, 0, 0.08);
@@ -139,7 +135,7 @@ header.topbar .tabnav-hamburger {
   border-radius: 999px;
   border: none;
   background: transparent;
-  color: var(--muted);
+  color: #555;
   cursor: pointer;
   padding: 0;
   flex-shrink: 0;
@@ -198,7 +194,7 @@ header.topbar .tabnav-item {
   height: 36px;
   padding: 0 12px;
   border-radius: 999px;
-  color: var(--muted);
+  color: #555;
   font-size: 13px;
   font-weight: 500;
   letter-spacing: 0.01em;
@@ -231,11 +227,6 @@ header.topbar .tabnav-item:hover,
 header.topbar .tabnav-item.is-active {
   background: rgba(0, 0, 0, 0.06);
   color: #1a1a1a;
-}
-
-header.topbar .tabnav-item:active {
-  transform: scale(0.95);
-  transition-duration: 0.1s;
 }
 
 header.topbar .tabnav-item:hover .tabnav-label {
@@ -273,18 +264,18 @@ header.topbar .tabnav-sep {
 
 section {
   position: relative;
-  padding: 90px 40px;
+  padding: 140px 40px;
   overflow: hidden;
 }
 
 @media (max-width: 700px) {
   section {
-    padding: 70px 22px;
+    padding: 100px 22px;
   }
 }
 
 .section-inner {
-  max-width: 680px;
+  max-width: 760px;
   margin: 0 auto;
   position: relative;
   z-index: 2;
@@ -299,11 +290,10 @@ section {
 }
 
 .logo-mark {
-  width: 8px;
-  height: 8px;
+  width: 14px;
+  height: 14px;
   background: var(--accent);
-  border-radius: 50%;
-  margin: 0 auto 28px;
+  margin: 0 auto 40px;
 }
 
 /* ============================================================
@@ -313,7 +303,7 @@ section {
 .hero {
   background: var(--dark);
   color: #f4f4f2;
-  min-height: 108vh;
+  min-height: 240vh;
   position: relative;
   padding: 0 40px;
 }
@@ -383,9 +373,6 @@ section {
 }
 
 .corgi--rtl .corgi-svg {
-  /* Static flip so the corgi always faces left when moving RTL —
-     this persists across animation restarts and when animation:none */
-  transform: scaleX(-1);
   animation-name: corgi-bob-rtl;
 }
 
@@ -567,7 +554,7 @@ section {
    ============================================================ */
 
 .intro {
-  min-height: 60vh;
+  min-height: 100vh;
   display: flex;
   align-items: center;
   position: relative;
@@ -583,17 +570,16 @@ section {
 .intro h1 {
   font-family: Georgia, "Times New Roman", serif;
   font-weight: normal;
-  font-size: clamp(26px, 3.2vw, 38px);
-  margin: 0 0 14px;
-  line-height: 1.3;
+  font-size: clamp(18px, 2.2vw, 22px);
+  margin: 0 0 8px;
+  line-height: 1.35;
 }
 
 .intro p {
-  color: var(--muted);
-  max-width: 460px;
+  color: #555;
+  max-width: 380px;
   margin: 0 auto;
-  font-size: 15px;
-  line-height: 1.7;
+  font-size: 13px;
 }
 
 .float-field {
@@ -606,8 +592,9 @@ section {
 
 .float-card {
   position: absolute;
-  border-radius: 16px;
+  border-radius: 20px;
   overflow: hidden;
+  border: 1px solid rgba(0, 0, 0, 0.05);
   box-shadow: 0 30px 60px -16px rgba(0, 0, 0, 0.22),
               0 10px 24px -12px rgba(0, 0, 0, 0.12),
               inset 0 1px 0 rgba(255, 255, 255, 0.07);
@@ -616,17 +603,6 @@ section {
   animation:
     floatMove var(--cycle-duration, 14s) linear infinite var(--cycle-delay, 0s),
     floatFade var(--cycle-duration, 14s) ease-in-out infinite var(--cycle-delay, 0s);
-  /* Pause until the intro section is scrolled into view — otherwise
-     cards with long delays are invisible for 10+ seconds on first load */
-  animation-play-state: paused;
-}
-
-/* JS IntersectionObserver adds .is-visible when the card's layout box
-   enters the viewport. All cards in the intro section get this at
-   roughly the same time, so staggered delays play out relative to the
-   moment the user actually sees the section. */
-.float-card.is-visible {
-  animation-play-state: running;
 }
 
 /* Continuous linear sweep: card travels from the field center straight
@@ -701,7 +677,10 @@ section {
 
 /* visual "screenshots" — CSS-only stand-ins for project imagery */
 .float-card--vex {
-  background: linear-gradient(145deg, #2b2b2b, #0f0f0f);
+  background:
+    repeating-linear-gradient(0deg, rgba(255,255,255,0.05) 0 1px, transparent 1px 24px),
+    repeating-linear-gradient(90deg, rgba(255,255,255,0.05) 0 1px, transparent 1px 24px),
+    linear-gradient(145deg, #2b2b2b, #0f0f0f);
 }
 
 .float-card--ai {
@@ -722,15 +701,21 @@ section {
 }
 
 .float-card--asb {
-  background: linear-gradient(160deg, #f7f5f1, #ece8e1);
+  background:
+    repeating-linear-gradient(180deg, rgba(0, 0, 0, 0.05) 0 2px, transparent 2px 14px),
+    linear-gradient(160deg, #f7f5f1, #ece8e1);
 }
 
 .float-card--cyber {
-  background: linear-gradient(160deg, #10241c, #060a08);
+  background:
+    repeating-linear-gradient(180deg, rgba(120,255,170,0.1) 0 1px, transparent 1px 16px),
+    linear-gradient(160deg, #10241c, #060a08);
 }
 
 .float-card--lift {
-  background: linear-gradient(160deg, #3a3a3a, #1c1c1c);
+  background:
+    repeating-linear-gradient(90deg, rgba(255,255,255,0.06) 0 2px, transparent 2px 18px),
+    linear-gradient(160deg, #3a3a3a, #1c1c1c);
 }
 
 .float-card--violin {
@@ -765,22 +750,15 @@ section {
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  /* Corgi body-bob is the vestibular animation — keep that off.
-     Leg walk and float cards are decorative; user wants them active. */
-  .corgi-svg { animation: none; }
-  .arrow-down { animation: none; }
-}
-
 /* ============================================================
    2b. SELECTED WORKS DIVIDER
    ============================================================ */
 
 .selected-works {
-  min-height: 10vh;
+  min-height: 70vh;
   display: flex;
   align-items: flex-start;
-  padding: 28px 40px 0;
+  padding: 64px 40px 0;
 }
 
 .selected-works-bottom {
@@ -801,16 +779,22 @@ section {
 
 .shimmer-text {
   display: inline-block;
-  animation: shimmerPulse 3.5s ease-in-out infinite;
+  background: linear-gradient(90deg, var(--fg) 0%, var(--muted) 50%, var(--fg) 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: shimmerMove 3.5s linear infinite, shimmerSpacing 3.5s ease-in-out infinite;
 }
 
-@keyframes shimmerPulse {
-  0%, 100% { color: var(--fg); }
-  50% { color: var(--muted); }
+@keyframes shimmerMove {
+  0% { background-position: 200% center; }
+  100% { background-position: -200% center; }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .shimmer-text { animation: none; }
+@keyframes shimmerSpacing {
+  0%, 100% { letter-spacing: 0; }
+  50% { letter-spacing: 0.04em; }
 }
 
 .arrow-down {
@@ -838,7 +822,7 @@ section {
    ============================================================ */
 
 .stack-section {
-  height: calc(var(--stack-count, 6) * 55vh);
+  height: calc(var(--stack-count, 6) * 100vh);
   padding: 0;
   overflow: visible;
 }
@@ -873,13 +857,12 @@ section {
 .stack-intro h2 {
   font-family: Georgia, "Times New Roman", serif;
   font-weight: normal;
-  font-size: clamp(20px, 2.4vw, 26px);
-  letter-spacing: -0.02em;
+  font-size: clamp(18px, 2.4vw, 24px);
   margin: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5em;
+  gap: 0.6em;
 }
 
 .intro-word {
@@ -917,12 +900,12 @@ section {
   position: absolute;
   top: 50%;
   left: 50%;
-  width: min(360px, calc(100% - 64px));
+  width: min(380px, calc(100% - 80px));
   background: #fff;
   border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 32px 28px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.07);
+  border-radius: 16px;
+  padding: 40px 36px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   opacity: var(--p, 0);
   transform-origin: center top;
   transform: translateX(-50%) translateY(calc(-50% + var(--ty, 100vh))) translateX(var(--tx, 0px)) translateZ(var(--tz, 0px)) scale(var(--scale, 1)) rotateX(var(--rx, 0deg));
@@ -941,13 +924,12 @@ section {
 .stack-card h3 {
   font-family: Georgia, "Times New Roman", serif;
   font-weight: normal;
-  font-size: 22px;
-  letter-spacing: -0.02em;
-  margin: 0 0 8px;
+  font-size: 24px;
+  margin: 0 0 10px;
 }
 
 .stack-card p {
-  color: #444444;
+  color: #444;
   margin: 0 0 8px;
 }
 
@@ -974,14 +956,13 @@ section {
 .why h2 {
   font-family: Georgia, "Times New Roman", serif;
   font-weight: normal;
-  font-size: clamp(20px, 2.8vw, 28px);
-  letter-spacing: -0.02em;
-  margin: 0 0 18px;
+  font-size: clamp(22px, 4vw, 30px);
+  margin: 0 0 24px;
 }
 
 .why p {
-  color: #444444;
-  font-size: 16px;
+  color: #444;
+  font-size: 17px;
 }
 
 /* ============================================================
@@ -992,16 +973,15 @@ section {
   text-align: center;
   font-family: Georgia, "Times New Roman", serif;
   font-weight: normal;
-  font-size: clamp(20px, 2.8vw, 28px);
-  letter-spacing: -0.02em;
-  margin: 0 0 36px;
+  font-size: clamp(22px, 4vw, 30px);
+  margin: 0 0 56px;
 }
 
 .stage {
   display: grid;
-  grid-template-columns: 60px 1fr;
-  gap: 16px;
-  padding: 20px 0;
+  grid-template-columns: 90px 1fr;
+  gap: 18px;
+  padding: 28px 0;
   border-top: 1px solid var(--border);
 }
 
@@ -1022,7 +1002,7 @@ section {
 
 .stage p {
   margin: 0;
-  color: var(--muted);
+  color: #555;
 }
 
 /* ============================================================
@@ -1033,20 +1013,19 @@ section {
   text-align: center;
   font-family: Georgia, "Times New Roman", serif;
   font-weight: normal;
-  font-size: clamp(20px, 2.8vw, 28px);
-  letter-spacing: -0.02em;
-  margin: 0 0 32px;
+  font-size: clamp(22px, 4vw, 30px);
+  margin: 0 0 48px;
 }
 
 .story p {
-  color: #444444;
+  color: #444;
   margin: 0 0 22px;
 }
 
 .story-avatar {
-  width: 120px;
-  height: 120px;
-  border-radius: 10px;
+  width: 160px;
+  height: 160px;
+  border-radius: 12px;
   background: #1a1a1a;
   color: #fff;
   display: flex;
@@ -1054,8 +1033,8 @@ section {
   justify-content: center;
   font-family: Georgia, serif;
   font-style: italic;
-  font-size: 36px;
-  margin: 8px auto 0;
+  font-size: 44px;
+  margin: 12px auto 0;
   filter: grayscale(1);
 }
 
@@ -1065,10 +1044,7 @@ section {
 
 footer.site-footer {
   background: var(--bg);
-  color: var(--fg);
-  padding: 100px 40px 60px;
-  position: relative;
-  overflow: hidden;
+  padding: 100vh 40px 60px;
 }
 
 .footer-grid {
@@ -1115,7 +1091,7 @@ footer.site-footer {
 .footer-col ul {
   margin: 0;
   padding-left: 18px;
-  color: var(--muted);
+  color: #555;
   font-size: 14px;
 }
 
@@ -1155,7 +1131,7 @@ footer.site-footer {
 .awards-section {
   overflow: visible;
   padding: 0;
-  margin-top: 0;
+  margin-top: 70vh;
   background: #fff;
   color: var(--fg);
 }
@@ -1214,6 +1190,7 @@ footer.site-footer {
   background: #fff;
   border-radius: 12px;
   border: 1.5px solid rgba(17, 17, 17, 0.1);
+  border-top-width: 3px;
   padding: 18px 16px 0;
   display: flex;
   flex-direction: column;
@@ -1234,7 +1211,8 @@ footer.site-footer {
 
 /* VEX Robotics — electric blue */
 .award-card--vex {
-  border-color: rgba(34, 85, 204, 0.35);
+  border-color: rgba(34, 85, 204, 0.3);
+  border-top-color: #2255cc;
 }
 .award-card--vex:hover { box-shadow: 0 10px 32px rgba(34, 85, 204, 0.2); }
 .award-card--vex .award-cat { color: rgba(34, 85, 204, 0.9); }
@@ -1242,7 +1220,8 @@ footer.site-footer {
 
 /* Varsity Basketball — burnt orange */
 .award-card--vball {
-  border-color: rgba(196, 64, 0, 0.35);
+  border-color: rgba(196, 64, 0, 0.3);
+  border-top-color: #c44000;
 }
 .award-card--vball:hover { box-shadow: 0 10px 32px rgba(196, 64, 0, 0.2); }
 .award-card--vball .award-cat { color: rgba(196, 64, 0, 0.9); }
@@ -1250,7 +1229,8 @@ footer.site-footer {
 
 /* JV Basketball — dark teal */
 .award-card--jv {
-  border-color: rgba(26, 110, 92, 0.35);
+  border-color: rgba(26, 110, 92, 0.3);
+  border-top-color: #1a6e5c;
 }
 .award-card--jv:hover { box-shadow: 0 10px 32px rgba(26, 110, 92, 0.2); }
 .award-card--jv .award-cat { color: rgba(26, 110, 92, 0.9); }
@@ -1258,7 +1238,8 @@ footer.site-footer {
 
 /* Board Recognition — gold */
 .award-card--gold {
-  border-color: rgba(155, 95, 0, 0.35);
+  border-color: rgba(155, 95, 0, 0.3);
+  border-top-color: #9b5f00;
 }
 .award-card--gold:hover { box-shadow: 0 10px 32px rgba(155, 95, 0, 0.2); }
 
@@ -1285,12 +1266,12 @@ footer.site-footer {
 }
 
 .award-name {
-  font-size: 12px;
-  font-weight: 700;
+  font-size: 13px;
+  font-weight: 600;
   color: var(--fg);
   margin: 0;
-  line-height: 1.35;
-  letter-spacing: 0.06em;
+  line-height: 1.3;
+  letter-spacing: 0.01em;
   text-transform: uppercase;
 }
 
@@ -1331,15 +1312,15 @@ footer.site-footer {
 }
 
 .award-sub {
-  font-size: 12px;
-  color: rgba(17, 17, 17, 0.65);
+  font-size: 11.5px;
+  color: rgba(17, 17, 17, 0.55);
   margin: 0 0 16px;
-  line-height: 1.6;
+  line-height: 1.5;
 }
 
 @media (max-width: 700px) {
   .awards-belt { padding: 20px 16px; }
-  .award-card  { width: 220px; border-radius: 10px; padding: 16px 14px 0; }
+  .award-card  { width: 220px; border-radius: 10px; padding: 16px 14px 0; border-top-width: 3px; }
 }
 
 /* ============================================================
@@ -1348,66 +1329,49 @@ footer.site-footer {
 
 .closing {
   text-align: left;
-  max-width: 1100px;
+  max-width: 1000px;
   margin: 0 auto;
-  position: relative;
-  z-index: 1;
 }
 
 .closing-header {
-  margin-bottom: 52px;
+  margin-bottom: 64px;
+}
+
+.closing .eyebrow {
+  margin-bottom: 20px;
 }
 
 .closing-headline {
   font-family: Georgia, "Times New Roman", serif;
-  font-size: clamp(40px, 6.5vw, 80px);
+  font-size: clamp(36px, 5vw, 72px);
   font-weight: 400;
   line-height: 1.08;
-  letter-spacing: -0.03em;
+  letter-spacing: -0.02em;
   color: var(--fg);
   margin: 0;
-  text-wrap: balance;
 }
 
 .closing-body {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 36px;
-  margin-bottom: 44px;
+  gap: 48px;
+  margin-bottom: 80px;
   align-items: start;
 }
 
 .closing-left {
   display: flex;
   flex-direction: column;
-  gap: 24px;
-}
-
-.closing-social {
-  display: flex;
-  gap: 24px;
-  flex-wrap: wrap;
-}
-
-.closing-social a {
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--muted);
-  text-decoration: none;
-  transition: color 0.2s;
-}
-
-.closing-social a:hover {
-  color: var(--fg);
+  gap: 32px;
 }
 
 .closing-email {
   display: block;
-  font-size: clamp(18px, 2.2vw, 28px);
+  font-size: clamp(16px, 1.8vw, 22px);
   font-weight: 500;
   color: var(--fg);
   text-decoration: none;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.01em;
   border-bottom: 1px solid var(--border);
   padding-bottom: 16px;
   transition: color 0.2s ease, border-color 0.2s ease;
@@ -1420,8 +1384,32 @@ footer.site-footer {
 
 .closing-right {
   padding-top: 4px;
+}
+
+.closing-skills-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 16px;
+}
+
+.closing-skills {
   display: flex;
-  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.skill-tag {
+  display: inline-block;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--fg);
+  background: #f2f2f2;
+  border-radius: 999px;
+  padding: 6px 14px;
+  letter-spacing: 0.01em;
 }
 
 .closing-foot {
@@ -1435,6 +1423,94 @@ footer.site-footer {
 .closing-copyright {
   font-size: 13px;
   color: var(--muted);
+}
+
+.coffee-wrap {
+  position: relative;
+  width: 52px;
+  height: 52px;
+  flex-shrink: 0;
+}
+
+.closing-coffee {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.coffee-cup {
+  width: 100%;
+  height: 100%;
+  color: #1a1a1a;
+}
+
+.steam {
+  position: absolute;
+  top: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 30px;
+  height: 40px;
+  pointer-events: none;
+}
+
+.steam-particle {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 6px;
+  height: 18px;
+  border-radius: 50%;
+  background: rgba(26, 26, 26, 0.22);
+  filter: blur(2px);
+  opacity: 0;
+  transform-origin: bottom center;
+  animation: steam-rise 3.2s ease-in infinite;
+}
+
+.steam-particle:nth-child(1) {
+  left: 50%;
+  width: 7px;
+  animation-delay: 0s;
+  animation-duration: 3.4s;
+}
+
+.steam-particle:nth-child(2) {
+  left: 38%;
+  width: 5px;
+  animation-delay: 1.1s;
+  animation-duration: 3s;
+}
+
+.steam-particle:nth-child(3) {
+  left: 64%;
+  width: 5px;
+  animation-delay: 2.1s;
+  animation-duration: 3.6s;
+}
+
+@keyframes steam-rise {
+  0% {
+    transform: translate(-50%, 0) scale(0.7);
+    opacity: 0;
+    filter: blur(1.5px);
+  }
+  20% {
+    opacity: 0.45;
+  }
+  50% {
+    transform: translate(calc(-50% + 6px), -20px) scale(1.15) rotate(4deg);
+    opacity: 0.3;
+    filter: blur(2.5px);
+  }
+  80% {
+    opacity: 0.12;
+  }
+  100% {
+    transform: translate(calc(-50% - 9px), -42px) scale(1.6) rotate(-6deg);
+    opacity: 0;
+    filter: blur(4px);
+  }
 }
 
 .connect-btn {
@@ -1456,231 +1532,106 @@ footer.site-footer {
   opacity: 0.75;
 }
 
-.connect-btn:active {
-  transform: scale(0.97);
-  opacity: 0.85;
-  transition-duration: 0.08s;
+.coffee-link {
+  display: inline-block;
+  font-size: 14px;
+  color: var(--muted);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.coffee-link:hover {
+  color: var(--fg);
 }
 
 /* mobile */
 @media (max-width: 700px) {
   .closing-body {
     grid-template-columns: 1fr;
-    gap: 32px;
+    gap: 40px;
   }
   .closing-headline {
-    font-size: clamp(36px, 10vw, 56px);
-  }
-  .closing-right {
-    padding-top: 0;
+    font-size: clamp(28px, 8vw, 48px);
   }
 }
 
 /* ============================================================
-   Mobile — global improvements
+   Contact section
    ============================================================ */
-@media (max-width: 600px) {
-  /* Ensure tap targets are ≥44px */
-  a, button { min-height: 44px; }
-
-  /* Tighter section padding on mobile */
-  .section-inner {
-    padding-left: 22px !important;
-    padding-right: 22px !important;
-  }
-
-  /* Stack cards full-width on mobile */
-  .stack-card {
-    border-radius: 12px;
-    margin: 0 16px;
-  }
-
-  /* Awards belt — smaller cards on mobile */
-  .award-card {
-    width: 230px;
-    height: 320px;
-  }
-
-  /* Links grid single column */
-  .links-grid {
-    grid-template-columns: 1fr !important;
-  }
-
-  /* Hero social — wrap on small screens */
-  .hero-social {
-    flex-wrap: wrap;
-    gap: 12px;
-  }
-
-  /* Intro text — larger on mobile for readability */
-  .intro h1 {
-    font-size: clamp(20px, 5vw, 28px);
-  }
-
-  .intro p {
-    font-size: 14px;
-    max-width: 90%;
-  }
+.contact-section {
+  min-height: 60vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg);
+  padding: 120px 40px;
+  text-align: left;
 }
 
-/* ============================================================
-   MOTION — reveal transitions and scroll-triggered entrances
-   ============================================================ */
-
-/* ---- Page-load: hero bottom bar and info strip ---- */
-@keyframes heroFadeUp {
-  from { opacity: 0; transform: translateY(18px); }
-  to   { opacity: 1; transform: translateY(0); }
+.contact-inner {
+  max-width: 760px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
 }
 
-.hero-bottom {
-  animation: heroFadeUp 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.25s backwards;
-}
-
-.hero-info {
-  animation: heroFadeUp 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.5s backwards;
-}
-
-/* ---- .reveal — generic fade-up on scroll ---- */
-.reveal {
+.contact-eyebrow {
+  font-size: clamp(14px, 1.4vw, 18px);
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin: 0;
   opacity: 0;
-  transform: translateY(28px);
-  transition: opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
-              transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+  transform: translateY(20px);
+  transition: opacity 0.55s ease, transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-.reveal.is-visible {
-  opacity: 1;
-  transform: none;
-}
-
-/* ---- .reveal-zoom — scale + fade on scroll ---- */
-.reveal-zoom {
-  opacity: 0;
-  transform: translateY(20px) scale(0.97);
-  transition: opacity 0.65s cubic-bezier(0.22, 1, 0.36, 1),
-              transform 0.65s cubic-bezier(0.22, 1, 0.36, 1);
-  transform-origin: center bottom;
-}
-
-.reveal-zoom.is-visible {
-  opacity: 1;
-  transform: none;
-}
-
-/* ---- .reveal-stagger — stagger direct children ---- */
-.reveal-stagger > * {
-  opacity: 0;
-  transform: translateY(18px);
-  transition: opacity 0.5s cubic-bezier(0.22, 1, 0.36, 1) calc(var(--i, 0) * 0.08s),
-              transform 0.5s cubic-bezier(0.22, 1, 0.36, 1) calc(var(--i, 0) * 0.08s);
-}
-
-.reveal-stagger.is-visible > * {
-  opacity: 1;
-  transform: none;
-}
-
-/* ---- Intro section: stagger h1 then p individually ---- */
-/* Container stays visible; h1 and p animate on their own timeline */
-.intro .reveal-zoom {
-  opacity: 1;
-  transform: none;
-  transition: none;
-}
-
-.intro .reveal-zoom h1 {
+.contact-email {
+  display: block;
+  font-size: clamp(28px, 4.5vw, 60px);
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  color: var(--fg);
+  text-decoration: none;
+  line-height: 1.1;
   opacity: 0;
   transform: translateY(24px);
-  transition: opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
-              transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+  transition: opacity 0.6s ease 0.08s, transform 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.08s, color 0.2s ease;
 }
 
-.intro .reveal-zoom p {
+.contact-email:hover {
+  color: var(--muted);
+}
+
+.contact-socials {
+  display: flex;
+  gap: 28px;
   opacity: 0;
-  transform: translateY(18px);
-  transition: opacity 0.65s cubic-bezier(0.22, 1, 0.36, 1) 0.13s,
-              transform 0.65s cubic-bezier(0.22, 1, 0.36, 1) 0.13s;
+  transform: translateY(20px);
+  transition: opacity 0.55s ease 0.16s, transform 0.55s cubic-bezier(0.22, 1, 0.36, 1) 0.16s;
 }
 
-.intro .reveal-zoom.is-visible h1,
-.intro .reveal-zoom.is-visible p {
+.contact-socials a {
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+  text-decoration: none;
+  border-bottom: 1px solid currentColor;
+  padding-bottom: 2px;
+  transition: color 0.2s ease;
+}
+
+.contact-socials a:hover {
+  color: var(--fg);
+}
+
+/* Reveal: triggered by generic .is-visible class from script.js */
+.contact-eyebrow.is-visible,
+.contact-email.is-visible,
+.contact-socials.is-visible {
   opacity: 1;
-  transform: none;
+  transform: translateY(0);
 }
-
-/* ---- Closing section: stagger header → body → foot ---- */
-/* Override container-level fade; let children stagger individually */
-.closing.reveal {
-  opacity: 1 !important;
-  transform: none !important;
-  transition: none !important;
-}
-
-.reveal .closing-header,
-.reveal .closing-body,
-.reveal .closing-foot {
-  opacity: 0;
-  transform: translateY(22px);
-  transition: opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1),
-              transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-.reveal.is-visible .closing-header {
-  opacity: 1;
-  transform: none;
-  transition-delay: 0.04s;
-}
-
-.reveal.is-visible .closing-body {
-  opacity: 1;
-  transform: none;
-  transition-delay: 0.15s;
-}
-
-.reveal.is-visible .closing-foot {
-  opacity: 1;
-  transform: none;
-  transition-delay: 0.26s;
-}
-
-/* ---- Awards belt: staggered card entrance ---- */
-@keyframes awardCardIn {
-  from { opacity: 0; transform: translateY(16px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-.awards-section.is-visible .award-card {
-  animation: awardCardIn 0.5s cubic-bezier(0.22, 1, 0.36, 1)
-             calc(var(--card-i, 0) * 0.04s) backwards;
-}
-
-/* ---- Name scale-on-scroll: grow from the top-left corner ---- */
-/* transform-origin ensures it expands right + down, never covering the nav */
-header.topbar .name {
-  transform-origin: top left;
-  will-change: transform;
-}
-
-/* ---- Reduced motion: disable all reveal animations ---- */
-@media (prefers-reduced-motion: reduce) {
-  .hero-bottom,
-  .hero-info { animation: none; }
-
-  .reveal      { opacity: 1 !important; transform: none !important; transition: none !important; }
-  .reveal-zoom { opacity: 1 !important; transform: none !important; transition: none !important; }
-
-  .reveal-stagger > * { opacity: 1 !important; transform: none !important; transition: none !important; }
-
-  .intro .reveal-zoom h1,
-  .intro .reveal-zoom p { opacity: 1 !important; transform: none !important; transition: none !important; }
-
-  .reveal .closing-header,
-  .reveal .closing-body,
-  .reveal .closing-foot { opacity: 1 !important; transform: none !important; transition: none !important; }
-
-  .awards-section.is-visible .award-card { animation: none !important; }
-
-  /* Name scale is pure JS — the @media guard inside the IIFE handles this */
-}
-
