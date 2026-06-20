@@ -1655,11 +1655,11 @@ footer.site-footer {
              calc(var(--card-i, 0) * 0.04s) backwards;
 }
 
-/* ---- Name scale-on-scroll: grow from the top-left corner ---- */
-/* transform-origin ensures it expands right + down, never covering the nav */
+/* ---- Name scale-on-scroll: grows via font-size (JS), not transform ---- */
+/* font-size keeps text crisp at large sizes — transform: scale() would */
+/* stretch a rasterized layer and blur, since text isn't vector like an SVG logo */
 header.topbar .name {
-  transform-origin: top left;
-  will-change: transform;
+  will-change: font-size;
 }
 
 /* ---- Reduced motion: disable all reveal animations ---- */

@@ -1028,18 +1028,35 @@ if (linksHeading) {
   window.addEventListener('load',   () => { measure(); scheduleUpdate(); });
 })();
 
-// Name scale-on-scroll — "Aidan Liu" in the top-left grows as the user scrolls
-// through the hero, then returns to 1× once the hero exits.
+// Name scale-on-scroll — "Aidan Liu" in the top-left zooms in hard early in
+// the hero, holds at its largest through the middle of the scroll, then
+// settles back to 1× as the hero exits.
+// Animates font-size directly rather than CSS transform: scale(). Scaling text
+// via transform stretches an already-rasterized layer, which blurs at large
+// sizes — the same reason sites like isadeburgh.com use a vector SVG logo for
+// this effect instead of scaled text. Animating font-size makes the browser
+// re-render the glyphs sharp at every size.
 // Uses a continuous rAF loop to stay in sync with the lerp smooth-scroll system
 // (which updates scrollY via rAF rather than native wheel events).
 // Pointer events disabled while scaled so the large text doesn't block hero clicks.
-// Respects prefers-reduced-motion.
+// Runs at full intensity for all visitors, regardless of prefers-reduced-motion —
+// it's a simple size change with no flashing or fast parallax.
 (() => {
-  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const peakGrowth = 4.5; // 1× → ≈5.5× at peak
+  const T1 = 0.30; // scroll fraction where the peak is reached
+  const T2 = 0.65; // scroll fraction where the hold ends and it starts shrinking
 
   const nameEl = document.querySelector('header.topbar .name');
   const heroSection = document.querySelector('.hero');
   if (!nameEl || !heroSection) return;
+
+  const baseFontSize = parseFloat(getComputedStyle(nameEl).fontSize) || 13;
+
+  const clamp01 = (v) => Math.min(Math.max(v, 0), 1);
+  const smoothstep = (e0, e1, x) => {
+    const tt = clamp01((x - e0) / (e1 - e0));
+    return tt * tt * (3 - 2 * tt);
+  };
 
   let lastScale = -1; // force first write
 
@@ -1047,20 +1064,26 @@ if (linksHeading) {
     const scrollY = window.scrollY;
     const heroH = heroSection.offsetHeight || window.innerHeight;
 
-    let scale;
-    if (scrollY <= 0 || scrollY >= heroH) {
-      scale = 1;
+    // t: 0 → 1 across the full hero scroll, clamped outside it
+    const t = clamp01(scrollY / heroH);
+
+    let growth;
+    if (t <= T1) {
+      // Zoom in hard toward the peak
+      growth = smoothstep(0, T1, t) * peakGrowth;
+    } else if (t <= T2) {
+      // Hold steady at the largest size
+      growth = peakGrowth;
     } else {
-      // t: 0 → 1 over the first 55% of hero height
-      const t = Math.min(scrollY / (heroH * 0.55), 1);
-      // ease-out quart — fast initial growth, smooth settle
-      const eased = 1 - Math.pow(1 - t, 4);
-      scale = 1 + eased * 2.2; // 1× → ≈3.2× at peak
+      // Settle back to 1× as the hero exits
+      growth = peakGrowth * (1 - smoothstep(T2, 1, t));
     }
+
+    const scale = 1 + growth;
 
     // Only write to DOM when the scale has actually changed
     if (Math.abs(scale - lastScale) > 0.001) {
-      nameEl.style.transform = `scale(${scale.toFixed(3)})`;
+      nameEl.style.fontSize = `${(baseFontSize * scale).toFixed(2)}px`;
       nameEl.style.pointerEvents = scale > 1.05 ? 'none' : 'auto';
       lastScale = scale;
     }
