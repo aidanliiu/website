@@ -583,3 +583,14 @@
     transform: none;
   }
 }
+
+/* Mobile viewport-height correctness — see the matching note in style.css.
+   100dvh tracks the real visible viewport instead of the largest-possible
+   one, so the dark box doesn't get cut off as the browser chrome shows/
+   hides. Scoped to ≤900px so desktop is unaffected. */
+@media (max-width: 900px) {
+  @supports (height: 100dvh) {
+    .links-section { min-height: 160dvh; padding-top: 44dvh; }
+    .info-modal-card { max-height: calc(100dvh - 80px); }
+  }
+}

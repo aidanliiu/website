@@ -1041,7 +1041,10 @@ if (linksHeading) {
     // activeScrollable drives horizontal speed; DWELL_START and DWELL_END
     // are added on top so the first/last cards hold while the user scrolls.
     activeScrollable = Math.round(maxTranslation * 0.6);
-    section.style.minHeight = `calc(100vh + ${DWELL_START + activeScrollable + DWELL_END}px)`;
+    // dvh (not vh) so this matches the real visible viewport on mobile,
+    // where the browser chrome showing/hiding makes vh inaccurate. Identical
+    // to vh on desktop, so this doesn't change desktop sizing.
+    section.style.minHeight = `calc(100dvh + ${DWELL_START + activeScrollable + DWELL_END}px)`;
   };
 
   const computeTarget = () => {
@@ -1098,7 +1101,7 @@ if (linksHeading) {
 // Runs at full intensity for all visitors, regardless of prefers-reduced-motion —
 // it's a simple size change with no flashing or fast parallax.
 (() => {
-  const peakGrowth = 4.5; // 1× → ≈5.5× at peak
+  const peakGrowth = 4.5; // 1× → ≈5.5× at peak, on wide-enough screens
   const T1 = 0.30; // scroll fraction where the peak is reached
   const T2 = 0.65; // scroll fraction where the hold ends and it starts shrinking
   const IDLE_FONT_SIZE = 13; // px — must match .name-full-wrap font-size in style.css
@@ -1115,11 +1118,23 @@ if (linksHeading) {
     return tt * tt * (3 - 2 * tt);
   };
 
+  // At full peakGrowth, the zoomed text can run past 350px wide — fine on
+  // desktop, but on phone-width viewports it would overlap the hamburger
+  // button on the right. Cap how big it's allowed to get based on viewport
+  // width so it never grows past roughly a third of the screen.
+  const maxGrowthForViewport = () => {
+    const vw = window.innerWidth;
+    if (vw >= 700) return peakGrowth;
+    if (vw >= 480) return 1.8; // ~2.8× — tablets/large phones
+    return 1.1; // ~2.1× — small phones
+  };
+
   let lastScale = -1; // force first write
 
   const tick = () => {
     const scrollY = window.scrollY;
     const heroH = heroSection.offsetHeight || window.innerHeight;
+    const currentPeakGrowth = maxGrowthForViewport();
 
     // t: 0 → 1 across the full hero scroll, clamped outside it
     const t = clamp01(scrollY / heroH);
@@ -1127,13 +1142,13 @@ if (linksHeading) {
     let growth;
     if (t <= T1) {
       // Zoom in hard toward the peak
-      growth = smoothstep(0, T1, t) * peakGrowth;
+      growth = smoothstep(0, T1, t) * currentPeakGrowth;
     } else if (t <= T2) {
       // Hold steady at the largest size
-      growth = peakGrowth;
+      growth = currentPeakGrowth;
     } else {
       // Settle back to 1× as the hero exits
-      growth = peakGrowth * (1 - smoothstep(T2, 1, t));
+      growth = currentPeakGrowth * (1 - smoothstep(T2, 1, t));
     }
 
     const scale = 1 + growth; // 1 = idle (13px-equivalent), up to 1+peakGrowth at peak

@@ -504,6 +504,14 @@ section {
   display: block;
 }
 
+/* It follows the mouse cursor — on touch devices there is no cursor to
+   follow, so it would otherwise sit frozen in the middle of the hero. */
+@media (max-width: 900px), (pointer: coarse) {
+  .scroll-hint {
+    display: none;
+  }
+}
+
 .hero-bottom {
   position: fixed;
   bottom: 64px;
@@ -1549,6 +1557,25 @@ footer.site-footer {
   .intro p {
     font-size: 14px;
     max-width: 90%;
+  }
+}
+
+/* ============================================================
+   Mobile — viewport-height correctness
+   ============================================================
+   100vh on mobile browsers is sized to the SMALLEST possible viewport
+   (address bar hidden), so full-height sections render taller than the
+   visible area when the address bar is showing, causing content to be
+   cut off and the layout to jump as it shows/hides during scroll. 100dvh
+   tracks the actual visible viewport instead. Scoped to ≤900px + an
+   @supports check so desktop (where vh and dvh are identical anyway)
+   renders exactly as before. */
+@media (max-width: 900px) {
+  @supports (height: 100dvh) {
+    .hero { min-height: 108dvh; }
+    .corgi-track { height: 100dvh; }
+    .stack { height: 100dvh; }
+    .awards-sticky { height: 100dvh; }
   }
 }
 
