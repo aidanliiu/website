@@ -69,9 +69,8 @@ if (hero && scrollHint) {
 // Smooth, momentum-style scrolling: wheel input accumulates into a target
 // scroll position that the page eases toward every frame, so scrolling
 // flows continuously instead of jumping in discrete steps.
+// Runs for all visitors regardless of prefers-reduced-motion, by request.
 (() => {
-  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-
   const maxScroll = () => document.documentElement.scrollHeight - window.innerHeight;
 
   let target = window.scrollY;
@@ -81,10 +80,11 @@ if (hero && scrollHint) {
   const clamp = (v) => Math.min(Math.max(v, 0), maxScroll());
 
   const step = () => {
-    // Single, slightly slow ease toward the target — a Lenis-style
-    // smooth-scroll feel: each wheel notch nudges the target, and the
-    // page glides the rest of the way there over several frames.
-    current += (target - current) * 0.085;
+    // Slow ease toward the target — a Lenis-style smooth-scroll feel: each
+    // wheel notch nudges the target, and the page glides the rest of the way
+    // there over many frames rather than catching up immediately. The lower
+    // the factor, the longer the glide/"delay" reads before it settles.
+    current += (target - current) * 0.045;
     if (Math.abs(target - current) < 0.05) {
       current = target;
     }
@@ -100,11 +100,12 @@ if (hero && scrollHint) {
     e.preventDefault();
     // Normalize delta across input devices/browsers (line vs pixel mode)
     // and cap it so a single large notch doesn't cause a visible jump —
-    // the easing then smooths the rest of the way.
+    // the easing then smooths the rest of the way. A higher cap lets a fast
+    // scroll gesture carry more momentum into the glide.
     let delta = e.deltaY;
     if (e.deltaMode === 1) delta *= 18; // line mode
     else if (e.deltaMode === 2) delta *= window.innerHeight; // page mode
-    delta = Math.max(Math.min(delta, 100), -100);
+    delta = Math.max(Math.min(delta, 220), -220);
 
     target = clamp(target + delta);
     if (!ticking) {
@@ -1031,11 +1032,14 @@ if (linksHeading) {
 // Name scale-on-scroll — "Aidan Liu" in the top-left zooms in hard early in
 // the hero, holds at its largest through the middle of the scroll, then
 // settles back to 1× as the hero exits.
-// Animates font-size directly rather than CSS transform: scale(). Scaling text
-// via transform stretches an already-rasterized layer, which blurs at large
-// sizes — the same reason sites like isadeburgh.com use a vector SVG logo for
-// this effect instead of scaled text. Animating font-size makes the browser
-// re-render the glyphs sharp at every size.
+// .name-full is rendered at a large NATIVE_FONT_SIZE in CSS (see style.css —
+// the two values must match) and scaled DOWN via transform toward that idle
+// footprint; the zoom here only ever increases that transform scale back
+// toward 1, so the displayed text is always sourced from a high-res raster
+// and never upscaled — crisp at every size, the same trick sites like
+// isadeburgh.com get for free from using a vector SVG logo instead of text.
+// Using transform (not font-size) also means this is compositor-only — no
+// layout reflow per frame — which keeps the animation itself smooth.
 // Uses a continuous rAF loop to stay in sync with the lerp smooth-scroll system
 // (which updates scrollY via rAF rather than native wheel events).
 // Pointer events disabled while scaled so the large text doesn't block hero clicks.
@@ -1045,12 +1049,13 @@ if (linksHeading) {
   const peakGrowth = 4.5; // 1× → ≈5.5× at peak
   const T1 = 0.30; // scroll fraction where the peak is reached
   const T2 = 0.65; // scroll fraction where the hold ends and it starts shrinking
+  const IDLE_FONT_SIZE = 13; // px — must match .name-full-wrap font-size in style.css
+  const NATIVE_FONT_SIZE = 96; // px — must match .name-full font-size in style.css
 
-  const nameEl = document.querySelector('header.topbar .name');
+  const nameEl = document.querySelector('header.topbar .name'); // for pointer-events only
+  const nameFullEl = document.querySelector('header.topbar .name-full'); // the actual scaled text
   const heroSection = document.querySelector('.hero');
-  if (!nameEl || !heroSection) return;
-
-  const baseFontSize = parseFloat(getComputedStyle(nameEl).fontSize) || 13;
+  if (!nameEl || !nameFullEl || !heroSection) return;
 
   const clamp01 = (v) => Math.min(Math.max(v, 0), 1);
   const smoothstep = (e0, e1, x) => {
@@ -1079,11 +1084,13 @@ if (linksHeading) {
       growth = peakGrowth * (1 - smoothstep(T2, 1, t));
     }
 
-    const scale = 1 + growth;
+    const scale = 1 + growth; // 1 = idle (13px-equivalent), up to 1+peakGrowth at peak
 
     // Only write to DOM when the scale has actually changed
     if (Math.abs(scale - lastScale) > 0.001) {
-      nameEl.style.fontSize = `${(baseFontSize * scale).toFixed(2)}px`;
+      const displayedSize = IDLE_FONT_SIZE * scale;
+      const transformScale = displayedSize / NATIVE_FONT_SIZE; // always scaling DOWN from the native raster
+      nameFullEl.style.transform = `scale(${transformScale.toFixed(4)})`;
       nameEl.style.pointerEvents = scale > 1.05 ? 'none' : 'auto';
       lastScale = scale;
     }

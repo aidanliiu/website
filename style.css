@@ -75,7 +75,7 @@ header.topbar .name {
   display: inline-grid;
 }
 
-header.topbar .name-full,
+header.topbar .name-full-wrap,
 header.topbar .name-short {
   grid-area: 1 / 1;
   transition: opacity 0.4s cubic-bezier(0.22, 1, 0.36, 1), filter 0.4s cubic-bezier(0.22, 1, 0.36, 1);
@@ -87,12 +87,12 @@ header.topbar .name-short {
   pointer-events: none;
 }
 
-header.topbar .name-full {
+header.topbar .name-full-wrap {
   opacity: 1;
   filter: blur(0);
 }
 
-header.topbar.is-scrolled .name-full {
+header.topbar.is-scrolled .name-full-wrap {
   opacity: 0;
   filter: blur(4px);
 }
@@ -100,6 +100,35 @@ header.topbar.is-scrolled .name-full {
 header.topbar.is-scrolled .name-short {
   opacity: 1;
   filter: blur(0);
+}
+
+/* ---- Name zoom: render at high native resolution, then scale DOWN ---- */
+/* .name-full-wrap is invisible but keeps the original 13px footprint, so the
+   link's clickable hit area and the topbar layout stay exactly as before.
+   .name-full inside it renders the real text at a much larger native font
+   size and is scaled down via transform toward that footprint — meaning the
+   scroll-driven zoom (in script.js) only ever scales DOWN from a high-res
+   raster, never up from a low-res one, so the text stays crisp at any size.
+   transform is also compositor-only (no layout reflow), so the animation
+   itself stays smooth. NATIVE_FONT_SIZE here (96) must match script.js. */
+header.topbar .name-full-wrap {
+  position: relative;
+  font-size: 13px;
+  white-space: nowrap;
+  visibility: hidden;
+}
+
+header.topbar .name-full {
+  position: absolute;
+  top: 0;
+  left: 0;
+  font-size: 96px;
+  color: inherit;
+  white-space: nowrap;
+  visibility: visible;
+  transform-origin: top left;
+  transform: scale(0.13542); /* 13 / 96 — idle size matches the old 13px text */
+  will-change: transform;
 }
 
 header.topbar .topbar-right {
@@ -1653,13 +1682,6 @@ footer.site-footer {
 .awards-section.is-visible .award-card {
   animation: awardCardIn 0.5s cubic-bezier(0.22, 1, 0.36, 1)
              calc(var(--card-i, 0) * 0.04s) backwards;
-}
-
-/* ---- Name scale-on-scroll: grows via font-size (JS), not transform ---- */
-/* font-size keeps text crisp at large sizes — transform: scale() would */
-/* stretch a rasterized layer and blur, since text isn't vector like an SVG logo */
-header.topbar .name {
-  will-change: font-size;
 }
 
 /* ---- Reduced motion: disable all reveal animations ---- */
