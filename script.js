@@ -389,6 +389,58 @@ if (linksHeading) {
   headingObserver.observe(linksHeading);
 }
 
+// Generic word-by-word reveal: splits an element's text into individually
+// staggered .word spans (same technique as the "Get to know me" heading
+// above, generalized). Applied to a deliberately short list of standout
+// headline/paragraph blocks via the .word-reveal class in the HTML — the
+// intro greeting, hero tagline, "Some things I've worked on" divider, and
+// the closing headline — rather than every small label site-wide, since
+// uniform motion on every text node reads as a tic rather than craft.
+// Runs for all visitors regardless of prefers-reduced-motion, by request
+// (matching the name-zoom and smooth-scroll overrides above); this is a
+// short opacity/blur fade with no flashing or fast motion.
+(() => {
+  const splitIntoWords = (el) => {
+    let i = 0;
+    const nodes = Array.from(el.childNodes);
+    const frag = document.createDocumentFragment();
+
+    nodes.forEach((node) => {
+      if (node.nodeType === Node.TEXT_NODE) {
+        node.textContent.split(/(\s+)/).forEach((chunk) => {
+          if (chunk.trim() === '') {
+            if (chunk !== '') frag.appendChild(document.createTextNode(' '));
+          } else {
+            const span = document.createElement('span');
+            span.className = 'word';
+            span.style.setProperty('--i', i++);
+            span.textContent = chunk;
+            frag.appendChild(span);
+          }
+        });
+      } else if (node.nodeType === Node.ELEMENT_NODE) {
+        const wrapper = document.createElement(node.tagName);
+        wrapper.className = 'word';
+        wrapper.style.setProperty('--i', i++);
+        wrapper.textContent = node.textContent;
+        frag.appendChild(wrapper);
+      }
+    });
+
+    el.replaceChildren(frag);
+  };
+
+  document.querySelectorAll('.word-reveal').forEach((el) => {
+    splitIntoWords(el);
+    const obs = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        el.classList.toggle('is-visible', entry.isIntersecting);
+      });
+    }, { threshold: 0.4 });
+    obs.observe(el);
+  });
+})();
+
 // ============================================================
 // ============================================================
 // Link info modal — clicking a card with a data-info attribute opens a

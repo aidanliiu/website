@@ -1673,6 +1673,29 @@ footer.site-footer {
   transition-delay: 0.26s;
 }
 
+/* ---- Word-by-word reveal: generic, applied to a few standout headline/ ---- */
+/* paragraph blocks (intro greeting, hero tagline, divider label, closing
+   headline) rather than every small label site-wide — uniform motion on
+   every text node reads as a tic, not craft. script.js splits .word-reveal
+   elements into individual .word spans and toggles .is-visible per element
+   via its own IntersectionObserver. */
+.word-reveal .word {
+  display: inline-block;
+  opacity: 0;
+  transform: translateY(0.4em);
+  filter: blur(4px);
+  transition: opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1),
+              transform 0.6s cubic-bezier(0.22, 1, 0.36, 1),
+              filter 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+  transition-delay: calc(var(--i, 0) * 0.045s);
+}
+
+.word-reveal.is-visible .word {
+  opacity: 1;
+  transform: translateY(0);
+  filter: blur(0);
+}
+
 /* ---- Awards belt: staggered card entrance ---- */
 @keyframes awardCardIn {
   from { opacity: 0; transform: translateY(16px); }
