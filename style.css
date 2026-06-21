@@ -1243,14 +1243,19 @@ footer.site-footer {
   align-items: stretch;
 }
 
-/* Individual award card — taller, wider, with visual icon area */
+/* Individual award card — taller, wider, with visual icon area.
+   Every visual element (label, year, border, icon tint, hover) reads off
+   one --cat custom property per category, so the color tokens live in one
+   place instead of being repeated per element — kept deliberately subtle
+   (thin border, plain-colored text, no fills) to stay minimalist. */
 .award-card {
+  --cat: 17, 17, 17; /* neutral fallback */
   width: 290px;
   height: 380px;
   flex-shrink: 0;
   background: #fff;
   border-radius: 12px;
-  border: 1.5px solid rgba(17, 17, 17, 0.1);
+  border: 1.5px solid rgba(var(--cat), 0.32);
   padding: 18px 16px 0;
   display: flex;
   flex-direction: column;
@@ -1260,6 +1265,7 @@ footer.site-footer {
 
 .award-card:hover {
   transform: translateY(-5px);
+  box-shadow: 0 10px 32px -8px rgba(var(--cat), 0.22);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -1268,48 +1274,18 @@ footer.site-footer {
 }
 
 /* ── Category colour tokens ── */
-
-/* VEX Robotics — electric blue */
-.award-card--vex {
-  border-color: rgba(34, 85, 204, 0.35);
-}
-.award-card--vex:hover { box-shadow: 0 10px 32px rgba(34, 85, 204, 0.2); }
-.award-card--vex .award-cat { color: rgba(34, 85, 204, 0.9); }
-.award-card--vex .award-icon { background: rgba(34, 85, 204, 0.05); color: rgba(34, 85, 204, 0.3); }
-
-/* Varsity Basketball — burnt orange */
-.award-card--vball {
-  border-color: rgba(196, 64, 0, 0.35);
-}
-.award-card--vball:hover { box-shadow: 0 10px 32px rgba(196, 64, 0, 0.2); }
-.award-card--vball .award-cat { color: rgba(196, 64, 0, 0.9); }
-.award-card--vball .award-icon { background: rgba(196, 64, 0, 0.05); color: rgba(196, 64, 0, 0.3); }
-
-/* JV Basketball — dark teal */
-.award-card--jv {
-  border-color: rgba(26, 110, 92, 0.35);
-}
-.award-card--jv:hover { box-shadow: 0 10px 32px rgba(26, 110, 92, 0.2); }
-.award-card--jv .award-cat { color: rgba(26, 110, 92, 0.9); }
-.award-card--jv .award-icon { background: rgba(26, 110, 92, 0.05); color: rgba(26, 110, 92, 0.3); }
-
-/* Board Recognition — gold */
-.award-card--gold {
-  border-color: rgba(155, 95, 0, 0.35);
-}
-.award-card--gold:hover { box-shadow: 0 10px 32px rgba(155, 95, 0, 0.2); }
+.award-card--vex   { --cat: 34, 85, 204; }   /* VEX Robotics — electric blue */
+.award-card--vball { --cat: 196, 64, 0; }    /* Varsity + JV Basketball — burnt orange */
+.award-card--jv     { --cat: 26, 110, 92; }  /* reserved — dark teal, currently unused */
+.award-card--gold  { --cat: 155, 95, 0; }    /* Board Recognition — gold */
 
 .award-cat {
   font-size: 10px;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: rgba(17, 17, 17, 0.35);
+  color: rgb(var(--cat)); /* solid, not faded — keeps small text ≥4.5:1 on white */
   margin: 0 0 8px;
   display: block;
-}
-
-.award-card--gold .award-cat {
-  color: rgba(140, 85, 0, 0.85);
 }
 
 .award-year {
@@ -1337,12 +1313,12 @@ footer.site-footer {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(17, 17, 17, 0.04);
+  background: rgba(var(--cat), 0.05);
   border-radius: 8px;
   margin: 12px 0 12px;
   min-height: 72px;
   overflow: hidden;
-  color: rgba(17, 17, 17, 0.18);
+  color: rgba(var(--cat), 0.3);
 }
 
 .award-icon svg {
@@ -1360,11 +1336,6 @@ footer.site-footer {
 
 .award-icon--zoom img {
   object-fit: cover;
-}
-
-.award-card--gold .award-icon {
-  background: rgba(155, 95, 0, 0.05);
-  color: rgba(155, 95, 0, 0.32);
 }
 
 .award-sub {
