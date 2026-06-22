@@ -1206,6 +1206,7 @@ footer.site-footer {
   height: 100vh;
   display: flex;
   flex-direction: column;
+  justify-content: center; /* label + belt center together as one group */
   overflow: hidden;
   background: #fff;
 }
@@ -1214,13 +1215,73 @@ footer.site-footer {
 .awards-header,
 .awards-hint { display: none; }
 
-/* Belt: full-height horizontal window, cards stretch edge-to-edge */
-.awards-belt {
+/* Small section label — minimal, professional: a quiet uppercase tag plus
+   a thin rule that draws in from the left, and a short personal caption
+   underneath. Reuses the .awards-section IntersectionObserver already
+   wired up in script.js for the card stagger, so no new JS is needed for
+   the line; the text itself uses the shared .word-reveal system (see the
+   MOTION section below) for a word-by-word fade-in, consistent with the
+   labels elsewhere on the site. */
+.awards-label-wrap {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 0 48px 14px;
+}
+
+.awards-label-row {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.awards-label {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.awards-label-line {
   flex: 1;
+  height: 1px;
+  background: var(--border);
+  transform-origin: left center;
+  transform: scaleX(0);
+  transition: transform 1s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.awards-section.is-visible .awards-label-line {
+  transform: scaleX(1);
+}
+
+.awards-caption {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(17px, 1.8vw, 21px);
+  color: var(--fg);
+  margin: 0;
+}
+
+@media (max-width: 700px) {
+  .awards-label-wrap {
+    padding: 0 22px 10px;
+    gap: 8px;
+  }
+}
+
+/* Belt: horizontal window, cards stretch edge-to-edge. No longer flex:1 —
+   sized to its own content so it sits directly under the label rather
+   than stretching to fill the rest of the sticky panel and centering the
+   cards far away from it. */
+.awards-belt {
+  flex-shrink: 0;
   overflow: hidden;
   display: flex;
   align-items: center;
-  padding: 28px 48px;
+  padding: 12px 48px 28px;
   box-sizing: border-box;
 }
 
@@ -1346,7 +1407,7 @@ footer.site-footer {
 }
 
 @media (max-width: 700px) {
-  .awards-belt { padding: 20px 16px; }
+  .awards-belt { padding: 8px 16px 20px; }
   .award-card  { width: 220px; border-radius: 10px; padding: 16px 14px 0; }
 }
 

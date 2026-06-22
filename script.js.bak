@@ -69,9 +69,8 @@ if (hero && scrollHint) {
 // Smooth, momentum-style scrolling: wheel input accumulates into a target
 // scroll position that the page eases toward every frame, so scrolling
 // flows continuously instead of jumping in discrete steps.
+// Runs for all visitors regardless of prefers-reduced-motion, by request.
 (() => {
-  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-
   const maxScroll = () => document.documentElement.scrollHeight - window.innerHeight;
 
   let target = window.scrollY;
@@ -81,10 +80,11 @@ if (hero && scrollHint) {
   const clamp = (v) => Math.min(Math.max(v, 0), maxScroll());
 
   const step = () => {
-    // Single, slightly slow ease toward the target — a Lenis-style
-    // smooth-scroll feel: each wheel notch nudges the target, and the
-    // page glides the rest of the way there over several frames.
-    current += (target - current) * 0.085;
+    // Slow ease toward the target — a Lenis-style smooth-scroll feel: each
+    // wheel notch nudges the target, and the page glides the rest of the way
+    // there over many frames rather than catching up immediately. The lower
+    // the factor, the longer the glide/"delay" reads before it settles.
+    current += (target - current) * 0.045;
     if (Math.abs(target - current) < 0.05) {
       current = target;
     }
@@ -100,11 +100,12 @@ if (hero && scrollHint) {
     e.preventDefault();
     // Normalize delta across input devices/browsers (line vs pixel mode)
     // and cap it so a single large notch doesn't cause a visible jump —
-    // the easing then smooths the rest of the way.
+    // the easing then smooths the rest of the way. A higher cap lets a fast
+    // scroll gesture carry more momentum into the glide.
     let delta = e.deltaY;
     if (e.deltaMode === 1) delta *= 18; // line mode
     else if (e.deltaMode === 2) delta *= window.innerHeight; // page mode
-    delta = Math.max(Math.min(delta, 100), -100);
+    delta = Math.max(Math.min(delta, 220), -220);
 
     target = clamp(target + delta);
     if (!ticking) {
@@ -387,6 +388,58 @@ if (linksHeading) {
   }, { threshold: 0.4 });
   headingObserver.observe(linksHeading);
 }
+
+// Generic word-by-word reveal: splits an element's text into individually
+// staggered .word spans (same technique as the "Get to know me" heading
+// above, generalized). Applied to a deliberately short list of standout
+// headline/paragraph blocks via the .word-reveal class in the HTML — the
+// intro greeting, hero tagline, "Some things I've worked on" divider, and
+// the closing headline — rather than every small label site-wide, since
+// uniform motion on every text node reads as a tic rather than craft.
+// Runs for all visitors regardless of prefers-reduced-motion, by request
+// (matching the name-zoom and smooth-scroll overrides above); this is a
+// short opacity/blur fade with no flashing or fast motion.
+(() => {
+  const splitIntoWords = (el) => {
+    let i = 0;
+    const nodes = Array.from(el.childNodes);
+    const frag = document.createDocumentFragment();
+
+    nodes.forEach((node) => {
+      if (node.nodeType === Node.TEXT_NODE) {
+        node.textContent.split(/(\s+)/).forEach((chunk) => {
+          if (chunk.trim() === '') {
+            if (chunk !== '') frag.appendChild(document.createTextNode(' '));
+          } else {
+            const span = document.createElement('span');
+            span.className = 'word';
+            span.style.setProperty('--i', i++);
+            span.textContent = chunk;
+            frag.appendChild(span);
+          }
+        });
+      } else if (node.nodeType === Node.ELEMENT_NODE) {
+        const wrapper = document.createElement(node.tagName);
+        wrapper.className = 'word';
+        wrapper.style.setProperty('--i', i++);
+        wrapper.textContent = node.textContent;
+        frag.appendChild(wrapper);
+      }
+    });
+
+    el.replaceChildren(frag);
+  };
+
+  document.querySelectorAll('.word-reveal').forEach((el) => {
+    splitIntoWords(el);
+    const obs = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        el.classList.toggle('is-visible', entry.isIntersecting);
+      });
+    }, { threshold: 0.4 });
+    obs.observe(el);
+  });
+})();
 
 // ============================================================
 // ============================================================
@@ -988,7 +1041,10 @@ if (linksHeading) {
     // activeScrollable drives horizontal speed; DWELL_START and DWELL_END
     // are added on top so the first/last cards hold while the user scrolls.
     activeScrollable = Math.round(maxTranslation * 0.6);
-    section.style.minHeight = `calc(100vh + ${DWELL_START + activeScrollable + DWELL_END}px)`;
+    // dvh (not vh) so this matches the real visible viewport on mobile,
+    // where the browser chrome showing/hiding makes vh inaccurate. Identical
+    // to vh on desktop, so this doesn't change desktop sizing.
+    section.style.minHeight = `calc(100dvh + ${DWELL_START + activeScrollable + DWELL_END}px)`;
   };
 
   const computeTarget = () => {
@@ -1026,4 +1082,104 @@ if (linksHeading) {
   window.addEventListener('scroll', scheduleUpdate, { passive: true });
   window.addEventListener('resize', () => { measure(); scheduleUpdate(); });
   window.addEventListener('load',   () => { measure(); scheduleUpdate(); });
+})();
+
+// Name scale-on-scroll — "Aidan Liu" in the top-left zooms in hard early in
+// the hero, holds at its largest through the middle of the scroll, then
+// settles back to 1× as the hero exits.
+// .name-full is rendered at a large NATIVE_FONT_SIZE in CSS (see style.css —
+// the two values must match) and scaled DOWN via transform toward that idle
+// footprint; the zoom here only ever increases that transform scale back
+// toward 1, so the displayed text is always sourced from a high-res raster
+// and never upscaled — crisp at every size, the same trick sites like
+// isadeburgh.com get for free from using a vector SVG logo instead of text.
+// Using transform (not font-size) also means this is compositor-only — no
+// layout reflow per frame — which keeps the animation itself smooth.
+// Uses a continuous rAF loop to stay in sync with the lerp smooth-scroll system
+// (which updates scrollY via rAF rather than native wheel events).
+// Pointer events disabled while scaled so the large text doesn't block hero clicks.
+// Runs at full intensity for all visitors, regardless of prefers-reduced-motion —
+// it's a simple size change with no flashing or fast parallax.
+(() => {
+  const peakGrowth = 4.5; // 1× → ≈5.5× at peak, on wide-enough screens
+  const T1 = 0.30; // scroll fraction where the peak is reached
+  const T2 = 0.65; // scroll fraction where the hold ends and it starts shrinking
+  const IDLE_FONT_SIZE = 13; // px — must match .name-full-wrap font-size in style.css
+  const NATIVE_FONT_SIZE = 96; // px — must match .name-full font-size in style.css
+
+  const nameEl = document.querySelector('header.topbar .name'); // for pointer-events only
+  const nameFullEl = document.querySelector('header.topbar .name-full'); // the actual scaled text
+  const heroSection = document.querySelector('.hero');
+  if (!nameEl || !nameFullEl || !heroSection) return;
+
+  const clamp01 = (v) => Math.min(Math.max(v, 0), 1);
+  const smoothstep = (e0, e1, x) => {
+    const tt = clamp01((x - e0) / (e1 - e0));
+    return tt * tt * (3 - 2 * tt);
+  };
+
+  // At full peakGrowth, the zoomed text can run past 350px wide — fine on
+  // desktop, but on phone-width viewports it would overlap the hamburger
+  // button on the right. Cap how big it's allowed to get based on viewport
+  // width so it never grows past roughly a third of the screen.
+  const maxGrowthForViewport = () => {
+    const vw = window.innerWidth;
+    if (vw >= 700) return peakGrowth;
+    if (vw >= 480) return 1.8; // ~2.8× — tablets/large phones
+    return 1.1; // ~2.1× — small phones
+  };
+
+  let lastScale = -1; // force first write
+
+  const tick = () => {
+    const scrollY = window.scrollY;
+    const heroH = heroSection.offsetHeight || window.innerHeight;
+    const currentPeakGrowth = maxGrowthForViewport();
+
+    // t: 0 → 1 across the full hero scroll, clamped outside it
+    const t = clamp01(scrollY / heroH);
+
+    let growth;
+    if (t <= T1) {
+      // Zoom in hard toward the peak
+      growth = smoothstep(0, T1, t) * currentPeakGrowth;
+    } else if (t <= T2) {
+      // Hold steady at the largest size
+      growth = currentPeakGrowth;
+    } else {
+      // Settle back to 1× as the hero exits
+      growth = currentPeakGrowth * (1 - smoothstep(T2, 1, t));
+    }
+
+    const scale = 1 + growth; // 1 = idle (13px-equivalent), up to 1+peakGrowth at peak
+
+    // Only write to DOM when the scale has actually changed
+    if (Math.abs(scale - lastScale) > 0.001) {
+      const displayedSize = IDLE_FONT_SIZE * scale;
+      const transformScale = displayedSize / NATIVE_FONT_SIZE; // always scaling DOWN from the native raster
+      nameFullEl.style.transform = `scale(${transformScale.toFixed(4)})`;
+      nameEl.style.pointerEvents = scale > 1.05 ? 'none' : 'auto';
+      lastScale = scale;
+    }
+
+    requestAnimationFrame(tick);
+  };
+
+  requestAnimationFrame(tick);
+})();
+
+// Awards section entrance: index each card so CSS can stagger them in.
+(() => {
+  const section = document.querySelector('.awards-section');
+  if (!section) return;
+  section.querySelectorAll('.award-card').forEach((card, i) => {
+    card.style.setProperty('--card-i', i);
+  });
+  const obs = new IntersectionObserver((entries) => {
+    if (entries[0].isIntersecting) {
+      section.classList.add('is-visible');
+      obs.disconnect();
+    }
+  }, { threshold: 0.08 });
+  obs.observe(section);
 })();

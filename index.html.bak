@@ -4,7 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Aidan Liu</title>
-<meta name="description" content="Aidan Liu — student, researcher, robotics team captain, and community organizer in Saratoga, CA.">
+<meta name="description" content="Aidan Liu — student at Saratoga High School. Into robotics, basketball, research, and a lot more.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 <link rel="stylesheet" href="links.css">
 </head>
@@ -12,7 +15,9 @@
 
   <header class="topbar">
     <a href="#top" class="name" id="brand-name">
-      <span class="name-full">Aidan Liu</span>
+      <span class="name-full-wrap">
+        <span class="name-full">Aidan Liu</span>
+      </span>
       <span class="name-short" aria-hidden="true">A.L.</span>
     </a>
     <nav class="tabnav" id="tabnav" aria-label="Page navigation">
@@ -145,7 +150,7 @@
       </div>
     </div>
     <div class="hero-bottom">
-      <p class="tagline">Open to summer research, robotics, and leadership opportunities.</p>
+      <p class="tagline word-reveal">Open to summer research, robotics, and leadership opportunities.</p>
       <hr>
       <div class="hero-social">
         <a href="mailto:aidanliu2008@gmail.com">aidanliu2008@gmail.com</a>
@@ -200,11 +205,10 @@
       </div>
     </div>
     <div class="section-inner reveal-zoom">
-      <h1>Student, researcher &amp; team captain.</h1>
-      <p>
-        I'm Aidan Liu, a student at Saratoga High School working at the intersection of
-        machine learning, cybersecurity, and hands-on robotics — while leading teams in
-        student government, athletics, and community service.
+      <h1 class="word-reveal">Hi, I'm Aidan.</h1>
+      <p class="word-reveal">
+        Junior at Saratoga High. I've been into a lot of things — robotics, basketball,
+        research, student gov, art — and I'm always looking for what's next.
       </p>
     </div>
   </section>
@@ -212,7 +216,7 @@
   <!-- ============ SELECTED WORKS DIVIDER ============ -->
   <section class="selected-works">
     <div class="selected-works-bottom">
-      <span class="selected-works-label reveal-zoom"><span class="shimmer-text">Selected Works</span> <span class="arrow-down">&darr;</span></span>
+      <span class="selected-works-label reveal-zoom"><span class="shimmer-text word-reveal">Some things I've worked on</span> <span class="arrow-down">&darr;</span></span>
       <span class="selected-works-timer" id="page-timer">00:00</span>
     </div>
   </section>
@@ -242,7 +246,7 @@
       <div class="stack-card">
         <div class="stack-tag">03 &middot; SVCSI</div>
         <h3>Post-Quantum Cryptography Research</h3>
-        <p>Explored post-quantum cryptography algorithms, designed an original encryption algorithm, and wrote/presented a <a href="https://drive.google.com/file/d/1NOyVyaduviVALRvGwEAmc7xIMiMfBltP/view?usp=sharing" target="_blank" rel="noopener">research paper</a>.</p>
+        <p>Dug into post-quantum cryptography, wrote and presented a <a href="https://drive.google.com/file/d/1NOyVyaduviVALRvGwEAmc7xIMiMfBltP/view?usp=sharing" target="_blank" rel="noopener">research paper</a> on lattice-based algorithms.</p>
         <div class="stack-date">Jul – Aug 2024</div>
       </div>
 
@@ -265,8 +269,9 @@
           <!-- SVG shorthand macros (inlined per card for full portability) -->
           <!-- GEAR = VEX Robotics  |  BBALL = Basketball  |  STAR = Board Recognition -->
 
-          <!-- ── Set 1 (13 unique awards, newest → oldest) ── -->
+          <!-- ── Set 1 (13 unique awards, grouped by activity, newest → oldest within each) ── -->
           <div class="awards-set">
+            <!-- VEX Robotics -->
             <div class="award-card award-card--vex">
               <span class="award-cat">VEX Robotics</span>
               <p class="award-year">Mar '26</p>
@@ -274,6 +279,35 @@
               <div class="award-icon"><img src="nationals-mar26.jpg" alt="Nationals Tournament Champion"></div>
               <p class="award-sub">Division (Red) Champion · Team 95071V</p>
             </div>
+            <div class="award-card award-card--vex">
+              <span class="award-cat">VEX Robotics</span>
+              <p class="award-year">2025–26</p>
+              <p class="award-name">Worlds, Nationals &amp; States Qualified</p>
+              <div class="award-icon"><img src="worlds-2526.jpg" alt="Worlds Nationals States 2025-26"></div>
+              <p class="award-sub">Team 95071V</p>
+            </div>
+            <div class="award-card award-card--vex">
+              <span class="award-cat">VEX Robotics</span>
+              <p class="award-year">Feb '25</p>
+              <p class="award-name">Create Award Winner</p>
+              <div class="award-icon"><img src="create-award-feb25.jpg" alt="Create Award Winner"></div>
+              <p class="award-sub">NorthCal Silicon Valley Signature Event</p>
+            </div>
+            <div class="award-card award-card--vex">
+              <span class="award-cat">VEX Robotics</span>
+              <p class="award-year">2024–25</p>
+              <p class="award-name">Nationals &amp; States Qualified</p>
+              <div class="award-icon"><img src="nationals-2425.jpg" alt="Nationals & States 2024-25"></div>
+              <p class="award-sub">Team 95071V</p>
+            </div>
+            <div class="award-card award-card--vex">
+              <span class="award-cat">VEX Robotics</span>
+              <p class="award-year">2023–24</p>
+              <p class="award-name">Worlds, Nationals &amp; States Qualified</p>
+              <div class="award-icon award-icon--zoom"><img src="worlds-2324.jpg" alt="Worlds Nationals States 2023-24"></div>
+              <p class="award-sub">Team 95071H</p>
+            </div>
+            <!-- Varsity Basketball -->
             <div class="award-card award-card--vball">
               <span class="award-cat">Varsity Basketball</span>
               <p class="award-year">2025–26</p>
@@ -294,34 +328,6 @@
               <p class="award-name">All Tournament Award</p>
               <div class="award-icon"><img src="alltournament-2526.jpg" alt="All Tournament Award"></div>
               <p class="award-sub">San Marin Mustangs Invitational</p>
-            </div>
-            <div class="award-card award-card--vex">
-              <span class="award-cat">VEX Robotics</span>
-              <p class="award-year">2025–26</p>
-              <p class="award-name">Worlds, Nationals &amp; States Qualified</p>
-              <div class="award-icon"><img src="worlds-2526.jpg" alt="Worlds Nationals States 2025-26"></div>
-              <p class="award-sub">Team 95071V</p>
-            </div>
-            <div class="award-card award-card--gold">
-              <span class="award-cat">Board Recognition</span>
-              <p class="award-year">Dec '25</p>
-              <p class="award-name">Roaring &amp; Soaring Honoree</p>
-              <div class="award-icon"><img src="roaring-soaring-dec25.jpg" alt="Roaring & Soaring Honoree"></div>
-              <p class="award-sub">Los Gatos-Saratoga UHSD Board of Trustees</p>
-            </div>
-            <div class="award-card award-card--vex">
-              <span class="award-cat">VEX Robotics</span>
-              <p class="award-year">Feb '25</p>
-              <p class="award-name">Create Award Winner</p>
-              <div class="award-icon"><img src="create-award-feb25.jpg" alt="Create Award Winner"></div>
-              <p class="award-sub">NorthCal Silicon Valley Signature Event</p>
-            </div>
-            <div class="award-card award-card--vex">
-              <span class="award-cat">VEX Robotics</span>
-              <p class="award-year">2024–25</p>
-              <p class="award-name">Nationals &amp; States Qualified</p>
-              <div class="award-icon"><img src="nationals-2425.jpg" alt="Nationals & States 2024-25"></div>
-              <p class="award-sub">Team 95071V</p>
             </div>
             <div class="award-card award-card--vball">
               <span class="award-cat">Varsity Basketball</span>
@@ -344,19 +350,20 @@
               <div class="award-icon"><img src="allleague-2425.jpg" alt="2024-25 2nd Team All-League"></div>
               <p class="award-sub">SCVAL El Camino Division</p>
             </div>
-            <div class="award-card award-card--vex">
-              <span class="award-cat">VEX Robotics</span>
-              <p class="award-year">2023–24</p>
-              <p class="award-name">Worlds, Nationals &amp; States Qualified</p>
-              <div class="award-icon award-icon--zoom"><img src="worlds-2324.jpg" alt="Worlds Nationals States 2023-24"></div>
-              <p class="award-sub">Team 95071H</p>
-            </div>
             <div class="award-card award-card--vball">
               <span class="award-cat">JV Basketball</span>
               <p class="award-year">2023–24</p>
               <p class="award-name">3rd Team All-League</p>
               <div class="award-icon"><img src="allleague-2324.jpg" alt="2023-24 JV 3rd Team All-League"></div>
               <p class="award-sub">SCVAL El Camino Division</p>
+            </div>
+            <!-- Board Recognition -->
+            <div class="award-card award-card--gold">
+              <span class="award-cat">Board Recognition</span>
+              <p class="award-year">Dec '25</p>
+              <p class="award-name">Roaring &amp; Soaring Honoree</p>
+              <div class="award-icon"><img src="roaring-soaring-dec25.jpg" alt="Roaring & Soaring Honoree"></div>
+              <p class="award-sub">Los Gatos-Saratoga UHSD Board of Trustees</p>
             </div>
           </div><!-- /.awards-set Set 1 -->
 
@@ -373,8 +380,7 @@
     <div class="links-box-bg" aria-hidden="true"></div>
     <div class="links-intro section-inner">
       <h2 class="links-heading" id="links-heading">
-        <em>Aidan</em> is more than what's on the page —
-        here's a closer look at the rest of it.
+        A few other things I'm into.
       </h2>
     </div>
     <div class="links-grid" id="links-grid">
@@ -442,39 +448,19 @@
     <div class="closing section-inner reveal" id="contact">
 
       <div class="closing-header">
-        <div class="eyebrow">Get in touch</div>
-        <h2 class="closing-headline">Let's build something<br>worth talking about.</h2>
+        <h2 class="closing-headline word-reveal">Want to reach out?</h2>
       </div>
 
       <div class="closing-body">
         <div class="closing-left">
           <a class="closing-email" href="mailto:aidanliu2008@gmail.com">aidanliu2008@gmail.com</a>
-          <div class="closing-coffee">
-            <div class="coffee-wrap" aria-hidden="true">
-              <div class="steam">
-                <span class="steam-particle"></span>
-                <span class="steam-particle"></span>
-                <span class="steam-particle"></span>
-              </div>
-              <svg class="coffee-cup" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M12 24h32v14a16 16 0 0 1-16 16 16 16 0 0 1-16-16V24z"/>
-                <path d="M44 28h4a6 6 0 0 1 0 12h-4"/>
-                <path d="M10 54h36"/>
-              </svg>
-            </div>
-            <a class="coffee-link" href="mailto:aidanliu2008@gmail.com">Perfect! Coffee's hot — let's talk. ☕</a>
-          </div>
           <a class="connect-btn" href="mailto:aidanliu2008@gmail.com">Say hello ↗</a>
         </div>
         <div class="closing-right">
-          <div class="closing-skills-label">What I bring</div>
-          <div class="closing-skills">
-            <span class="skill-tag">Machine learning</span>
-            <span class="skill-tag">Post-quantum cryptography</span>
-            <span class="skill-tag">Robotics &amp; mechanical design</span>
-            <span class="skill-tag">Curriculum design</span>
-            <span class="skill-tag">Team leadership</span>
-            <span class="skill-tag">Bilingual / trilingual</span>
+          <div class="closing-social">
+            <a href="https://www.linkedin.com/in/aidan-liu-9b52531b0/" target="_blank" rel="noopener">LinkedIn</a>
+            <a href="https://github.com/aidanliiu" target="_blank" rel="noopener">GitHub</a>
+            <a href="https://www.instagram.com/aidanliiu/" target="_blank" rel="noopener">Instagram</a>
           </div>
         </div>
       </div>
@@ -500,4 +486,4 @@
 <script src="script.js"></script>
 </body>
 </html>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               
