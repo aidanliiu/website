@@ -601,6 +601,4 @@
 @media (max-width: 900px) {
   @supports (height: 100dvh) {
     .links-section { min-height: 160dvh; padding-top: 44dvh; }
-    .info-modal-card { max-height: calc(100dvh - 80px); }
-  }
-}
+    .info-modal-card { max-height: calc(100dvh - 80px);

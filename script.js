@@ -1183,3 +1183,116 @@ if (linksHeading) {
   }, { threshold: 0.08 });
   obs.observe(section);
 })();
+
+// Award Modal
+(() => {
+  var modal    = document.getElementById('award-modal');
+  if (!modal) return;
+  var backdrop = modal.querySelector('.award-modal-backdrop');
+  var closeBtn = modal.querySelector('.award-modal-close');
+  var cardEl   = modal.querySelector('.award-modal-card');
+  var imgEl    = modal.querySelector('.award-modal-img');
+  var catEl    = modal.querySelector('.award-modal-cat');
+  var yearEl   = modal.querySelector('.award-modal-year');
+  var nameEl   = modal.querySelector('.award-modal-name');
+  var subEl    = modal.querySelector('.award-modal-sub');
+  var descEl   = modal.querySelector('.award-modal-desc');
+  var bodyEl   = modal.querySelector('.award-modal-body');
+  var savedScrollY = 0;
+
+  function openModal(sourceCard) {
+    var img = sourceCard.querySelector('.award-icon img');
+    imgEl.src = img ? img.getAttribute('src') : '';
+    imgEl.alt = img ? img.getAttribute('alt') : '';
+    catEl.textContent  = (sourceCard.querySelector('.award-cat')  || {}).textContent || '';
+    yearEl.textContent = (sourceCard.querySelector('.award-year') || {}).textContent || '';
+    nameEl.textContent = (sourceCard.querySelector('.award-name') || {}).textContent || '';
+    subEl.textContent  = (sourceCard.querySelector('.award-sub')  || {}).textContent || '';
+    descEl.textContent = sourceCard.dataset.desc || '';
+
+    var cat = getComputedStyle(sourceCard).getPropertyValue('--cat').trim() || '17,17,17';
+    modal.style.setProperty('--modal-cat', cat);
+    bodyEl.style.setProperty('--modal-cat', cat);
+
+    cardEl.scrollTop = 0;
+
+    // Lock scroll without shifting the page.
+    // position:fixed freezes content in place; top offset preserves visual position.
+    savedScrollY = window.scrollY;
+    document.body.style.top      = '-' + savedScrollY + 'px';
+    document.body.style.position = 'fixed';
+    document.body.style.width    = '100%';
+
+    modal.classList.add('is-open');
+    closeBtn.focus();
+  }
+
+  function closeModal() {
+    modal.classList.remove('is-open');
+    document.body.style.position = '';
+    document.body.style.top      = '';
+    document.body.style.width    = '';
+    window.scrollTo(0, savedScrollY);
+  }
+
+  closeBtn.addEventListener('click', closeModal);
+  backdrop.addEventListener('click', closeModal);
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && modal.classList.contains('is-open')) closeModal();
+  });
+
+  // Smooth lerp tilt on award cards
+  function setupTilt(card) {
+    var tNx = 0, tNy = 0;
+    var cNx = 0, cNy = 0;
+    var tLift = 0, cLift = 0;
+    var rafId = null;
+    var active = false;
+
+    function lerp(a, b, t) { return a + (b - a) * t; }
+
+    function tick() {
+      var L = 0.09;
+      cNx   = lerp(cNx,   tNx,   L);
+      cNy   = lerp(cNy,   tNy,   L);
+      cLift = lerp(cLift, tLift, L);
+
+      var atRest = !active
+        && Math.abs(cNx) < 0.001
+        && Math.abs(cNy) < 0.001
+        && Math.abs(cLift) < 0.001;
+
+      if (atRest) {
+        card.style.transform = '';
+        rafId = null;
+      } else {
+        var rx = (-cNy * 11).toFixed(2);
+        var ry = ( cNx * 11).toFixed(2);
+        var ty = (-cLift * 8).toFixed(2);
+        var sc = (1 + cLift * 0.03).toFixed(4);
+        card.style.transform = 'perspective(650px) rotateX(' + rx + 'deg) rotateY(' + ry + 'deg) translateY(' + ty + 'px) scale(' + sc + ')';
+        rafId = requestAnimationFrame(tick);
+      }
+    }
+
+    card.addEventListener('mouseenter', function() {
+      active = true; tLift = 1;
+      if (!rafId) rafId = requestAnimationFrame(tick);
+    });
+    card.addEventListener('mousemove', function(e) {
+      var r = card.getBoundingClientRect();
+      tNx = (e.clientX - r.left) / r.width  - 0.5;
+      tNy = (e.clientY - r.top)  / r.height - 0.5;
+    });
+    card.addEventListener('mouseleave', function() {
+      active = false; tNx = 0; tNy = 0; tLift = 0;
+      if (!rafId) rafId = requestAnimationFrame(tick);
+    });
+    card.addEventListener('click', function() { openModal(card); });
+    card.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openModal(card); }
+    });
+  }
+
+  document.querySelectorAll('.award-card').forEach(setupTilt);
+})();
