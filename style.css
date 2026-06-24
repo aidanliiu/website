@@ -1029,6 +1029,43 @@ section {
   letter-spacing: 0.02em;
 }
 
+/* "See more →" button on each research card */
+.stack-read-more {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 18px;
+  padding: 8px 16px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--fg);
+  text-decoration: none;
+  border: 1.5px solid var(--border);
+  border-radius: 999px;
+  background: transparent;
+  transition: background 0.22s var(--ease-out),
+              color 0.22s var(--ease-out),
+              border-color 0.22s var(--ease-out),
+              gap 0.22s var(--ease-out);
+}
+.stack-read-more:hover {
+  background: var(--fg);
+  color: #fff;
+  border-color: var(--fg);
+  gap: 12px;
+}
+.stack-read-more svg {
+  flex-shrink: 0;
+  width: 11px;
+  height: 11px;
+  transition: transform 0.22s var(--ease-out);
+}
+.stack-read-more:hover svg {
+  transform: translate(1px, -1px);
+}
+
 @media (max-width: 700px) {
   .stack-card {
     padding: 28px 22px;
@@ -1391,15 +1428,14 @@ footer.site-footer {
   justify-content: center;
   padding: 20px;
   pointer-events: none;
-  opacity: 0;
   visibility: hidden;
-  transition: opacity 0.45s var(--ease-out), visibility 0.45s var(--ease-out);
+  transition: visibility 0s 0.5s;
 }
 
 .award-modal.is-open {
   pointer-events: auto;
-  opacity: 1;
   visibility: visible;
+  transition: visibility 0s;
 }
 
 .award-modal-backdrop {
@@ -1408,6 +1444,12 @@ footer.site-footer {
   background: rgba(0, 0, 0, 0.52);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
+  opacity: 0;
+  transition: opacity 0.4s var(--ease-out);
+}
+
+.award-modal.is-open .award-modal-backdrop {
+  opacity: 1;
 }
 
 .award-modal-card {
@@ -1420,12 +1462,15 @@ footer.site-footer {
   max-height: 88vh;
   overflow-y: auto;
   box-shadow: 0 24px 64px -16px rgba(0,0,0,0.28), 0 8px 24px -8px rgba(0,0,0,0.12);
-  transform: translateY(48px) scale(0.94);
-  transition: transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+  opacity: 0;
+  transform: translateY(24px) scale(0.97);
+  transition: opacity 0.4s var(--ease-out),
+              transform 0.5s var(--ease-out);
   overscroll-behavior: contain;
 }
 
 .award-modal.is-open .award-modal-card {
+  opacity: 1;
   transform: translateY(0) scale(1);
 }
 
@@ -1520,9 +1565,11 @@ footer.site-footer {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .award-modal,
   .award-modal-backdrop,
   .award-modal-card { transition: none; }
-  .award-modal-card { opacity: 1; }
+  .award-modal-backdrop { opacity: 1; }
+  .award-modal-card { opacity: 1; transform: none; }
 }
 
 /* ── Category colour tokens ── */

@@ -713,17 +713,17 @@ if (linksHeading) {
       const relX = (e.clientX - cx) / (rect.width / 2);
       const relY = (e.clientY - cy) / (rect.height / 2);
 
-      btn.style.setProperty('--mx', `${(relX * 10).toFixed(1)}px`);
-      btn.style.setProperty('--my', `${(relY * 10).toFixed(1)}px`);
-      btn.style.setProperty('--mr', `${(relX * 1.5).toFixed(2)}deg`);
+      btn.style.setProperty('--mx', `${(relX * 14).toFixed(1)}px`);
+      btn.style.setProperty('--my', `${(relY * 14).toFixed(1)}px`);
+      btn.style.setProperty('--mr', `${(relX * 2).toFixed(2)}deg`);
 
-      btn.style.setProperty('--lx', `${(relX * 6).toFixed(1)}px`);
-      btn.style.setProperty('--ly', `${(relY * 6).toFixed(1)}px`);
+      btn.style.setProperty('--lx', `${(relX * 9).toFixed(1)}px`);
+      btn.style.setProperty('--ly', `${(relY * 9).toFixed(1)}px`);
 
       // "Lean back" 3D tilt — top of the card tips away from the cursor,
       // like the project cards on noteworthy.studio.
-      btn.style.setProperty('--rx', `${(relY * -22).toFixed(2)}deg`);
-      btn.style.setProperty('--ry', `${(relX * 22).toFixed(2)}deg`);
+      btn.style.setProperty('--rx', `${(relY * -28).toFixed(2)}deg`);
+      btn.style.setProperty('--ry', `${(relX * 28).toFixed(2)}deg`);
     });
 
     btn.addEventListener('mouseleave', () => {
@@ -771,6 +771,82 @@ if (linksHeading) {
       btn.style.setProperty('--py', `${py.toFixed(1)}px`);
     });
   }, { passive: true });
+})();
+
+// ============================================================
+// Link cards — staggered entrance animation + ticker injection
+// Cards slide up and fade in as the grid scrolls into view.
+// Big cards get a scrolling text ticker that appears on hover.
+// ============================================================
+(() => {
+  const grid = document.getElementById('links-grid');
+  if (!grid) return;
+
+  const btns = Array.from(grid.querySelectorAll('.link-btn'));
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const ease = 'cubic-bezier(0.23, 1, 0.32, 1)';
+
+  // ── Entrance animation ────────────────────────────────────
+  if (!reduceMotion) {
+    // Set hidden initial state via inline styles (avoids CSS specificity wars
+    // with the hover transform).
+    btns.forEach((btn) => {
+      btn.style.opacity = '0';
+      btn.style.transform = 'translateY(30px) scale(0.95)';
+    });
+
+    const obs = new IntersectionObserver(([entry]) => {
+      if (!entry.isIntersecting) return;
+      obs.disconnect();
+
+      // Assign each button a staggered transition, then flip to final state.
+      btns.forEach((btn, i) => {
+        const delay = (0.06 + i * 0.07).toFixed(2);
+        btn.style.transition =
+          `opacity 0.6s ${ease} ${delay}s, transform 0.75s ${ease} ${delay}s`;
+      });
+
+      // One rAF so the browser registers the initial state before we flip it.
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          btns.forEach((btn) => {
+            btn.style.opacity = '';
+            btn.style.transform = '';
+          });
+        });
+      });
+
+      // After the last card finishes animating, remove all inline styles so
+      // the CSS hover transform has clean ground to work on.
+      const clearMs = (0.06 + btns.length * 0.07 + 0.75) * 1000 + 80;
+      setTimeout(() => {
+        btns.forEach((btn) => { btn.style.transition = ''; });
+      }, clearMs);
+
+    }, { threshold: 0.06 });
+
+    obs.observe(grid);
+  }
+
+  // ── Ticker injection for big cards ───────────────────────
+  grid.querySelectorAll('.link-btn--big').forEach((btn) => {
+    const label = btn.querySelector('.link-btn-label');
+    if (!label) return;
+    const text = label.textContent.trim().toUpperCase();
+    // Repeat 8× so the track is wide enough for a seamless 50%-scroll loop.
+    const repeated = Array(8).fill(text + ' ·').join(' ');
+
+    const ticker = document.createElement('span');
+    ticker.className = 'link-btn-ticker';
+    ticker.setAttribute('aria-hidden', 'true');
+
+    const track = document.createElement('span');
+    track.className = 'link-btn-ticker-track';
+    track.innerHTML = `<span>${repeated}</span><span>${repeated}</span>`;
+
+    ticker.appendChild(track);
+    btn.appendChild(ticker);
+  });
 })();
 
 // Corgis running across the hero: each one wanders left/right at its own
@@ -1198,7 +1274,6 @@ if (linksHeading) {
   var subEl    = modal.querySelector('.award-modal-sub');
   var descEl   = modal.querySelector('.award-modal-desc');
   var bodyEl   = modal.querySelector('.award-modal-body');
-  var savedScrollY = 0;
 
   function openModal(sourceCard) {
     var img = sourceCard.querySelector('.award-icon img');
@@ -1213,26 +1288,16 @@ if (linksHeading) {
     var cat = getComputedStyle(sourceCard).getPropertyValue('--cat').trim() || '17,17,17';
     modal.style.setProperty('--modal-cat', cat);
     bodyEl.style.setProperty('--modal-cat', cat);
-
     cardEl.scrollTop = 0;
 
-    // Lock scroll without shifting the page.
-    // position:fixed freezes content in place; top offset preserves visual position.
-    savedScrollY = window.scrollY;
-    document.body.style.top      = '-' + savedScrollY + 'px';
-    document.body.style.position = 'fixed';
-    document.body.style.width    = '100%';
-
+    // Identical to links modal — direct class add, no body lock, no RAF.
+    // The links modal is smooth for exactly this reason.
     modal.classList.add('is-open');
     closeBtn.focus();
   }
 
   function closeModal() {
     modal.classList.remove('is-open');
-    document.body.style.position = '';
-    document.body.style.top      = '';
-    document.body.style.width    = '';
-    window.scrollTo(0, savedScrollY);
   }
 
   closeBtn.addEventListener('click', closeModal);

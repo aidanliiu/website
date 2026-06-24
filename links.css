@@ -148,9 +148,13 @@
   letter-spacing: -0.03em;
   line-height: 1;
   color: var(--accent-fg, var(--fg));
-  opacity: 0.16;
+  opacity: 0.2;
+  transition: opacity 0.4s var(--ease-out);
   pointer-events: none;
   white-space: nowrap;
+}
+.link-btn:hover::before {
+  opacity: 0.32;
 }
 
 /* Arrow icon, top-right — slides in and rotates into place on hover,
@@ -207,6 +211,28 @@
   opacity: 0.22;
 }
 
+/* Shimmer sweep on hover — a diagonal light glint that crosses the card */
+.link-btn-bg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    105deg,
+    transparent 30%,
+    rgba(255, 255, 255, 0.07) 50%,
+    transparent 70%
+  );
+  transform: translateX(-120%);
+  transition: transform 0s;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.link-btn:hover .link-btn-bg::after {
+  transform: translateX(120%);
+  transition: transform 0.65s var(--ease-out);
+}
+
 .link-btn-icon {
   position: relative;
   width: 46%;
@@ -246,17 +272,17 @@
 }
 
 .link-btn-label {
-  font-size: clamp(19px, 2vw, 27px);
-  font-weight: 700;
-  letter-spacing: -0.02em;
+  font-size: clamp(22px, 2.4vw, 32px);
+  font-weight: 800;
+  letter-spacing: -0.03em;
   color: #f4f4f2;
   transition: transform 0.4s var(--ease-out);
 }
 
 .link-btn-sub {
   font-size: 12px;
-  color: rgba(244, 244, 242, 0.5);
-  letter-spacing: 0.01em;
+  color: rgba(244, 244, 242, 0.55);
+  letter-spacing: 0.02em;
   transition: color 0.3s var(--ease-out), transform 0.4s var(--ease-out);
 }
 
@@ -329,13 +355,14 @@
    feeling now. */
 .link-btn:hover,
 .link-btn.is-active {
-  border-color: color-mix(in srgb, var(--accent-fg, #f4f4f2) 60%, transparent);
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5),
-              0 10px 28px -10px color-mix(in srgb, var(--accent-fg, rgba(0,0,0,0.4)) 50%, transparent);
+  border-color: color-mix(in srgb, var(--accent-fg, #f4f4f2) 75%, transparent);
+  box-shadow: 0 36px 90px rgba(0, 0, 0, 0.65),
+              0 16px 40px -10px color-mix(in srgb, var(--accent-fg, rgba(0,0,0,0.4)) 70%, transparent),
+              inset 0 1px 0 rgba(255, 255, 255, 0.07);
   z-index: 5;
   transform: perspective(600px)
              translate(var(--mx, 0px), var(--my, 0px))
-             scale(1.1)
+             scale(1.13)
              rotate(var(--mr, 0deg))
              rotateX(var(--rx, 0deg))
              rotateY(var(--ry, 0deg));
@@ -383,14 +410,13 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  opacity: 0;
   visibility: hidden;
-  transition: opacity 0.25s var(--ease-out), visibility 0.25s var(--ease-out);
+  transition: visibility 0s 0.5s;
 }
 
 .info-modal.is-open {
-  opacity: 1;
   visibility: visible;
+  transition: visibility 0s;
 }
 
 .info-modal-backdrop {
@@ -398,6 +424,12 @@
   inset: 0;
   background: rgba(8, 8, 10, 0.7);
   backdrop-filter: blur(10px) saturate(120%);
+  opacity: 0;
+  transition: opacity 0.4s var(--ease-out);
+}
+
+.info-modal.is-open .info-modal-backdrop {
+  opacity: 1;
 }
 
 .info-modal-card {
@@ -416,11 +448,14 @@
   box-shadow: 0 40px 100px -20px rgba(0, 0, 0, 0.6),
               0 0 0 1px rgba(255, 255, 255, 0.02),
               0 0 100px -30px var(--accent);
+  opacity: 0;
   transform: translateY(20px) scale(0.97);
-  transition: transform 0.35s var(--ease-out);
+  transition: opacity 0.4s var(--ease-out),
+              transform 0.5s var(--ease-out);
 }
 
 .info-modal.is-open .info-modal-card {
+  opacity: 1;
   transform: translateY(0) scale(1);
 }
 
@@ -584,6 +619,56 @@
   background: rgba(255, 255, 255, 0.12);
 }
 
+/* ============================================================
+   Scrolling ticker strip — injected into big cards via JS.
+   Appears on hover, reveals a marquee of the card's label text.
+   ============================================================ */
+.link-btn-ticker {
+  position: absolute;
+  bottom: 68px;
+  left: 0;
+  right: 0;
+  height: 20px;
+  overflow: hidden;
+  z-index: 3;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 0.35s var(--ease-out), transform 0.35s var(--ease-out);
+  -webkit-mask-image: linear-gradient(to right, transparent 0%, black 12%, black 88%, transparent 100%);
+  mask-image: linear-gradient(to right, transparent 0%, black 12%, black 88%, transparent 100%);
+}
+
+.link-btn:hover .link-btn-ticker {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.link-btn-ticker-track {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  height: 100%;
+  animation: ticker-scroll 12s linear infinite;
+  will-change: transform;
+}
+
+.link-btn-ticker-track span {
+  white-space: nowrap;
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--accent-fg, #f4f4f2);
+  opacity: 0.65;
+  padding-right: 32px;
+}
+
+@keyframes ticker-scroll {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .link-btn {
     animation: none !important;
@@ -592,6 +677,8 @@
   .link-btn:hover {
     transform: none;
   }
+  .link-btn-ticker { display: none; }
+  .link-btn-bg::after { display: none; }
 }
 
 /* Mobile viewport-height correctness — see the matching note in style.css.

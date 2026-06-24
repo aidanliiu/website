@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Elderly AI App — Aidan Liu</title>
+<meta name="description" content="Co-founded and published an AI companion app for elderly care on the App Store.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --fg: #111111;
+    --muted: #5e5e5e;
+    --bg: #ffffff;
+    --border: #e8e8e8;
+    --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-padding-top: 80px; }
+
+  body {
+    background: var(--bg);
+    color: var(--fg);
+    font-family: 'Plus Jakarta Sans', -apple-system, 'Helvetica Neue', Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── Top bar ── */
+  .topbar {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 40px;
+    z-index: 100;
+    background: rgba(255,255,255,0.88);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--fg);
+    text-decoration: none;
+    letter-spacing: 0.01em;
+    transition: gap 0.2s var(--ease-out), opacity 0.2s var(--ease-out);
+  }
+  .back-link:hover { gap: 12px; opacity: 0.6; }
+  .back-link svg { width: 14px; height: 14px; flex-shrink: 0; }
+
+  .topbar-name {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    color: var(--fg);
+    text-decoration: none;
+  }
+
+  /* ── Hero ── */
+  .project-hero {
+    padding: 120px 40px 60px;
+    max-width: 760px;
+    margin: 0 auto;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .project-tag {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 18px;
+  }
+
+  .project-title {
+    font-family: Georgia, "Times New Roman", serif;
+    font-weight: normal;
+    font-size: clamp(32px, 5vw, 52px);
+    line-height: 1.18;
+    letter-spacing: -0.02em;
+    margin-bottom: 20px;
+  }
+
+  .project-date {
+    font-size: 12px;
+    color: var(--muted);
+    letter-spacing: 0.04em;
+  }
+
+  /* ── Body ── */
+  .project-body {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 60px 40px 100px;
+  }
+
+  .project-section {
+    margin-bottom: 52px;
+  }
+
+  .project-section h2 {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 18px;
+  }
+
+  .project-section p {
+    font-size: 16px;
+    line-height: 1.75;
+    color: #333;
+    margin-bottom: 16px;
+    max-width: 65ch;
+  }
+
+  .project-section p:last-child { margin-bottom: 0; }
+
+  .project-section a {
+    color: var(--fg);
+    text-decoration: underline;
+    text-decoration-color: rgba(17,17,17,0.3);
+    text-underline-offset: 3px;
+    transition: text-decoration-color 0.15s;
+  }
+  .project-section a:hover { text-decoration-color: var(--fg); }
+
+  /* ── Links row ── */
+  .project-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 40px;
+  }
+
+  .project-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 10px 20px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    text-decoration: none;
+    border-radius: 999px;
+    border: 1.5px solid var(--fg);
+    color: var(--fg);
+    background: transparent;
+    transition: background 0.2s var(--ease-out), color 0.2s var(--ease-out), gap 0.2s var(--ease-out);
+  }
+  .project-link:hover { background: var(--fg); color: #fff; gap: 11px; }
+  .project-link svg { width: 11px; height: 11px; flex-shrink: 0; transition: transform 0.2s var(--ease-out); }
+  .project-link:hover svg { transform: translate(1px, -1px); }
+
+  .project-link--secondary {
+    border-color: var(--border);
+    color: var(--muted);
+  }
+  .project-link--secondary:hover {
+    background: var(--fg);
+    color: #fff;
+    border-color: var(--fg);
+  }
+
+  /* ── Divider ── */
+  .project-divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 0 0 52px;
+  }
+
+  /* ── Footer ── */
+  .project-footer {
+    border-top: 1px solid var(--border);
+    padding: 32px 40px;
+    max-width: 760px;
+    margin: 0 auto 60px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .project-footer a { color: var(--fg); text-decoration: none; font-weight: 600; }
+  .project-footer a:hover { text-decoration: underline; }
+
+  @media (max-width: 600px) {
+    .topbar { padding: 16px 20px; }
+    .project-hero, .project-body { padding-left: 20px; padding-right: 20px; }
+    .project-footer { padding-left: 20px; padding-right: 20px; flex-direction: column; gap: 12px; align-items: flex-start; }
+  }
+
+  /* Entrance animation */
+  @keyframes fade-up {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .project-hero, .project-body {
+    animation: fade-up 0.6s cubic-bezier(0.23, 1, 0.32, 1) both;
+  }
+  .project-body { animation-delay: 0.08s; }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <a href="index.html#activities" class="back-link">
+    <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 7H4M4 7l3-3M4 7l3 3"/></svg>
+    Back
+  </a>
+  <a href="index.html" class="topbar-name">Aidan Liu</a>
+</header>
+
+<main>
+  <div class="project-hero">
+    <div class="project-tag">02 · Co-Founder</div>
+    <h1 class="project-title">Elderly AI App</h1>
+    <div class="project-date">Jun – Aug 2025</div>
+  </div>
+
+  <div class="project-body">
+    <div class="project-section">
+      <h2>Overview</h2>
+    <p>Over the summer of 2025 I co-founded and shipped ElderlyAI — an iOS app designed to help elderly users engage with AI in a friendly, accessible way. The app is live on the App Store.</p>
+    <p>The idea came from noticing how much of the existing AI landscape is built for tech-savvy users. We wanted to build something genuinely easy to use for older adults who might benefit the most from an AI companion but find most interfaces overwhelming.</p>
+    </div>
+    <div class="project-section">
+      <h2>What we built</h2>
+    <p>ElderlyAI features a large-text, high-contrast interface with simplified navigation. The AI assistant can hold natural conversations, answer questions, help with reminders, and provide companionship — all without requiring any prior experience with AI tools.</p>
+    <p>I led product design and helped build the front-end in Swift/SwiftUI. We iterated based on feedback from beta testers in the 65+ age group, making adjustments to font sizes, button placement, and conversational tone throughout the process.</p>
+    </div>
+    <div class="project-section">
+      <h2>Challenges</h2>
+    <p>Getting the conversational tone right was one of the hardest parts. Most LLM outputs are written for general audiences and can feel clinical or overly verbose. We spent significant time prompt-engineering responses to feel warm, patient, and appropriately paced.</p>
+    <p>App Store review was also a learning experience — we went through two rejections before getting the privacy disclosures and data handling documentation right. Shipping a real product taught me how much of the work happens outside the code.</p>
+    </div>
+    <div class="project-section">
+      <h2>What I learned</h2>
+    <p>This was my first time taking a product from zero to the App Store. The biggest lesson was that design is not just visual — it is understanding your user deeply enough to anticipate their confusion before it happens.</p>
+    <p>I also learned a lot about the business side: user acquisition, App Store optimization, and how to gather and act on qualitative feedback from non-technical users.</p>
+    </div>
+    <div class="project-links">
+    <a href="https://apps.apple.com/us/app/elderlyai/id6748717895" target="_blank" rel="noopener" class="project-link">Download on App Store <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 10L10 2M10 2H4M10 2v6"/></svg></a>
+    </div>
+  </div>
+
+  <footer class="project-footer">
+    <span>© Aidan Liu 2026</span>
+    <a href="index.html">← Back to portfolio</a>
+  </footer>
+</main>
+
+</body>
+</html>
