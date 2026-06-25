@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.14/dist/lenis.min.js" onerror="window.__lenisOk=false"></script>
 <style>
   :root {
     --fg: #111111;
@@ -18,7 +19,15 @@
     --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
   }
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  html { scroll-padding-top: 80px; }
+  html { scroll-padding-top: 80px; scroll-behavior: smooth; }
+
+  /* ─── Scroll progress bar ─── */
+  #scroll-progress {
+    position: fixed; top: 0; left: 0; height: 3px; width: 0%;
+    background: #111; z-index: 200;
+    transition: width 0.06s linear;
+    box-shadow: 0 0 6px rgba(0,0,0,0.25);
+  }
   body {
     background: var(--bg);
     color: var(--fg);
@@ -87,18 +96,25 @@
     max-width: 800px; margin: 0 auto; padding: 56px 40px 120px;
   }
 
-  /* ─── Scroll reveal ─── */
-  .reveal { opacity: 0; transform: translateY(36px); }
+  /* ─── Scroll reveal ───────────────────────────────────────────
+     opacity: 0 lives ONLY on .ready (JS-added class).
+     If JS fails for any reason, content stays visible.
+  ─────────────────────────────────────────────────────────── */
+  .reveal { transition: opacity 0.7s var(--ease-out), transform 0.8s var(--ease-out); }
+  .reveal.ready          { opacity: 0; transform: translateY(48px); }
+  .reveal.ready.in-view  { opacity: 1; transform: translateY(0); }
+  .reveal.ready.in-view.reveal-d1 { transition-delay: 0.1s; }
+  .reveal.ready.in-view.reveal-d2 { transition-delay: 0.2s; }
+  .reveal.ready.in-view.reveal-d3 { transition-delay: 0.3s; }
+  /* Fade out upward when element leaves viewport from the top */
+  .reveal.ready.above-view {
+    opacity: 0; transform: translateY(-20px);
+    transition: opacity 0.35s var(--ease-out), transform 0.4s var(--ease-out);
+    transition-delay: 0s !important;
+  }
 
-  @keyframes reveal-up {
-    to { opacity: 1; transform: translateY(0); }
-  }
-  .reveal.in-view {
-    animation: reveal-up 0.75s var(--ease-out) forwards;
-  }
-  .reveal.in-view.reveal-d1 { animation-delay: 0.09s; }
-  .reveal.in-view.reveal-d2 { animation-delay: 0.18s; }
-  .reveal.in-view.reveal-d3 { animation-delay: 0.27s; }
+  /* ─── Stat counter ─── */
+  .stat-num { font-variant-numeric: tabular-nums; }
 
   .section { margin-bottom: 64px; }
 
@@ -363,6 +379,7 @@
 </head>
 <body>
 
+<div id="scroll-progress"></div>
 <header class="topbar" id="topbar">
   <a href="index.html#activities" class="back-link">
     <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8"
@@ -828,69 +845,124 @@
 (function () {
   'use strict';
 
-  /* ── Topbar shadow ── */
-  var topbar = document.getElementById('topbar');
-  window.addEventListener('scroll', function () {
-    topbar.classList.toggle('scrolled', window.scrollY > 8);
-  }, { passive: true });
+  var EASE = 'cubic-bezier(0.23,1,0.32,1)';
 
-  /* ── Skip animations if user prefers reduced motion ── */
+  /* ── Smooth scroll (Lenis when served over HTTP) ── */
+  var lenis = null;
+  try {
+    if (typeof Lenis === 'function') {
+      lenis = new Lenis({ duration: 1.2, easing: function(t){ return 1-Math.pow(1-t,4); } });
+      (function raf(t){ lenis.raf(t); requestAnimationFrame(raf); })(0);
+    }
+  } catch(e) { lenis = null; }
+
+  /* ── Progress bar ── */
+  var progressBar = document.getElementById('scroll-progress');
+  function updateProgress() {
+    if (!progressBar) return;
+    var max = document.documentElement.scrollHeight - window.innerHeight;
+    progressBar.style.width = (max > 0 ? (window.scrollY / max * 100) : 0) + '%';
+  }
+
+  /* ── Topbar ── */
+  var topbar = document.getElementById('topbar');
+  function updateTopbar() {
+    if (topbar) topbar.classList.toggle('scrolled', window.scrollY > 8);
+  }
+
+  /* ── Reduced motion: skip all animations ── */
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    document.querySelectorAll('.reveal').forEach(function (el) {
-      el.classList.add('in-view');
-    });
-    document.querySelectorAll('.pills.animate-pills').forEach(function (g) {
-      g.classList.add('pills-visible');
-    });
+    document.querySelectorAll('.reveal').forEach(function(el){ el.classList.add('in-view'); });
+    document.querySelectorAll('.pills.animate-pills').forEach(function(g){ g.classList.add('pills-visible'); });
+    window.addEventListener('scroll', function(){ updateProgress(); updateTopbar(); }, { passive: true });
     return;
   }
 
-  /* ══════════════════════════════════════════════════════
-     SCROLL REVEAL
-     CSS handles all animation (keyframe reveal-up).
-     JS just adds .in-view when element enters the viewport.
-     Nothing else needed — CSS keyframes don't require reflow
-     tricks; the animation plays the moment the class appears.
-  ══════════════════════════════════════════════════════ */
+  /* ── Collect elements ── */
+  var reveals       = Array.prototype.slice.call(document.querySelectorAll('.reveal'));
+  var pills         = Array.prototype.slice.call(document.querySelectorAll('.pills.animate-pills'));
+  var bars          = Array.prototype.slice.call(document.querySelectorAll('.bar-animate'));
+  var barsTriggered = false;
+  var statsTriggered = false;
 
-  var reveals = document.querySelectorAll('.reveal');
-  var pills   = document.querySelectorAll('.pills.animate-pills');
-  var bars    = document.querySelectorAll('.bar-animate');
-  var barsGone = false;
-
-  /* Set up bar initial state */
-  [].forEach.call(bars, function (b) {
+  /* Initialise bars at scaleX(0) now, before first paint */
+  bars.forEach(function(b){
     b.style.transformOrigin = 'left center';
     b.style.transform = 'scaleX(0)';
   });
 
+  /* Double-rAF pattern:
+     Frame 1 – add .ready (hides everything that will animate).
+     Frame 2 – check() runs immediately after, fading in whatever
+               is already in the viewport with a smooth transition.
+     The "flash" is just one browser frame (~16ms), barely perceptible. */
+  requestAnimationFrame(function(){
+    reveals.forEach(function(el){ el.classList.add('ready'); });
+    requestAnimationFrame(check); /* reveal in-viewport elements right away */
+  });
+
+  /* ── Count-up animation ── */
+  function countUp(el, target, useComma) {
+    if (!el) return;
+    var start = performance.now(), dur = 1400;
+    (function tick(now){
+      var p  = Math.min((now - start) / dur, 1);
+      var v  = Math.round(target * (1 - Math.pow(1 - p, 3)));
+      el.textContent = useComma ? v.toLocaleString() : String(v);
+      if (p < 1) requestAnimationFrame(tick);
+    })(start);
+  }
+
+  /* ── Main scroll check ── */
   function check() {
     var vh = window.innerHeight;
+    updateProgress();
+    updateTopbar();
 
-    /* Reveals */
-    [].forEach.call(reveals, function (el) {
-      if (!el.classList.contains('in-view') &&
-          el.getBoundingClientRect().top < vh * 0.92) {
+    /* Scroll reveals: in-view ↔ above-view ↔ below (hidden) */
+    reveals.forEach(function(el){
+      if (!el.classList.contains('ready')) return;
+      var r = el.getBoundingClientRect();
+      if (r.bottom < vh * 0.08) {
+        /* Element is mostly above viewport — fade it out */
+        el.classList.remove('in-view');
+        el.classList.add('above-view');
+      } else if (r.top < vh * 0.9) {
+        el.classList.remove('above-view');
         el.classList.add('in-view');
+      } else {
+        el.classList.remove('in-view', 'above-view');
       }
     });
 
-    /* Pills */
-    [].forEach.call(pills, function (g) {
-      if (!g.classList.contains('pills-visible') &&
-          g.getBoundingClientRect().top < vh * 0.93) {
+    /* Pills stagger */
+    pills.forEach(function(g){
+      if (!g.classList.contains('pills-visible') && g.getBoundingClientRect().top < vh * 0.93)
         g.classList.add('pills-visible');
-      }
     });
 
-    /* Feature importance bars */
-    if (!barsGone) {
+    /* Stat counters — query stat-nums by position, not nth-child */
+    if (!statsTriggered) {
+      var statRow = document.getElementById('stat-row') || document.querySelector('.stat-row');
+      if (statRow && statRow.getBoundingClientRect().top < vh * 0.95) {
+        statsTriggered = true;
+        var statNums = Array.prototype.slice.call(statRow.querySelectorAll('.stat-num'));
+        /* targets: [70692 comma, 22 plain, skip 75.1%, 5 plain] */
+        var targets    = [{ v: 70692, comma: true }, { v: 22, comma: false }, null, { v: 5, comma: false }];
+        statNums.forEach(function(el, i){
+          if (targets[i]) countUp(el, targets[i].v, targets[i].comma);
+        });
+      }
+    }
+
+    /* Feature importance bar chart */
+    if (!barsTriggered) {
       var chart = document.getElementById('feat-chart');
       if (chart && chart.getBoundingClientRect().top < vh * 0.9) {
-        barsGone = true;
-        [].forEach.call(bars, function (b, i) {
-          setTimeout(function () {
-            b.style.transition = 'transform 0.72s cubic-bezier(0.23,1,0.32,1)';
+        barsTriggered = true;
+        bars.forEach(function(b, i){
+          setTimeout(function(){
+            b.style.transition = 'transform 0.72s ' + EASE;
             b.style.transform  = 'scaleX(1)';
           }, i * 65);
         });
@@ -898,11 +970,15 @@
     }
   }
 
+  /* ── Attach listeners ── */
+  /* Always use native scroll — works with file://, http, and Lenis */
   window.addEventListener('scroll', check, { passive: true });
   window.addEventListener('resize', check, { passive: true });
+  /* Also hook Lenis tick if loaded (double-registers scroll but that's fine) */
+  if (lenis) lenis.on('scroll', check);
 
-  /* Run once on load (short delay so the page paints first) */
-  setTimeout(check, 80);
+  /* Safety-net check in case rAF2 fired before DOM fully settled */
+  setTimeout(check, 200);
 
 })();
 

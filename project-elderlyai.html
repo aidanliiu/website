@@ -8,262 +8,1081 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.14/dist/lenis.min.js" onerror="window.__lenisOk=false"></script>
 <style>
   :root {
     --fg: #111111;
-    --muted: #5e5e5e;
+    --muted: #6b6b6b;
     --bg: #ffffff;
     --border: #e8e8e8;
+    --surface: #f5f5f7;
+    --accent: #007AFF;
+    --accent-mid: #3395ff;
+    --accent-light: #e8f2ff;
     --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+    --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
   }
 
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   html { scroll-padding-top: 80px; }
 
+  #scroll-progress {
+    position: fixed; top: 0; left: 0; height: 3px; width: 0%;
+    background: linear-gradient(90deg, var(--accent), var(--accent-mid));
+    z-index: 200; transition: width 0.06s linear;
+    box-shadow: 0 0 10px rgba(0,122,255,0.45);
+  }
+
   body {
-    background: var(--bg);
-    color: var(--fg);
+    background: var(--bg); color: var(--fg);
     font-family: 'Plus Jakarta Sans', -apple-system, 'Helvetica Neue', Arial, sans-serif;
-    font-size: 16px;
-    line-height: 1.65;
-    -webkit-font-smoothing: antialiased;
+    font-size: 15px; line-height: 1.65;
+    -webkit-font-smoothing: antialiased; overflow-x: hidden;
   }
 
-  /* ── Top bar ── */
+  /* ── Topbar ── */
   .topbar {
-    position: fixed;
-    top: 0; left: 0; right: 0;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; justify-content: space-between; align-items: center;
     padding: 20px 40px;
-    z-index: 100;
     background: rgba(255,255,255,0.88);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border-bottom: 1px solid var(--border);
+    backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.3s var(--ease-out), box-shadow 0.3s var(--ease-out);
   }
-
+  .topbar.scrolled { border-color: var(--border); box-shadow: 0 1px 16px rgba(0,0,0,0.06); }
   .back-link {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--fg);
-    text-decoration: none;
-    letter-spacing: 0.01em;
-    transition: gap 0.2s var(--ease-out), opacity 0.2s var(--ease-out);
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 13px; font-weight: 600; color: var(--fg);
+    text-decoration: none; letter-spacing: 0.01em;
+    transition: gap 0.22s var(--ease-out), opacity 0.22s var(--ease-out);
   }
-  .back-link:hover { gap: 12px; opacity: 0.6; }
+  .back-link:hover { gap: 12px; opacity: 0.5; }
   .back-link svg { width: 14px; height: 14px; flex-shrink: 0; }
+  .topbar-name { font-size: 13px; font-weight: 700; letter-spacing: -0.01em; color: var(--fg); text-decoration: none; transition: opacity 0.2s; }
+  .topbar-name:hover { opacity: 0.5; }
 
-  .topbar-name {
-    font-size: 13px;
-    font-weight: 700;
-    letter-spacing: -0.01em;
-    color: var(--fg);
-    text-decoration: none;
-  }
+  .page-wrap { max-width: 820px; margin: 0 auto; padding: 0 40px; }
 
   /* ── Hero ── */
   .project-hero {
-    padding: 120px 40px 60px;
-    max-width: 760px;
-    margin: 0 auto;
+    padding: 136px 40px 72px; max-width: 820px; margin: 0 auto;
     border-bottom: 1px solid var(--border);
   }
-
-  .project-tag {
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--muted);
-    margin-bottom: 18px;
+  .hero-tag {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 11px; font-weight: 700; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--accent); margin-bottom: 22px;
   }
-
+  .hero-tag-dot {
+    width: 6px; height: 6px; border-radius: 50%; background: var(--accent);
+    animation: pulse-dot 2.4s ease-in-out infinite;
+  }
+  @keyframes pulse-dot {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.35; transform: scale(0.65); }
+  }
   .project-title {
-    font-family: Georgia, "Times New Roman", serif;
-    font-weight: normal;
-    font-size: clamp(32px, 5vw, 52px);
-    line-height: 1.18;
-    letter-spacing: -0.02em;
-    margin-bottom: 20px;
+    font-size: clamp(38px, 6vw, 60px); font-weight: 800;
+    letter-spacing: -0.035em; line-height: 1.08; margin-bottom: 24px;
+    text-wrap: balance; color: var(--fg);
   }
+  .hero-sub {
+    font-size: 17px; color: #444; line-height: 1.7;
+    max-width: 52ch; margin-bottom: 32px;
+  }
+  .hero-meta-row { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+  .project-date { font-size: 12px; color: var(--muted); letter-spacing: 0.04em; font-weight: 600; text-transform: uppercase; }
 
-  .project-date {
-    font-size: 12px;
-    color: var(--muted);
-    letter-spacing: 0.04em;
+  .pill-btn {
+    display: inline-flex; align-items: center; gap: 7px;
+    padding: 9px 20px; font-size: 12px; font-weight: 700;
+    letter-spacing: 0.04em; text-transform: uppercase; text-decoration: none;
+    border-radius: 999px; transition: opacity 0.18s var(--ease-out), transform 0.18s var(--ease-out), box-shadow 0.18s var(--ease-out), gap 0.18s var(--ease-out);
   }
+  .pill-btn:hover { opacity: 0.88; transform: translateY(-2px); gap: 11px; }
+  .pill-btn:active { transform: scale(0.97) !important; }
+  .pill-btn svg { width: 11px; height: 11px; flex-shrink: 0; transition: transform 0.18s var(--ease-out); }
+  .pill-btn:hover svg { transform: translate(1px, -1px); }
+  .pill-btn--primary { background: var(--accent); color: #fff; box-shadow: 0 4px 16px rgba(0,122,255,0.28); }
+  .pill-btn--primary:hover { box-shadow: 0 8px 24px rgba(0,122,255,0.36); }
+  .pill-btn--ghost { background: transparent; color: var(--fg); border: 1.5px solid var(--border); }
+  .pill-btn--ghost:hover { border-color: var(--fg); }
 
-  /* ── Body ── */
-  .project-body {
-    max-width: 760px;
-    margin: 0 auto;
-    padding: 60px 40px 100px;
+  /* ── Stats ── */
+  .stat-row {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    max-width: 820px; margin: 0 auto; border-bottom: 1px solid var(--border);
   }
+  .stat { padding: 36px 40px; border-right: 1px solid var(--border); }
+  .stat:last-child { border-right: none; }
+  .stat-num { display: block; font-size: clamp(24px, 3vw, 36px); font-weight: 800; letter-spacing: -0.04em; line-height: 1; color: var(--fg); margin-bottom: 7px; }
+  .stat-label { font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
 
-  .project-section {
-    margin-bottom: 52px;
-  }
+  /* ── Section header ── */
+  .section-header { padding: 64px 0 36px; }
+  .section-label { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; }
+  .section-heading { font-size: clamp(22px, 3vw, 30px); font-weight: 800; letter-spacing: -0.03em; line-height: 1.2; text-wrap: balance; }
 
-  .project-section h2 {
-    font-size: 13px;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--muted);
-    margin-bottom: 18px;
+  /* ── Word-reveal headings ── */
+  .word-reveal { overflow: hidden; }
+  .word-reveal .wr-word {
+    display: inline-block; overflow: hidden;
+    vertical-align: top; margin-right: 0.25em;
   }
+  .word-reveal .wr-inner {
+    display: inline-block;
+    transform: translateY(110%);
+    opacity: 0;
+    transition: transform 0.6s var(--ease-out), opacity 0.5s var(--ease-out);
+  }
+  .word-reveal.wrev-in .wr-inner { transform: translateY(0); opacity: 1; }
 
-  .project-section p {
-    font-size: 16px;
-    line-height: 1.75;
-    color: #333;
-    margin-bottom: 16px;
-    max-width: 65ch;
-  }
+  /* ── Mockup strip ── */
+  .mockup-section { border-bottom: 1px solid var(--border); padding-bottom: 72px; }
+  .mockup-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; align-items: end; margin-top: 8px; }
+  .mockup-item { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+  .mockup-label { font-size: 11px; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; color: var(--muted); text-align: center; }
 
-  .project-section p:last-child { margin-bottom: 0; }
+  .phone-wrap {
+    width: 100%; max-width: 196px;
+    filter: drop-shadow(0 20px 48px rgba(0,0,0,0.11)) drop-shadow(0 6px 14px rgba(0,0,0,0.07));
+    transition: filter 0.4s var(--ease-out);
+    will-change: transform;
+  }
+  .mockup-item:hover .phone-wrap {
+    filter: drop-shadow(0 28px 56px rgba(0,0,0,0.15)) drop-shadow(0 10px 20px rgba(0,0,0,0.09));
+  }
+  .mockup-item--center .phone-wrap {
+    max-width: 218px;
+    filter: drop-shadow(0 28px 64px rgba(0,122,255,0.2)) drop-shadow(0 10px 24px rgba(0,0,0,0.1));
+    animation: phone-float 4s ease-in-out infinite;
+  }
+  .mockup-item--center:hover .phone-wrap { filter: drop-shadow(0 36px 72px rgba(0,122,255,0.28)) drop-shadow(0 14px 28px rgba(0,0,0,0.12)); }
 
-  .project-section a {
-    color: var(--fg);
-    text-decoration: underline;
-    text-decoration-color: rgba(17,17,17,0.3);
-    text-underline-offset: 3px;
-    transition: text-decoration-color 0.15s;
+  @keyframes phone-float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-8px); }
   }
-  .project-section a:hover { text-decoration-color: var(--fg); }
+  .phone-frame-svg { width: 100%; display: block; }
 
-  /* ── Links row ── */
-  .project-links {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    margin-top: 40px;
+  /* ── Feature cards ── */
+  .features-section { border-bottom: 1px solid var(--border); padding-bottom: 72px; }
+  .feature-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: 2px; overflow: hidden; }
+  .feature-card {
+    background: var(--bg); padding: 30px 30px;
+    transition: background 0.2s var(--ease-out), transform 0.35s var(--ease-out), box-shadow 0.35s var(--ease-out);
+    cursor: default;
   }
+  .feature-card:hover { background: #fafafa; }
+  .feature-icon {
+    width: 38px; height: 38px; background: var(--accent-light); border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 19px; margin-bottom: 16px;
+    transition: transform 0.25s var(--ease-out), background 0.2s;
+  }
+  .feature-card:hover .feature-icon { transform: scale(1.08) rotate(-4deg); background: #d0e8ff; }
+  .feature-name { font-size: 14px; font-weight: 700; letter-spacing: -0.01em; margin-bottom: 8px; color: var(--fg); }
+  .feature-desc { font-size: 13px; line-height: 1.68; color: var(--muted); }
 
-  .project-link {
-    display: inline-flex;
-    align-items: center;
-    gap: 7px;
-    padding: 10px 20px;
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    text-decoration: none;
-    border-radius: 999px;
-    border: 1.5px solid var(--fg);
-    color: var(--fg);
-    background: transparent;
-    transition: background 0.2s var(--ease-out), color 0.2s var(--ease-out), gap 0.2s var(--ease-out);
-  }
-  .project-link:hover { background: var(--fg); color: #fff; gap: 11px; }
-  .project-link svg { width: 11px; height: 11px; flex-shrink: 0; transition: transform 0.2s var(--ease-out); }
-  .project-link:hover svg { transform: translate(1px, -1px); }
+  /* ── Timeline ── */
+  .timeline-section { border-bottom: 1px solid var(--border); padding-bottom: 72px; }
+  .timeline { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; border: 1px solid var(--border); border-radius: 2px; overflow: hidden; margin-top: 8px; }
+  .timeline-item { padding: 24px 24px; border-right: 1px solid var(--border); }
+  .timeline-item:last-child { border-right: none; }
+  .timeline-month { font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); margin-bottom: 10px; }
+  .timeline-event { font-size: 13px; font-weight: 700; color: var(--fg); letter-spacing: -0.01em; margin-bottom: 6px; }
+  .timeline-detail { font-size: 12px; color: var(--muted); line-height: 1.5; }
 
-  .project-link--secondary {
-    border-color: var(--border);
-    color: var(--muted);
-  }
-  .project-link--secondary:hover {
-    background: var(--fg);
-    color: #fff;
-    border-color: var(--fg);
-  }
+  /* ── Split blocks ── */
+  .split-block { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; padding: 64px 0; border-bottom: 1px solid var(--border); align-items: start; }
+  .split-block.reverse { direction: rtl; }
+  .split-block.reverse > * { direction: ltr; }
+  .split-text h2 { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-bottom: 14px; }
+  .split-text h3 { font-size: clamp(20px, 2.5vw, 26px); font-weight: 800; letter-spacing: -0.025em; line-height: 1.25; margin-bottom: 18px; color: var(--fg); text-wrap: balance; }
+  .split-text p { font-size: 14px; line-height: 1.8; color: #3a3a3a; margin-bottom: 14px; }
+  .split-text p:last-child { margin-bottom: 0; }
 
-  /* ── Divider ── */
-  .project-divider {
-    border: none;
-    border-top: 1px solid var(--border);
-    margin: 0 0 52px;
+  /* Split block directional entrance */
+  .split-from-left { opacity: 0; transform: translateX(-32px); transition: opacity 0.7s var(--ease-out), transform 0.75s var(--ease-out); }
+  .split-from-right { opacity: 0; transform: translateX(32px); transition: opacity 0.7s var(--ease-out), transform 0.75s var(--ease-out); }
+  .split-from-left.slide-in, .split-from-right.slide-in { opacity: 1; transform: translateX(0); }
+  .split-from-right.slide-in { transition-delay: 0.08s; }
+
+  /* ── Visual panels ── */
+  .visual-panel { background: var(--surface); border-radius: 12px; border: 1px solid var(--border); overflow: hidden; }
+  .review-panel { padding: 28px; }
+  .review-stars { display: flex; gap: 4px; margin-bottom: 12px; }
+  .review-star { color: #FFCC00; font-size: 16px; line-height: 1; }
+  .review-text { font-size: 13px; line-height: 1.7; color: var(--fg); font-style: italic; margin-bottom: 14px; }
+  .review-author { font-size: 11px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--muted); }
+  .review-divider { height: 1px; background: var(--border); margin: 20px 0; }
+  .review-stat { display: flex; align-items: baseline; gap: 6px; }
+  .review-stat-num { font-size: 28px; font-weight: 800; letter-spacing: -0.04em; color: var(--accent); }
+  .review-stat-label { font-size: 12px; color: var(--muted); font-weight: 600; }
+
+  .design-panel { padding: 28px; }
+  .design-panel-title { font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-bottom: 20px; }
+  .design-rule { display: flex; align-items: center; gap: 12px; padding: 13px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+  .design-rule:last-child { border-bottom: none; }
+  .design-rule-icon { width: 28px; height: 28px; border-radius: 6px; background: var(--accent-light); display: flex; align-items: center; justify-content: center; font-size: 13px; flex-shrink: 0; }
+  .design-rule-label { font-weight: 600; color: var(--fg); }
+  .design-rule-val { margin-left: auto; font-size: 11px; font-weight: 700; color: var(--accent); letter-spacing: 0.02em; }
+
+  .lessons-panel { padding: 28px; }
+  .lesson-item { display: flex; gap: 14px; padding: 14px 0; border-bottom: 1px solid var(--border); }
+  .lesson-item:last-child { border-bottom: none; }
+  .lesson-num { font-size: 11px; font-weight: 800; color: var(--accent); letter-spacing: 0.04em; line-height: 1.6; min-width: 20px; }
+  .lesson-text { font-size: 13px; line-height: 1.65; color: #3a3a3a; }
+  .lesson-text strong { color: var(--fg); font-weight: 700; }
+
+  /* ── Callout ── */
+  .callout-section { border-bottom: 1px solid var(--border); padding: 64px 0; }
+  .callout-block {
+    background: var(--surface); border-radius: 4px; padding: 44px 44px;
+    position: relative; overflow: hidden;
+    opacity: 0; transform: translateY(24px) scale(0.98);
+    transition: opacity 0.7s var(--ease-out), transform 0.75s var(--ease-out);
   }
+  .callout-block.cb-in { opacity: 1; transform: translateY(0) scale(1); }
+  .callout-block::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--accent); border-radius: 999px; }
+  .callout-text { font-size: clamp(18px, 2.5vw, 22px); font-weight: 700; line-height: 1.45; letter-spacing: -0.02em; color: var(--fg); max-width: 56ch; text-wrap: balance; }
+  .callout-attr { margin-top: 18px; font-size: 12px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--muted); }
+
+  /* ── Process steps ── */
+  .process-section { border-bottom: 1px solid var(--border); padding-bottom: 72px; }
+  .process-steps { display: grid; grid-template-columns: 1fr; gap: 0; margin-top: 8px; border: 1px solid var(--border); border-radius: 2px; overflow: hidden; }
+  .process-step {
+    display: grid; grid-template-columns: 52px 1fr; gap: 0;
+    border-bottom: 1px solid var(--border);
+    transition: background 0.2s var(--ease-out);
+  }
+  .process-step:last-child { border-bottom: none; }
+  .process-step:hover { background: #fafafa; }
+  .step-num { display: flex; align-items: flex-start; justify-content: center; padding: 24px 0; font-size: 11px; font-weight: 700; letter-spacing: 0.06em; color: var(--accent); border-right: 1px solid var(--border); font-variant-numeric: tabular-nums; }
+  .step-body { padding: 22px 28px; }
+  .step-title { font-size: 14px; font-weight: 700; letter-spacing: -0.01em; margin-bottom: 6px; color: var(--fg); }
+  .step-desc { font-size: 13px; color: var(--muted); line-height: 1.65; }
+
+  /* ── GitHub link block ── */
+  .github-strip {
+    border-bottom: 1px solid var(--border);
+    padding: 32px 0;
+  }
+  .github-link {
+    display: inline-flex; align-items: center; gap: 12px;
+    text-decoration: none; color: var(--fg);
+    transition: gap 0.22s var(--ease-out), opacity 0.2s;
+    padding: 16px 20px;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    width: 100%;
+    background: var(--bg);
+    transition: background 0.2s var(--ease-out), border-color 0.2s var(--ease-out), gap 0.22s var(--ease-out), transform 0.22s var(--ease-out);
+  }
+  .github-link:hover { background: var(--surface); border-color: #ccc; gap: 16px; transform: translateX(4px); }
+  .github-link:active { transform: scale(0.99) translateX(4px); }
+  .github-icon { width: 36px; height: 36px; background: var(--fg); border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .github-icon svg { width: 20px; height: 20px; fill: white; }
+  .github-link-text { flex: 1; }
+  .github-link-label { font-size: 13px; font-weight: 700; color: var(--fg); letter-spacing: -0.01em; margin-bottom: 2px; }
+  .github-link-sub { font-size: 12px; color: var(--muted); }
+  .github-link-arrow { flex-shrink: 0; color: var(--muted); transition: transform 0.22s var(--ease-out), color 0.2s; }
+  .github-link:hover .github-link-arrow { transform: translate(3px, -3px); color: var(--fg); }
+
+  /* ── CTA ── */
+  .cta-section { padding: 80px 0 100px; text-align: center; }
+  .cta-inner { display: inline-flex; flex-direction: column; align-items: center; gap: 24px; }
+  .cta-label { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+  .cta-heading { font-size: clamp(26px, 4vw, 40px); font-weight: 800; letter-spacing: -0.035em; line-height: 1.12; text-wrap: balance; }
+  .cta-btns { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
+  .cta-btn {
+    display: inline-flex; align-items: center; gap: 9px;
+    padding: 14px 30px; font-size: 13px; font-weight: 700; letter-spacing: 0.02em;
+    text-decoration: none; border-radius: 999px; background: var(--accent); color: #fff;
+    box-shadow: 0 6px 24px rgba(0,122,255,0.3);
+    transition: opacity 0.18s, transform 0.18s var(--ease-out), box-shadow 0.18s, gap 0.18s var(--ease-out);
+  }
+  .cta-btn:hover { opacity: 0.9; transform: translateY(-2px); box-shadow: 0 10px 32px rgba(0,122,255,0.38); gap: 13px; }
+  .cta-btn:active { transform: scale(0.97); }
+  .cta-btn svg { width: 12px; height: 12px; flex-shrink: 0; transition: transform 0.18s var(--ease-out); }
+  .cta-btn:hover svg { transform: translate(1px,-1px); }
+  .cta-btn--outline { background: transparent; color: var(--fg); border: 1.5px solid var(--border); box-shadow: none; }
+  .cta-btn--outline:hover { background: var(--surface); border-color: #bbb; box-shadow: none; }
 
   /* ── Footer ── */
-  .project-footer {
-    border-top: 1px solid var(--border);
-    padding: 32px 40px;
-    max-width: 760px;
-    margin: 0 auto 60px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 12px;
-    color: var(--muted);
-  }
-
+  .project-footer { border-top: 1px solid var(--border); padding: 32px 40px; max-width: 820px; margin: 0 auto 60px; display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: var(--muted); }
   .project-footer a { color: var(--fg); text-decoration: none; font-weight: 600; }
   .project-footer a:hover { text-decoration: underline; }
 
-  @media (max-width: 600px) {
-    .topbar { padding: 16px 20px; }
-    .project-hero, .project-body { padding-left: 20px; padding-right: 20px; }
-    .project-footer { padding-left: 20px; padding-right: 20px; flex-direction: column; gap: 12px; align-items: flex-start; }
+  /* ════════════════════════════════
+     SCROLL REVEAL SYSTEM
+  ════════════════════════════════ */
+
+  /* Base reveal: fade + slide up */
+  .reveal {
+    transition: opacity 0.7s var(--ease-out), transform 0.75s var(--ease-out);
+  }
+  .reveal.ready { opacity: 0; transform: translateY(40px); }
+  .reveal.ready.in-view { opacity: 1; transform: translateY(0); }
+  .reveal.ready.in-view.d1 { transition-delay: 0.07s; }
+  .reveal.ready.in-view.d2 { transition-delay: 0.14s; }
+  .reveal.ready.in-view.d3 { transition-delay: 0.21s; }
+  .reveal.ready.in-view.d4 { transition-delay: 0.28s; }
+  .reveal.ready.above-view {
+    opacity: 0; transform: translateY(-16px);
+    transition: opacity 0.3s var(--ease-out), transform 0.35s var(--ease-out);
+    transition-delay: 0s !important;
   }
 
-  /* Entrance animation */
-  @keyframes fade-up {
-    from { opacity: 0; transform: translateY(20px); }
-    to   { opacity: 1; transform: translateY(0); }
+  /* Feature stagger */
+  .feature-card { opacity: 0; transform: translateY(28px); }
+  .feature-grid.revealed .feature-card { opacity: 1; transform: translateY(0); }
+  .feature-grid.revealed .feature-card:nth-child(1) { transition-delay: 0.00s; }
+  .feature-grid.revealed .feature-card:nth-child(2) { transition-delay: 0.07s; }
+  .feature-grid.revealed .feature-card:nth-child(3) { transition-delay: 0.14s; }
+  .feature-grid.revealed .feature-card:nth-child(4) { transition-delay: 0.21s; }
+
+  /* Process steps slide from left */
+  .process-step { opacity: 0; transform: translateX(-20px); }
+  .process-steps.revealed .process-step { opacity: 1; transform: translateX(0); }
+  .process-steps.revealed .process-step:nth-child(1) { transition-delay: 0.00s; }
+  .process-steps.revealed .process-step:nth-child(2) { transition-delay: 0.06s; }
+  .process-steps.revealed .process-step:nth-child(3) { transition-delay: 0.12s; }
+  .process-steps.revealed .process-step:nth-child(4) { transition-delay: 0.18s; }
+  .process-steps.revealed .process-step:nth-child(5) { transition-delay: 0.24s; }
+
+  /* Timeline pop up */
+  .timeline-item { opacity: 0; transform: translateY(24px); transition: opacity 0.5s var(--ease-out), transform 0.55s var(--ease-out); }
+  .timeline.revealed .timeline-item { opacity: 1; transform: translateY(0); }
+  .timeline.revealed .timeline-item:nth-child(1) { transition-delay: 0.00s; }
+  .timeline.revealed .timeline-item:nth-child(2) { transition-delay: 0.08s; }
+  .timeline.revealed .timeline-item:nth-child(3) { transition-delay: 0.16s; }
+  .timeline.revealed .timeline-item:nth-child(4) { transition-delay: 0.24s; }
+
+  /* Mockup stagger with initial hide */
+  .mockup-item { opacity: 0; transform: translateY(44px); transition: opacity 0.7s var(--ease-out), transform 0.75s var(--ease-out), filter 0.4s var(--ease-out); }
+  .mockup-grid.revealed .mockup-item { opacity: 1; transform: translateY(0); }
+  .mockup-grid.revealed .mockup-item--center { transform: translateY(0); }
+  .mockup-grid.revealed .mockup-item:nth-child(1) { transition-delay: 0.00s; }
+  .mockup-grid.revealed .mockup-item:nth-child(2) { transition-delay: 0.12s; }
+  .mockup-grid.revealed .mockup-item:nth-child(3) { transition-delay: 0.24s; }
+
+  /* Design rule rows stagger */
+  .design-rule { opacity: 0; transform: translateX(16px); transition: opacity 0.45s var(--ease-out), transform 0.5s var(--ease-out), background 0.2s; }
+  .visual-panel.panel-in .design-rule { opacity: 1; transform: translateX(0); }
+  .visual-panel.panel-in .design-rule:nth-child(1) { transition-delay: 0.05s; }
+  .visual-panel.panel-in .design-rule:nth-child(2) { transition-delay: 0.10s; }
+  .visual-panel.panel-in .design-rule:nth-child(3) { transition-delay: 0.15s; }
+  .visual-panel.panel-in .design-rule:nth-child(4) { transition-delay: 0.20s; }
+  .visual-panel.panel-in .design-rule:nth-child(5) { transition-delay: 0.25s; }
+
+  /* GitHub strip */
+  .github-link { opacity: 0; transform: translateY(16px); transition: background 0.2s var(--ease-out), border-color 0.2s var(--ease-out), gap 0.22s var(--ease-out), transform 0.22s var(--ease-out), opacity 0.5s var(--ease-out); }
+  .github-strip.strip-in .github-link { opacity: 1; transform: translateY(0); }
+
+  /* ── Responsive ── */
+  @media (max-width: 700px) {
+    .topbar { padding: 16px 20px; }
+    .project-hero { padding: 100px 20px 48px; }
+    .page-wrap { padding: 0 20px; }
+    .stat-row { grid-template-columns: repeat(2, 1fr); }
+    .stat { padding: 24px 20px; }
+    .stat:nth-child(2) { border-right: none; }
+    .stat:nth-child(3), .stat:nth-child(4) { border-top: 1px solid var(--border); }
+    .mockup-grid { grid-template-columns: 1fr; gap: 48px; align-items: center; }
+    .feature-grid { grid-template-columns: 1fr; }
+    .timeline { grid-template-columns: repeat(2, 1fr); }
+    .timeline-item:nth-child(2) { border-right: none; }
+    .timeline-item:nth-child(3), .timeline-item:nth-child(4) { border-top: 1px solid var(--border); }
+    .split-block { grid-template-columns: 1fr; gap: 32px; }
+    .split-block.reverse { direction: ltr; }
+    .project-footer { padding: 24px 20px; flex-direction: column; gap: 12px; align-items: flex-start; }
+    .cta-section { padding: 60px 20px 80px; }
+    .callout-block { padding: 28px 24px 28px 32px; }
   }
-  .project-hero, .project-body {
-    animation: fade-up 0.6s cubic-bezier(0.23, 1, 0.32, 1) both;
+
+  @media (prefers-reduced-motion: reduce) {
+    .reveal, .reveal.ready,
+    .split-from-left, .split-from-right,
+    .callout-block, .feature-card, .process-step,
+    .timeline-item, .mockup-item, .design-rule,
+    .github-link, .word-reveal .wr-inner {
+      transition: none !important; opacity: 1 !important;
+      transform: none !important;
+    }
+    .hero-tag-dot { animation: none !important; }
+    .mockup-item--center .phone-wrap { animation: none !important; }
   }
-  .project-body { animation-delay: 0.08s; }
 </style>
 </head>
 <body>
 
-<header class="topbar">
+<div id="scroll-progress"></div>
+
+<header class="topbar" id="topbar">
   <a href="index.html#activities" class="back-link">
-    <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 7H4M4 7l3-3M4 7l3 3"/></svg>
+    <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 7H4M4 7l3-3M4 7l3 3"/></svg>
     Back
   </a>
   <a href="index.html" class="topbar-name">Aidan Liu</a>
 </header>
 
 <main>
-  <div class="project-hero">
-    <div class="project-tag">02 · Co-Founder</div>
+
+  <!-- ── Hero ── -->
+  <div class="project-hero reveal">
+    <div class="hero-tag">
+      <span class="hero-tag-dot"></span>
+      Co-Founder
+    </div>
     <h1 class="project-title">Elderly AI App</h1>
-    <div class="project-date">Jun – Aug 2025</div>
+    <p class="hero-sub">An iOS companion app designed for users 65 and older. Built, shipped, and published to the App Store in 10 weeks.</p>
+    <div class="hero-meta-row">
+      <span class="project-date">Jun - Aug 2025</span>
+      <a href="https://apps.apple.com/us/app/elderlyai/id6748717895" target="_blank" rel="noopener" class="pill-btn pill-btn--primary">
+        <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 10L10 2M10 2H4M10 2v6"/></svg>
+        App Store
+      </a>
+      <a href="https://github.com/ncl9100/tech-companion-app" target="_blank" rel="noopener" class="pill-btn pill-btn--ghost">
+        <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 10L10 2M10 2H4M10 2v6"/></svg>
+        GitHub
+      </a>
+    </div>
   </div>
 
-  <div class="project-body">
-    <div class="project-section">
+  <!-- ── Stats ── -->
+  <div class="stat-row reveal d1" id="stat-row">
+    <div class="stat">
+      <span class="stat-num" id="sn-0">1</span>
+      <span class="stat-label">Live iOS app</span>
+    </div>
+    <div class="stat">
+      <span class="stat-num" id="sn-1">4</span>
+      <span class="stat-label">Core screens</span>
+    </div>
+    <div class="stat">
+      <span class="stat-num">65+</span>
+      <span class="stat-label">Target users</span>
+    </div>
+    <div class="stat">
+      <span class="stat-num" id="sn-3">10</span>
+      <span class="stat-label">Weeks to ship</span>
+    </div>
+  </div>
+
+  <!-- ── Mockups ── -->
+  <div class="mockup-section page-wrap">
+    <div class="section-header reveal">
+      <div class="section-label">App Screens</div>
+      <h2 class="section-heading word-reveal" id="wrev-screens">Designed for clarity, built for confidence</h2>
+    </div>
+
+    <div class="mockup-grid" id="mockup-grid">
+
+      <!-- Home -->
+      <div class="mockup-item" data-parallax="-0.04">
+        <div class="phone-wrap">
+          <svg class="phone-frame-svg" viewBox="0 0 200 434" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <clipPath id="clip-home">
+                <rect x="4" y="4" width="192" height="426" rx="30"/>
+              </clipPath>
+            </defs>
+            <!-- Bezel -->
+            <rect x="1" y="1" width="198" height="432" rx="32" fill="#1c1c1e"/>
+            <!-- Screen bg -->
+            <rect x="4" y="4" width="192" height="426" rx="30" fill="#f2f2f7"/>
+            <!-- Clipped screen content -->
+            <g clip-path="url(#clip-home)">
+              <!-- Status bar area -->
+              <rect x="4" y="4" width="192" height="40" fill="#f2f2f7"/>
+              <text x="13" y="26" font-family="-apple-system,sans-serif" font-size="8" font-weight="700" fill="#1c1c1e">9:41</text>
+              <rect x="167" y="18" width="18" height="9" rx="2.5" fill="none" stroke="#1c1c1e" stroke-width="1.2"/>
+              <rect x="168.5" y="19.5" width="13" height="6" rx="1.2" fill="#1c1c1e"/>
+              <!-- Divider -->
+              <line x1="4" y1="40" x2="196" y2="40" stroke="#e0e0e5" stroke-width="0.5"/>
+              <!-- App icon -->
+              <rect x="74" y="54" width="52" height="52" rx="13" fill="#007AFF"/>
+              <text x="100" y="88" font-family="-apple-system,sans-serif" font-size="20" text-anchor="middle" fill="white">🤖</text>
+              <text x="100" y="122" font-family="-apple-system,sans-serif" font-size="9" font-weight="700" text-anchor="middle" fill="#1c1c1e">ElderlyAI</text>
+              <!-- Welcome text -->
+              <text x="14" y="146" font-family="-apple-system,sans-serif" font-size="10.5" font-weight="700" fill="#1c1c1e">Welcome to ElderlyAI 👋</text>
+              <!-- 3 Buttons -->
+              <rect x="14" y="157" width="172" height="44" rx="11" fill="#007AFF"/>
+              <text x="100" y="184" font-family="-apple-system,sans-serif" font-size="10.5" text-anchor="middle" fill="white">📖  Learn Basics</text>
+              <rect x="14" y="208" width="172" height="44" rx="11" fill="#007AFF"/>
+              <text x="100" y="235" font-family="-apple-system,sans-serif" font-size="10.5" text-anchor="middle" fill="white">🤖  Ask AI Helper</text>
+              <rect x="14" y="259" width="172" height="44" rx="11" fill="#007AFF"/>
+              <text x="100" y="286" font-family="-apple-system,sans-serif" font-size="10.5" text-anchor="middle" fill="white">📰  What's New</text>
+              <!-- Home indicator bar -->
+              <rect x="4" y="395" width="192" height="35" fill="#f2f2f7"/>
+              <rect x="88" y="412" width="24" height="4" rx="2" fill="#3a3a3c" opacity="0.18"/>
+            </g>
+            <!-- Dynamic Island on top -->
+            <rect x="70" y="14" width="60" height="16" rx="8" fill="#1c1c1e"/>
+          </svg>
+        </div>
+        <span class="mockup-label">Home</span>
+      </div>
+
+      <!-- AI Chat (center, elevated) -->
+      <div class="mockup-item mockup-item--center" data-parallax="-0.08">
+        <div class="phone-wrap">
+          <svg class="phone-frame-svg" viewBox="0 0 200 434" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <clipPath id="clip-chat">
+                <rect x="4" y="4" width="192" height="426" rx="30"/>
+              </clipPath>
+            </defs>
+            <rect x="1" y="1" width="198" height="432" rx="32" fill="#1c1c1e"/>
+            <rect x="4" y="4" width="192" height="426" rx="30" fill="#f2f2f7"/>
+            <g clip-path="url(#clip-chat)">
+              <rect x="4" y="4" width="192" height="40" fill="#f2f2f7"/>
+              <text x="13" y="26" font-family="-apple-system,sans-serif" font-size="8" font-weight="700" fill="#1c1c1e">9:41</text>
+              <rect x="167" y="18" width="18" height="9" rx="2.5" fill="none" stroke="#1c1c1e" stroke-width="1.2"/>
+              <rect x="168.5" y="19.5" width="13" height="6" rx="1.2" fill="#1c1c1e"/>
+              <!-- Nav -->
+              <text x="100" y="54" font-family="-apple-system,sans-serif" font-size="11" font-weight="700" text-anchor="middle" fill="#1c1c1e">Ask AI Helper</text>
+              <line x1="4" y1="62" x2="196" y2="62" stroke="#d1d1d6" stroke-width="0.5"/>
+              <!-- AI bubble -->
+              <rect x="14" y="72" width="142" height="55" rx="14" fill="white"/>
+              <text x="26" y="90" font-family="-apple-system,sans-serif" font-size="9" fill="#1c1c1e">Hello! I'm here to help.</text>
+              <text x="26" y="104" font-family="-apple-system,sans-serif" font-size="9" fill="#1c1c1e">Ask me anything and I'll</text>
+              <text x="26" y="118" font-family="-apple-system,sans-serif" font-size="9" fill="#1c1c1e">do my best to help you.</text>
+              <!-- User bubble -->
+              <rect x="58" y="136" width="128" height="42" rx="14" fill="#007AFF"/>
+              <text x="122" y="153" font-family="-apple-system,sans-serif" font-size="9" text-anchor="middle" fill="white">What's a good recipe</text>
+              <text x="122" y="168" font-family="-apple-system,sans-serif" font-size="9" text-anchor="middle" fill="white">for chicken soup?</text>
+              <!-- AI reply -->
+              <rect x="14" y="186" width="152" height="82" rx="14" fill="white"/>
+              <text x="26" y="204" font-family="-apple-system,sans-serif" font-size="9" fill="#1c1c1e">Great choice! Here's a</text>
+              <text x="26" y="217" font-family="-apple-system,sans-serif" font-size="9" fill="#1c1c1e">simple recipe: Start with</text>
+              <text x="26" y="230" font-family="-apple-system,sans-serif" font-size="9" fill="#1c1c1e">chicken broth, add carrots,</text>
+              <text x="26" y="243" font-family="-apple-system,sans-serif" font-size="9" fill="#1c1c1e">celery, and noodles...</text>
+              <text x="26" y="258" font-family="-apple-system,sans-serif" font-size="8.5" fill="#007AFF">⭐ Save   ▶ Play response</text>
+              <!-- Input bar -->
+              <rect x="4" y="278" width="192" height="52" fill="#f2f2f7"/>
+              <line x1="4" y1="278" x2="196" y2="278" stroke="#d1d1d6" stroke-width="0.5"/>
+              <rect x="10" y="286" width="138" height="32" rx="16" fill="white" stroke="#d1d1d6" stroke-width="1"/>
+              <text x="79" y="306" font-family="-apple-system,sans-serif" font-size="9" text-anchor="middle" fill="#9a9a9a">Type a question...</text>
+              <rect x="155" y="286" width="32" height="32" rx="16" fill="#007AFF"/>
+              <text x="171" y="307" font-family="-apple-system,sans-serif" font-size="14" text-anchor="middle" fill="white" font-weight="800">↑</text>
+              <!-- Home indicator -->
+              <rect x="4" y="395" width="192" height="35" fill="#f2f2f7"/>
+              <rect x="88" y="412" width="24" height="4" rx="2" fill="#3a3a3c" opacity="0.18"/>
+            </g>
+            <rect x="70" y="14" width="60" height="16" rx="8" fill="#1c1c1e"/>
+          </svg>
+        </div>
+        <span class="mockup-label">AI Assistant</span>
+      </div>
+
+      <!-- Settings -->
+      <div class="mockup-item" data-parallax="-0.03">
+        <div class="phone-wrap">
+          <svg class="phone-frame-svg" viewBox="0 0 200 434" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <clipPath id="clip-settings">
+                <rect x="4" y="4" width="192" height="426" rx="30"/>
+              </clipPath>
+            </defs>
+            <rect x="1" y="1" width="198" height="432" rx="32" fill="#1c1c1e"/>
+            <rect x="4" y="4" width="192" height="426" rx="30" fill="#f2f2f7"/>
+            <g clip-path="url(#clip-settings)">
+              <rect x="4" y="4" width="192" height="40" fill="#f2f2f7"/>
+              <text x="13" y="26" font-family="-apple-system,sans-serif" font-size="8" font-weight="700" fill="#1c1c1e">9:41</text>
+              <rect x="167" y="18" width="18" height="9" rx="2.5" fill="none" stroke="#1c1c1e" stroke-width="1.2"/>
+              <rect x="168.5" y="19.5" width="13" height="6" rx="1.2" fill="#1c1c1e"/>
+              <text x="100" y="54" font-family="-apple-system,sans-serif" font-size="11" font-weight="700" text-anchor="middle" fill="#1c1c1e">Settings</text>
+              <line x1="4" y1="62" x2="196" y2="62" stroke="#d1d1d6" stroke-width="0.5"/>
+              <!-- Font size -->
+              <text x="14" y="80" font-family="-apple-system,sans-serif" font-size="8.5" font-weight="700" fill="#6b6b6b">FONT SIZE</text>
+              <rect x="14" y="86" width="172" height="46" rx="10" fill="white"/>
+              <rect x="18" y="90" width="36" height="38" rx="8" fill="#007AFF"/>
+              <text x="36" y="114" font-family="-apple-system,sans-serif" font-size="8.5" font-weight="700" text-anchor="middle" fill="white">16</text>
+              <rect x="60" y="90" width="36" height="38" rx="8" fill="#f2f2f7"/>
+              <text x="78" y="115" font-family="-apple-system,sans-serif" font-size="11" font-weight="700" text-anchor="middle" fill="#1c1c1e">20</text>
+              <rect x="102" y="90" width="36" height="38" rx="8" fill="#f2f2f7"/>
+              <text x="120" y="116" font-family="-apple-system,sans-serif" font-size="13" font-weight="700" text-anchor="middle" fill="#1c1c1e">24</text>
+              <rect x="144" y="90" width="36" height="38" rx="8" fill="#f2f2f7"/>
+              <text x="162" y="117" font-family="-apple-system,sans-serif" font-size="15" font-weight="700" text-anchor="middle" fill="#1c1c1e">28</text>
+              <!-- Speech speed -->
+              <text x="14" y="150" font-family="-apple-system,sans-serif" font-size="8.5" font-weight="700" fill="#6b6b6b">SPEECH SPEED</text>
+              <rect x="14" y="156" width="172" height="36" rx="10" fill="white"/>
+              <rect x="18" y="160" width="50" height="28" rx="7" fill="#007AFF"/>
+              <text x="43" y="178" font-family="-apple-system,sans-serif" font-size="9" font-weight="700" text-anchor="middle" fill="white">Slow</text>
+              <text x="100" y="178" font-family="-apple-system,sans-serif" font-size="9" text-anchor="middle" fill="#1c1c1e">Normal</text>
+              <text x="159" y="178" font-family="-apple-system,sans-serif" font-size="9" text-anchor="middle" fill="#1c1c1e">Fast</text>
+              <!-- Progress -->
+              <text x="14" y="210" font-family="-apple-system,sans-serif" font-size="8.5" font-weight="700" fill="#6b6b6b">YOUR PROGRESS</text>
+              <rect x="14" y="216" width="172" height="82" rx="10" fill="white"/>
+              <text x="26" y="238" font-family="-apple-system,sans-serif" font-size="9" fill="#6b6b6b">Guides read</text>
+              <text x="174" y="238" font-family="-apple-system,sans-serif" font-size="11" font-weight="800" text-anchor="end" fill="#1c1c1e">3</text>
+              <line x1="26" y1="246" x2="174" y2="246" stroke="#f2f2f7" stroke-width="1"/>
+              <text x="26" y="262" font-family="-apple-system,sans-serif" font-size="9" fill="#6b6b6b">Guides completed</text>
+              <text x="174" y="262" font-family="-apple-system,sans-serif" font-size="11" font-weight="800" text-anchor="end" fill="#1c1c1e">1</text>
+              <line x1="26" y1="270" x2="174" y2="270" stroke="#f2f2f7" stroke-width="1"/>
+              <text x="26" y="286" font-family="-apple-system,sans-serif" font-size="9" fill="#6b6b6b">Favorites saved</text>
+              <text x="174" y="286" font-family="-apple-system,sans-serif" font-size="11" font-weight="800" text-anchor="end" fill="#007AFF">5 ⭐</text>
+              <!-- Home indicator -->
+              <rect x="4" y="395" width="192" height="35" fill="#f2f2f7"/>
+              <rect x="88" y="412" width="24" height="4" rx="2" fill="#3a3a3c" opacity="0.18"/>
+            </g>
+            <rect x="70" y="14" width="60" height="16" rx="8" fill="#1c1c1e"/>
+          </svg>
+        </div>
+        <span class="mockup-label">Settings</span>
+      </div>
+
+    </div>
+  </div><!-- /mockup-section -->
+
+  <!-- ── Feature grid ── -->
+  <div class="features-section page-wrap">
+    <div class="section-header reveal">
+      <div class="section-label">Core Features</div>
+      <h2 class="section-heading word-reveal" id="wrev-features">Four features built for people who find most apps overwhelming</h2>
+    </div>
+    <div class="feature-grid" id="feature-grid">
+      <div class="feature-card">
+        <div class="feature-icon">📖</div>
+        <div class="feature-name">Learn Basics</div>
+        <div class="feature-desc">Step-by-step guides on everyday tech: writing emails, video calls, using the web. Written in plain language with no jargon, no assumed knowledge.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🤖</div>
+        <div class="feature-name">Ask AI Helper</div>
+        <div class="feature-desc">GPT-3.5 powered assistant with text-to-speech output. Users speak or type questions and hear answers read aloud at an adjustable pace.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📰</div>
+        <div class="feature-name">What's New</div>
+        <div class="feature-desc">A curated, plain-language feed of AI news. No algorithm, no clutter. Relevant developments summarized clearly for everyday readers.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">⚙️</div>
+        <div class="feature-name">Adaptive Settings</div>
+        <div class="feature-desc">Font size (16-28px), speech speed (Slow/Normal/Fast), and full progress tracking. Every preference persists so users never have to reconfigure.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Timeline ── -->
+  <div class="timeline-section page-wrap">
+    <div class="section-header reveal">
+      <div class="section-label">Timeline</div>
+      <h2 class="section-heading word-reveal" id="wrev-timeline">Zero to App Store in 10 weeks</h2>
+    </div>
+    <div class="timeline" id="timeline">
+      <div class="timeline-item">
+        <div class="timeline-month">Jun 2025</div>
+        <div class="timeline-event">Ideation</div>
+        <div class="timeline-detail">Market research, user interviews, feature scoping with co-founder</div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-month">Jul 2025</div>
+        <div class="timeline-event">Build</div>
+        <div class="timeline-detail">React Native in Expo, GPT-3.5 API, text-to-speech integration</div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-month">Aug 2025</div>
+        <div class="timeline-event">Beta</div>
+        <div class="timeline-detail">65+ beta testers, 2 App Store rejections, privacy policy revisions</div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-month">Aug 2025</div>
+        <div class="timeline-event">Live</div>
+        <div class="timeline-detail">Published to App Store, ASO optimization, first organic downloads</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Overview split ── -->
+  <div class="split-block page-wrap">
+    <div class="split-text split-from-left" data-slide>
       <h2>Overview</h2>
-    <p>Over the summer of 2025 I co-founded and shipped ElderlyAI — an iOS app designed to help elderly users engage with AI in a friendly, accessible way. The app is live on the App Store.</p>
-    <p>The idea came from noticing how much of the existing AI landscape is built for tech-savvy users. We wanted to build something genuinely easy to use for older adults who might benefit the most from an AI companion but find most interfaces overwhelming.</p>
+      <h3>AI built for the people who need it most</h3>
+      <p>The idea came from noticing how much of the existing AI landscape is built for tech-savvy users. Tools like ChatGPT assume you know what a prompt is. We wanted to build something for older adults who might benefit the most from AI but find most interfaces overwhelming.</p>
+      <p>We focused relentlessly on one question: can a 70-year-old who has never used a smartphone understand this immediately?</p>
     </div>
-    <div class="project-section">
-      <h2>What we built</h2>
-    <p>ElderlyAI features a large-text, high-contrast interface with simplified navigation. The AI assistant can hold natural conversations, answer questions, help with reminders, and provide companionship — all without requiring any prior experience with AI tools.</p>
-    <p>I led product design and helped build the front-end in Swift/SwiftUI. We iterated based on feedback from beta testers in the 65+ age group, making adjustments to font sizes, button placement, and conversational tone throughout the process.</p>
-    </div>
-    <div class="project-section">
-      <h2>Challenges</h2>
-    <p>Getting the conversational tone right was one of the hardest parts. Most LLM outputs are written for general audiences and can feel clinical or overly verbose. We spent significant time prompt-engineering responses to feel warm, patient, and appropriately paced.</p>
-    <p>App Store review was also a learning experience — we went through two rejections before getting the privacy disclosures and data handling documentation right. Shipping a real product taught me how much of the work happens outside the code.</p>
-    </div>
-    <div class="project-section">
-      <h2>What I learned</h2>
-    <p>This was my first time taking a product from zero to the App Store. The biggest lesson was that design is not just visual — it is understanding your user deeply enough to anticipate their confusion before it happens.</p>
-    <p>I also learned a lot about the business side: user acquisition, App Store optimization, and how to gather and act on qualitative feedback from non-technical users.</p>
-    </div>
-    <div class="project-links">
-    <a href="https://apps.apple.com/us/app/elderlyai/id6748717895" target="_blank" rel="noopener" class="project-link">Download on App Store <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 10L10 2M10 2H4M10 2v6"/></svg></a>
+    <div class="visual-panel split-from-right" data-slide>
+      <div class="review-panel">
+        <div class="review-stars">
+          <span class="review-star">★</span><span class="review-star">★</span>
+          <span class="review-star">★</span><span class="review-star">★</span><span class="review-star">★</span>
+        </div>
+        <p class="review-text">"My 74-year-old mother can actually use this. Finally an app that doesn't assume everyone is 25."</p>
+        <div class="review-author">App Store Review</div>
+        <div class="review-divider"></div>
+        <div class="review-stat">
+          <span class="review-stat-num">65+</span>
+          <span class="review-stat-label">average age of target user</span>
+        </div>
+      </div>
     </div>
   </div>
 
-  <footer class="project-footer">
+  <!-- ── Design decisions split ── -->
+  <div class="split-block reverse page-wrap">
+    <div class="split-text split-from-right" data-slide>
+      <h2>Design Decisions</h2>
+      <h3>Every pixel was decided by asking one question</h3>
+      <p>Can a 70-year-old who has never used a smartphone understand this immediately? That meant large buttons, 20px body text as the floor, high-contrast white cards, and exactly three primary actions on the home screen.</p>
+      <p>We shipped without a hamburger menu, a buried settings icon, or any gesture-based navigation. All primary actions are reachable in one tap from home.</p>
+    </div>
+    <div class="visual-panel split-from-left" data-slide id="design-panel">
+      <div class="design-panel">
+        <div class="design-panel-title">Design Rules</div>
+        <div class="design-rule">
+          <div class="design-rule-icon">👆</div>
+          <span class="design-rule-label">Touch targets</span>
+          <span class="design-rule-val">44pt min</span>
+        </div>
+        <div class="design-rule">
+          <div class="design-rule-icon">Aa</div>
+          <span class="design-rule-label">Body text floor</span>
+          <span class="design-rule-val">20px</span>
+        </div>
+        <div class="design-rule">
+          <div class="design-rule-icon">☀️</div>
+          <span class="design-rule-label">Contrast ratio</span>
+          <span class="design-rule-val">WCAG AA</span>
+        </div>
+        <div class="design-rule">
+          <div class="design-rule-icon">🏠</div>
+          <span class="design-rule-label">Primary actions</span>
+          <span class="design-rule-val">3 max</span>
+        </div>
+        <div class="design-rule">
+          <div class="design-rule-icon">🚫</div>
+          <span class="design-rule-label">Gestures required</span>
+          <span class="design-rule-val">None</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Callout ── -->
+  <div class="callout-section page-wrap">
+    <div class="callout-block" id="callout-block">
+      <p class="callout-text">Design is not just visual. It is understanding your user deeply enough to anticipate their confusion before it happens.</p>
+      <div class="callout-attr">Aidan Liu - what I learned from this project</div>
+    </div>
+  </div>
+
+  <!-- ── Challenges ── -->
+  <div class="process-section page-wrap">
+    <div class="section-header reveal">
+      <div class="section-label">Challenges</div>
+      <h2 class="section-heading word-reveal" id="wrev-challenges">Five things that were harder than expected</h2>
+    </div>
+    <div class="process-steps" id="process-steps">
+      <div class="process-step">
+        <div class="step-num">01</div>
+        <div class="step-body">
+          <div class="step-title">Getting the conversational tone right</div>
+          <div class="step-desc">Most LLM outputs feel clinical or overly verbose. We spent weeks prompt-engineering responses to feel warm, patient, and appropriately paced for older adults.</div>
+        </div>
+      </div>
+      <div class="process-step">
+        <div class="step-num">02</div>
+        <div class="step-body">
+          <div class="step-title">App Store review rejections</div>
+          <div class="step-desc">Two rejections before we got the privacy disclosures and data handling documentation right. Shipping taught me how much work happens outside the code.</div>
+        </div>
+      </div>
+      <div class="process-step">
+        <div class="step-num">03</div>
+        <div class="step-body">
+          <div class="step-title">Testing with real 65+ users</div>
+          <div class="step-desc">Most design assumptions fail immediately when you watch a real elderly user try your app. We ran four rounds of in-person beta testing to unlearn our own biases.</div>
+        </div>
+      </div>
+      <div class="process-step">
+        <div class="step-num">04</div>
+        <div class="step-body">
+          <div class="step-title">Font size and layout flexibility</div>
+          <div class="step-desc">Supporting four font sizes (16/20/24/28px) without breaking every layout required systematic design thinking, not ad-hoc fixes.</div>
+        </div>
+      </div>
+      <div class="process-step">
+        <div class="step-num">05</div>
+        <div class="step-body">
+          <div class="step-title">Text-to-speech speed calibration</div>
+          <div class="step-desc">The default system TTS speed is too fast. We built a three-speed system and let users discover the right speed themselves rather than picking a default.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Lessons split ── -->
+  <div class="split-block page-wrap">
+    <div class="split-text split-from-left" data-slide>
+      <h2>What I Learned</h2>
+      <h3>First time taking something from zero to the App Store</h3>
+      <p>The biggest lesson: design is anticipating confusion before it happens. The second: the gap between "it works" and "it ships" is enormous, and most of that gap has nothing to do with code.</p>
+      <p>I also learned how to gather qualitative feedback from non-technical users, navigate App Store policy, and think seriously about user acquisition and retention.</p>
+    </div>
+    <div class="visual-panel split-from-right" data-slide>
+      <div class="lessons-panel">
+        <div class="lesson-item">
+          <div class="lesson-num">01</div>
+          <div class="lesson-text"><strong>Shipping teaches you things building doesn't.</strong> Review, user responses, and edge cases revealed more than any dev environment could.</div>
+        </div>
+        <div class="lesson-item">
+          <div class="lesson-num">02</div>
+          <div class="lesson-text"><strong>Design is a user research problem.</strong> Every visual decision was downstream of observing real users fail at something obvious to us.</div>
+        </div>
+        <div class="lesson-item">
+          <div class="lesson-num">03</div>
+          <div class="lesson-text"><strong>Business matters even in a side project.</strong> ASO, user acquisition, App Store screenshots determine whether anyone finds what you built.</div>
+        </div>
+        <div class="lesson-item">
+          <div class="lesson-num">04</div>
+          <div class="lesson-text"><strong>Co-founding is fast and hard.</strong> Decisions move faster with two people but require more alignment. Communication is the most important feature.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── GitHub link strip ── -->
+  <div class="github-strip page-wrap" id="github-strip">
+    <a href="https://github.com/ncl9100/tech-companion-app" target="_blank" rel="noopener" class="github-link">
+      <div class="github-icon">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0 1 12 6.844a9.59 9.59 0 0 1 2.504.337c1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.02 10.02 0 0 0 22 12.017C22 6.484 17.522 2 12 2z"/>
+        </svg>
+      </div>
+      <div class="github-link-text">
+        <div class="github-link-label">ncl9100/tech-companion-app</div>
+        <div class="github-link-sub">React Native · Expo · GPT-3.5 · expo-speech</div>
+      </div>
+      <div class="github-link-arrow">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 13L13 3M13 3H6M13 3v7"/>
+        </svg>
+      </div>
+    </a>
+  </div>
+
+  <!-- ── CTA ── -->
+  <div class="cta-section page-wrap">
+    <div class="cta-inner reveal">
+      <span class="cta-label">Available Now</span>
+      <h2 class="cta-heading">Try ElderlyAI on iPhone</h2>
+      <div class="cta-btns">
+        <a href="https://apps.apple.com/us/app/elderlyai/id6748717895" target="_blank" rel="noopener" class="cta-btn">
+          <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 10L10 2M10 2H4M10 2v6"/></svg>
+          Download on the App Store
+        </a>
+        <a href="https://github.com/ncl9100/tech-companion-app" target="_blank" rel="noopener" class="cta-btn cta-btn--outline">
+          <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 10L10 2M10 2H4M10 2v6"/></svg>
+          View on GitHub
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <footer class="project-footer reveal">
     <span>© Aidan Liu 2026</span>
-    <a href="index.html">← Back to portfolio</a>
+    <a href="index.html">Back to portfolio</a>
   </footer>
+
 </main>
 
+<script>
+(function () {
+  'use strict';
+
+  /* ── Lenis smooth scroll ── */
+  var lenis = null;
+  try {
+    if (typeof Lenis === 'function') {
+      lenis = new Lenis({ duration: 1.2, easing: function(t){ return 1-Math.pow(1-t,4); } });
+      (function raf(t){ lenis.raf(t); requestAnimationFrame(raf); })(0);
+    }
+  } catch(e) { lenis = null; }
+
+  var bar    = document.getElementById('scroll-progress');
+  var topbar = document.getElementById('topbar');
+
+  function updateProgress() {
+    if (!bar) return;
+    var max = document.documentElement.scrollHeight - window.innerHeight;
+    bar.style.width = (max > 0 ? (window.scrollY / max * 100) : 0) + '%';
+  }
+
+  /* ── Word-reveal: wrap each word in spans ── */
+  function setupWordReveal(el) {
+    if (!el) return;
+    var text = el.textContent;
+    var words = text.split(' ');
+    el.innerHTML = words.map(function(w, i) {
+      return '<span class="wr-word"><span class="wr-inner" style="transition-delay:' + (i * 0.055) + 's">' + w + '</span></span>';
+    }).join(' ');
+    el.classList.add('wrev-ready');
+  }
+  ['wrev-screens','wrev-features','wrev-timeline','wrev-challenges'].forEach(function(id) {
+    setupWordReveal(document.getElementById(id));
+  });
+
+  /* ── Reduced motion: skip everything ── */
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    document.querySelectorAll('.reveal').forEach(function(el){ el.classList.add('in-view'); });
+    document.querySelectorAll('.word-reveal').forEach(function(el){ el.classList.add('wrev-in'); });
+    document.querySelectorAll('.split-from-left,.split-from-right').forEach(function(el){ el.classList.add('slide-in'); });
+    document.querySelectorAll('.feature-card,.process-step,.timeline-item,.mockup-item,.design-rule').forEach(function(el){ el.style.opacity=1; el.style.transform='none'; });
+    var cb = document.getElementById('callout-block');
+    if (cb) cb.classList.add('cb-in');
+    var gl = document.getElementById('github-link');
+    if (gl) gl.style.opacity = 1;
+    window.addEventListener('scroll', function(){ updateProgress(); if (topbar) topbar.classList.toggle('scrolled', window.scrollY > 8); }, { passive: true });
+    return;
+  }
+
+  /* ── Collect all animated elements ── */
+  var reveals        = Array.prototype.slice.call(document.querySelectorAll('.reveal'));
+  var wordRevEls     = Array.prototype.slice.call(document.querySelectorAll('.word-reveal'));
+  var slideEls       = Array.prototype.slice.call(document.querySelectorAll('[data-slide]'));
+  var mockupGrid     = document.getElementById('mockup-grid');
+  var featureGrid    = document.getElementById('feature-grid');
+  var processSteps   = document.getElementById('process-steps');
+  var timeline       = document.getElementById('timeline');
+  var calloutBlock   = document.getElementById('callout-block');
+  var designPanel    = document.getElementById('design-panel');
+  var githubStrip    = document.getElementById('github-strip');
+
+  /* Parallax phone items */
+  var parallaxItems  = Array.prototype.slice.call(document.querySelectorAll('[data-parallax]'));
+
+  var triggered = {};
+
+  /* Double-rAF: frame 1 hides everything, frame 2 runs first check */
+  requestAnimationFrame(function(){
+    reveals.forEach(function(el){ el.classList.add('ready'); });
+    requestAnimationFrame(check);
+  });
+
+  function countUp(el, target, dur) {
+    if (!el || isNaN(target)) return;
+    var start = performance.now();
+    (function tick(now){
+      var p = Math.min((now - start) / dur, 1);
+      el.textContent = Math.round(target * (1 - Math.pow(1-p, 3)));
+      if (p < 1) requestAnimationFrame(tick);
+    })(start);
+  }
+
+  /* ── Parallax phones ── */
+  function updateParallax() {
+    parallaxItems.forEach(function(item) {
+      var rate   = parseFloat(item.getAttribute('data-parallax')) || 0;
+      var rect   = item.getBoundingClientRect();
+      var center = rect.top + rect.height / 2 - window.innerHeight / 2;
+      var wrap   = item.querySelector('.phone-wrap');
+      if (wrap) wrap.style.transform = 'translateY(' + (center * rate) + 'px)';
+    });
+  }
+
+  function check() {
+    var vh = window.innerHeight;
+    updateProgress();
+    if (topbar) topbar.classList.toggle('scrolled', window.scrollY > 8);
+
+    /* Standard reveals */
+    reveals.forEach(function(el){
+      if (!el.classList.contains('ready')) return;
+      var r = el.getBoundingClientRect();
+      if (r.bottom < vh * 0.07) {
+        el.classList.remove('in-view'); el.classList.add('above-view');
+      } else if (r.top < vh * 0.9) {
+        el.classList.remove('above-view'); el.classList.add('in-view');
+      } else {
+        el.classList.remove('in-view', 'above-view');
+      }
+    });
+
+    /* Word reveals */
+    wordRevEls.forEach(function(el){
+      var r = el.getBoundingClientRect();
+      if (r.top < vh * 0.88) {
+        el.classList.add('wrev-in');
+      } else if (r.bottom < 0) {
+        el.classList.remove('wrev-in');
+      }
+    });
+
+    /* Directional split reveals */
+    slideEls.forEach(function(el){
+      var r = el.getBoundingClientRect();
+      if (r.top < vh * 0.9) el.classList.add('slide-in');
+      else if (r.top > vh) el.classList.remove('slide-in');
+    });
+
+    /* Callout scale */
+    if (calloutBlock) {
+      var r = calloutBlock.getBoundingClientRect();
+      if (r.top < vh * 0.88) calloutBlock.classList.add('cb-in');
+      else if (r.top > vh) calloutBlock.classList.remove('cb-in');
+    }
+
+    /* Stats */
+    if (!triggered.stats) {
+      var sr = document.getElementById('stat-row');
+      if (sr && sr.getBoundingClientRect().top < vh * 0.95) {
+        triggered.stats = true;
+        countUp(document.getElementById('sn-0'), 1,  800);
+        countUp(document.getElementById('sn-1'), 4,  1000);
+        countUp(document.getElementById('sn-3'), 10, 1200);
+      }
+    }
+
+    /* Mockup stagger */
+    if (!triggered.mockup && mockupGrid && mockupGrid.getBoundingClientRect().top < vh * 0.88) {
+      triggered.mockup = true;
+      mockupGrid.classList.add('revealed');
+    }
+
+    /* Feature stagger */
+    if (!triggered.feats && featureGrid && featureGrid.getBoundingClientRect().top < vh * 0.9) {
+      triggered.feats = true;
+      featureGrid.classList.add('revealed');
+    }
+
+    /* Process steps */
+    if (!triggered.steps && processSteps && processSteps.getBoundingClientRect().top < vh * 0.9) {
+      triggered.steps = true;
+      processSteps.classList.add('revealed');
+    }
+
+    /* Timeline */
+    if (!triggered.time && timeline && timeline.getBoundingClientRect().top < vh * 0.9) {
+      triggered.time = true;
+      timeline.classList.add('revealed');
+    }
+
+    /* Design panel row stagger */
+    if (!triggered.design && designPanel && designPanel.getBoundingClientRect().top < vh * 0.92) {
+      triggered.design = true;
+      designPanel.classList.add('panel-in');
+    }
+
+    /* GitHub strip */
+    if (!triggered.github && githubStrip && githubStrip.getBoundingClientRect().top < vh * 0.9) {
+      triggered.github = true;
+      githubStrip.classList.add('strip-in');
+    }
+
+    /* Parallax */
+    updateParallax();
+  }
+
+  window.addEventListener('scroll', check, { passive: true });
+  window.addEventListener('resize', check, { passive: true });
+  if (lenis) lenis.on('scroll', check);
+  setTimeout(check, 200);
+})();
+</script>
 </body>
 </html>
