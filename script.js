@@ -849,7 +849,7 @@ if (linksHeading) {
   });
 })();
 
-// Corgis running across the hero: each one wanders left/right at its own
+// Beagles running across the hero: each one wanders left/right at its own
 // speed, occasionally stopping to rest, then picking a (possibly new)
 // direction and pace again — like Google Colab's corgis but a bit more alive.
 (() => {
@@ -884,7 +884,7 @@ if (linksHeading) {
 
   const applyPace = (c) => {
     const scale = REF_SPEED / c.speed;
-    const duration = `${(0.5 * scale).toFixed(3)}s`;
+    const duration = `${(0.64 * scale).toFixed(3)}s`;
     if (c.svg) c.svg.style.animationDuration = duration;
     c.legs.forEach((leg) => { leg.style.animationDuration = duration; });
   };

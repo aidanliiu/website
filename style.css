@@ -391,7 +391,7 @@ section {
   transition: opacity 0.2s linear;
 }
 
-/* Corgis running back and forth across the hero, Colab-loading-style. */
+/* Beagles running back and forth across the hero, Colab-loading-style. */
 .corgi-track {
   position: absolute;
   top: 0;
@@ -422,7 +422,7 @@ section {
   display: block;
   width: 100%;
   height: 100%;
-  animation: corgi-bob 0.5s ease-in-out infinite;
+  animation: corgi-bob 0.64s ease-in-out infinite;
 }
 
 .corgi--rtl .corgi-svg {
@@ -446,62 +446,91 @@ section {
   transform: translateY(4px) scaleX(-1);
 }
 
-/* Legs shrink upward from where they meet the belly, so they stay attached
-   to the body as short tucked-in stubs instead of swinging away from it. */
+/* Leg groups shrink upward (scaleY from top-center) when resting,
+   tucking the two-segment legs into short stubs under the belly. */
 .corgi.is-paused .leg {
   animation: none;
+  transform-box: fill-box;
   transform-origin: top center;
-  transform: scaleY(0.35);
+  transform: rotate(0deg) scaleY(0.35);
   transition: transform 0.35s ease-out;
 }
 
-/* Running legs: a single rect per leg, swinging back and forth and lifting
-   slightly off the ground mid-stride for a simple walking step. Diagonal
-   leg pairs (leg-a / leg-b) are offset by half a cycle. */
+/* 8-frame sprite-style walk. Each leg group (<g>) rotates at the hip
+   (transform-origin: top center on fill-box). Four legs have quarter-cycle
+   offsets creating a proper diagonal-pair quadruped gait.
+   Draw order in SVG: far legs first (behind body), near legs last (in front). */
 .leg {
   transform-box: fill-box;
   transform-origin: top center;
-  animation: walk-leg 0.5s ease-in-out infinite;
+  /* step-end = hold each pose until the next frame, like a sprite sheet.
+     Duration is overridden by JS per walking speed (base ~0.64s). */
+  animation: walk-leg 0.64s step-end infinite;
 }
 
-.leg-b {
-  animation-delay: -0.25s;
-}
+/* 4-beat quadruped gait: each leg a quarter-cycle apart */
+.leg-2 { animation-delay: -0.16s; }
+.leg-3 { animation-delay: -0.32s; }
+.leg-4 { animation-delay: -0.48s; }
 
+/* Far-side legs rendered behind the body — slightly translucent for depth */
+.far-leg { opacity: 0.62; }
+
+/* Body bob: 8 discrete steps matching the leg frames */
 @keyframes corgi-bob {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-2px); }
+  0%    { transform: translateY(0px);    }
+  12.5% { transform: translateY(-1.5px); }
+  25%   { transform: translateY(-2.5px); }
+  37.5% { transform: translateY(-1px);   }
+  50%   { transform: translateY(0px);    }
+  62.5% { transform: translateY(-1.5px); }
+  75%   { transform: translateY(-2.5px); }
+  87.5% { transform: translateY(-1px);   }
+  100%  { transform: translateY(0px);    }
 }
 
 @keyframes corgi-bob-rtl {
-  0%, 100% { transform: translateY(0) scaleX(-1); }
-  50% { transform: translateY(-2px) scaleX(-1); }
+  0%    { transform: translateY(0px)    scaleX(-1); }
+  12.5% { transform: translateY(-1.5px) scaleX(-1); }
+  25%   { transform: translateY(-2.5px) scaleX(-1); }
+  37.5% { transform: translateY(-1px)   scaleX(-1); }
+  50%   { transform: translateY(0px)    scaleX(-1); }
+  62.5% { transform: translateY(-1.5px) scaleX(-1); }
+  75%   { transform: translateY(-2.5px) scaleX(-1); }
+  87.5% { transform: translateY(-1px)   scaleX(-1); }
+  100%  { transform: translateY(0px)    scaleX(-1); }
 }
 
+/* Leg swing: wide arc for energetic trot. Negative = leg forward, positive = leg back.
+   Stance phase frames 0-4 (forward → rear), swing phase frames 5-7 (fast return). */
 @keyframes walk-leg {
-  0%   { transform: rotate(26deg); }
-  25%  { transform: rotate(0deg) translateY(-2.5px) scaleY(0.9); }
-  50%  { transform: rotate(-26deg); }
-  75%  { transform: rotate(0deg); }
-  100% { transform: rotate(26deg); }
+  0%    { transform: rotate(-42deg); }
+  12.5% { transform: rotate(-22deg); }
+  25%   { transform: rotate(0deg); }
+  37.5% { transform: rotate(22deg); }
+  50%   { transform: rotate(42deg); }
+  62.5% { transform: rotate(38deg); }
+  75%   { transform: rotate(8deg); }
+  87.5% { transform: rotate(-30deg); }
+  100%  { transform: rotate(-42deg); }
 }
 
-/* Color variants — different breeds/colorways for the running pups. */
-.corgi--sable .p-main    { fill: #e8985a; }
-.corgi--sable .p-light   { fill: #fdf3e7; }
-.corgi--sable .p-accent  { fill: #fbd2ad; }
+/* Color variants — beagle colorways (classic tricolor, chocolate tri, lemon, red-and-white). */
+.beagle--tricolor .p-main   { fill: #2a2a2a; }     /* black saddle, ears, head cap */
+.beagle--tricolor .p-light  { fill: #fdf3e7; }     /* white belly, muzzle, tail tip, legs */
+.beagle--tricolor .p-accent { fill: #c4853e; }     /* tan face and body sides */
 
-.corgi--tricolor .p-main   { fill: #3a3a3a; }
-.corgi--tricolor .p-light  { fill: #fdf3e7; }
-.corgi--tricolor .p-accent { fill: #c97f3a; }
+.beagle--chocolate .p-main   { fill: #5c3317; }    /* chocolate brown saddle */
+.beagle--chocolate .p-light  { fill: #fdf3e7; }    /* white */
+.beagle--chocolate .p-accent { fill: #c07840; }    /* tan sides */
 
-.corgi--merle .p-main    { fill: #a7b2c2; }
-.corgi--merle .p-light   { fill: #f5f7fa; }
-.corgi--merle .p-accent  { fill: #7e8a9c; }
+.beagle--lemon .p-main    { fill: #c8993a; }       /* golden lemon saddle */
+.beagle--lemon .p-light   { fill: #faf8f3; }       /* white */
+.beagle--lemon .p-accent  { fill: #e8c870; }       /* pale lemon tan */
 
-.corgi--cream .p-main    { fill: #f0d9b5; }
-.corgi--cream .p-light   { fill: #fffaf0; }
-.corgi--cream .p-accent  { fill: #e0bd8c; }
+.beagle--red .p-main    { fill: #b8522a; }         /* red-tan saddle */
+.beagle--red .p-light   { fill: #fdf3e7; }         /* white */
+.beagle--red .p-accent  { fill: #d4883a; }         /* amber-tan sides */
 
 .scroll-hint {
   position: fixed;
