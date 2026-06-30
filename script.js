@@ -867,6 +867,7 @@ if (linksHeading) {
     return {
       el,
       legs: el.querySelectorAll('.leg'),
+      shins: el.querySelectorAll('.shin'),
       svg: el.querySelector('.corgi-svg'),
       width,
       dir: rtl ? -1 : 1,
@@ -884,9 +885,10 @@ if (linksHeading) {
 
   const applyPace = (c) => {
     const scale = REF_SPEED / c.speed;
-    const duration = `${(0.64 * scale).toFixed(3)}s`;
+    const duration = `${(0.72 * scale).toFixed(3)}s`;
     if (c.svg) c.svg.style.animationDuration = duration;
     c.legs.forEach((leg) => { leg.style.animationDuration = duration; });
+    c.shins.forEach((shin) => { shin.style.animationDuration = duration; });
   };
 
   state.forEach((c) => {

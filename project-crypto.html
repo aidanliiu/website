@@ -3,217 +3,430 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Post-Quantum Cryptography Research — Aidan Liu</title>
+<title>Post-Quantum Cryptography — Aidan Liu</title>
 <meta name="description" content="Research into post-quantum cryptography and lattice-based algorithms through the SVCSI program.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   :root {
-    --fg: #111111;
-    --muted: #5e5e5e;
-    --bg: #ffffff;
-    --border: #e8e8e8;
-    --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+    --bg:          #08080e;
+    --surface:     #0f0f1a;
+    --surface-2:   #161624;
+    --border:      #1f1f35;
+    --fg:          #e2e2f0;
+    --muted:       #6b6b90;
+    --accent:      #00d4aa;
+    --accent-dim:  rgba(0,212,170,0.12);
+    --accent-glow: rgba(0,212,170,0.06);
+    --blue:        #4d7cfe;
+    --blue-dim:    rgba(77,124,254,0.12);
+    --red:         #ff6b6b;
+    --red-dim:     rgba(255,107,107,0.12);
+    --mono:        'JetBrains Mono','Courier New',monospace;
+    --sans:        'Plus Jakarta Sans',-apple-system,sans-serif;
+    --ease:        cubic-bezier(0.23,1,0.32,1);
+    --r:           10px;
   }
 
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth;scroll-padding-top:80px}
 
-  html { scroll-padding-top: 80px; }
-
-  body {
-    background: var(--bg);
-    color: var(--fg);
-    font-family: 'Plus Jakarta Sans', -apple-system, 'Helvetica Neue', Arial, sans-serif;
-    font-size: 16px;
-    line-height: 1.65;
-    -webkit-font-smoothing: antialiased;
+  body{
+    background:var(--bg);
+    color:var(--fg);
+    font-family:var(--sans);
+    font-size:16px;
+    line-height:1.65;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
   }
 
-  /* ── Top bar ── */
-  .topbar {
-    position: fixed;
-    top: 0; left: 0; right: 0;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 20px 40px;
-    z-index: 100;
-    background: rgba(255,255,255,0.88);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border-bottom: 1px solid var(--border);
+  /* ── Topbar ── */
+  .topbar{
+    position:fixed;top:0;left:0;right:0;z-index:100;
+    display:flex;justify-content:space-between;align-items:center;
+    padding:18px 40px;
+    background:rgba(8,8,14,0.88);
+    backdrop-filter:blur(16px);
+    -webkit-backdrop-filter:blur(16px);
+    border-bottom:1px solid var(--border);
   }
-
-  .back-link {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--fg);
-    text-decoration: none;
-    letter-spacing: 0.01em;
-    transition: gap 0.2s var(--ease-out), opacity 0.2s var(--ease-out);
+  .back-link{
+    display:inline-flex;align-items:center;gap:8px;
+    font-size:12px;font-weight:600;color:var(--muted);
+    text-decoration:none;letter-spacing:0.04em;text-transform:uppercase;
+    transition:color 0.2s,gap 0.2s var(--ease);
   }
-  .back-link:hover { gap: 12px; opacity: 0.6; }
-  .back-link svg { width: 14px; height: 14px; flex-shrink: 0; }
-
-  .topbar-name {
-    font-size: 13px;
-    font-weight: 700;
-    letter-spacing: -0.01em;
-    color: var(--fg);
-    text-decoration: none;
-  }
+  .back-link:hover{color:var(--fg);gap:12px}
+  .back-link svg{width:13px;height:13px;flex-shrink:0}
+  .topbar-name{font-size:13px;font-weight:700;color:var(--fg);text-decoration:none;letter-spacing:-0.01em}
 
   /* ── Hero ── */
-  .project-hero {
-    padding: 120px 40px 60px;
-    max-width: 760px;
-    margin: 0 auto;
-    border-bottom: 1px solid var(--border);
+  .hero{
+    position:relative;min-height:100svh;
+    display:flex;flex-direction:column;justify-content:flex-end;
+    padding:0 40px 80px;overflow:hidden;
+  }
+  #lattice-canvas{position:absolute;inset:0;width:100%;height:100%}
+  .hero-gradient{
+    position:absolute;inset:0;z-index:1;
+    background:linear-gradient(to top,var(--bg) 0%,rgba(8,8,14,0.55) 55%,transparent 100%);
+  }
+  .hero-content{position:relative;z-index:2;max-width:900px}
+  .hero-tag{
+    font-family:var(--mono);font-size:11px;color:var(--accent);
+    letter-spacing:0.12em;text-transform:uppercase;
+    margin-bottom:20px;display:flex;align-items:center;gap:10px;
+  }
+  .hero-tag::before{content:'';display:block;width:24px;height:1px;background:var(--accent)}
+  .hero-title{
+    font-size:clamp(38px,5.5vw,74px);font-weight:700;
+    line-height:1.07;letter-spacing:-0.03em;color:#fff;margin-bottom:28px;
+  }
+  .hero-title em{font-style:italic;color:var(--accent)}
+  .hero-meta{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+  .hero-pill{
+    display:inline-flex;align-items:center;
+    padding:5px 12px;border:1px solid var(--border);border-radius:999px;
+    font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:0.06em;
+  }
+  .hero-pill.accent{border-color:rgba(0,212,170,0.4);color:var(--accent)}
+  .scroll-cue{
+    position:absolute;bottom:36px;right:40px;z-index:2;
+    width:1px;height:60px;
+    background:linear-gradient(to bottom,transparent,var(--accent));
+    animation:scrollLine 2.2s ease-in-out infinite;
+  }
+  @keyframes scrollLine{
+    0%{opacity:0;transform:scaleY(0);transform-origin:top}
+    50%{opacity:1;transform:scaleY(1)}
+    100%{opacity:0;transform:scaleY(0);transform-origin:bottom}
   }
 
-  .project-tag {
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--muted);
-    margin-bottom: 18px;
+  /* ── Layout primitives ── */
+  .section{padding:96px 40px;max-width:1120px;margin:0 auto}
+  .section-sm{padding:64px 40px;max-width:1120px;margin:0 auto}
+  .divider{border:none;border-top:1px solid var(--border);margin:0}
+  .section-label{
+    font-family:var(--mono);font-size:10px;letter-spacing:0.14em;
+    text-transform:uppercase;color:var(--accent);margin-bottom:14px;
+  }
+  .section-title{
+    font-size:clamp(24px,3.5vw,46px);font-weight:700;
+    letter-spacing:-0.025em;line-height:1.12;color:#fff;margin-bottom:16px;
+  }
+  .section-body{
+    font-size:15px;line-height:1.8;color:#a0a0c0;max-width:65ch;margin-bottom:52px;
   }
 
-  .project-title {
-    font-family: Georgia, "Times New Roman", serif;
-    font-weight: normal;
-    font-size: clamp(32px, 5vw, 52px);
-    line-height: 1.18;
-    letter-spacing: -0.02em;
-    margin-bottom: 20px;
+  /* ── Stats row ── */
+  .stats-row{
+    display:grid;grid-template-columns:repeat(3,1fr);gap:1px;
+    background:var(--border);border:1px solid var(--border);border-radius:var(--r);
+    overflow:hidden;
+  }
+  .stat-item{background:var(--surface);padding:36px 28px}
+  .stat-num{
+    font-size:44px;font-weight:800;letter-spacing:-0.04em;line-height:1;
+    color:#fff;margin-bottom:8px;
+  }
+  .stat-num span{color:var(--accent)}
+  .stat-label{font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:0.05em}
+
+  /* ── Algorithm grid ── */
+  .algo-grid{
+    display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:0;
+  }
+  .algo-card{
+    background:var(--surface);border:1px solid var(--border);border-radius:var(--r);
+    padding:26px;position:relative;overflow:hidden;
+    transition:border-color 0.25s,transform 0.25s var(--ease);
+    cursor:default;
+  }
+  .algo-card:hover{border-color:var(--c,var(--accent));transform:translateY(-3px)}
+  .algo-card::before{
+    content:'';position:absolute;top:0;left:0;right:0;height:2px;
+    background:var(--c,var(--accent));
+    transform:scaleX(0);transform-origin:left;
+    transition:transform 0.35s var(--ease);
+  }
+  .algo-card:hover::before{transform:scaleX(1)}
+  .algo-card--blue{--c:var(--blue)}
+  .algo-card--red{--c:var(--red)}
+  .algo-badge{
+    display:inline-flex;align-items:center;gap:5px;
+    font-family:var(--mono);font-size:9px;letter-spacing:0.1em;
+    text-transform:uppercase;padding:4px 8px;border-radius:4px;margin-bottom:12px;
+  }
+  .algo-badge--safe{background:var(--accent-dim);color:var(--accent)}
+  .algo-badge--warn{background:var(--blue-dim);color:var(--blue)}
+  .algo-badge--vuln{background:var(--red-dim);color:var(--red)}
+  .algo-card h3{font-size:17px;font-weight:700;color:#fff;margin-bottom:7px;letter-spacing:-0.01em}
+  .algo-card p{font-size:12px;color:var(--muted);line-height:1.65}
+
+  /* ── Cipher demo ── */
+  .demo-box{
+    background:var(--surface);border:1px solid var(--border);border-radius:var(--r);
+    padding:40px;margin-bottom:0;
+  }
+  .demo-box h3{font-size:15px;font-weight:700;color:#fff;margin-bottom:6px}
+  .demo-desc{font-size:13px;color:var(--muted);margin-bottom:28px;line-height:1.6}
+  .cipher-io{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:24px}
+  .cipher-field label{
+    display:block;font-family:var(--mono);font-size:10px;letter-spacing:0.1em;
+    text-transform:uppercase;color:var(--muted);margin-bottom:8px;
+  }
+  .cipher-field textarea,.cipher-output{
+    width:100%;padding:14px 16px;background:var(--bg);border:1px solid var(--border);
+    border-radius:8px;color:var(--fg);font-family:var(--mono);font-size:14px;
+    line-height:1.5;resize:none;min-height:100px;
+  }
+  .cipher-field textarea{transition:border-color 0.2s}
+  .cipher-field textarea:focus{outline:none;border-color:var(--accent)}
+  .cipher-output{color:var(--accent)}
+  .slider-row{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+  .slider-row label{font-family:var(--mono);font-size:11px;color:var(--muted);white-space:nowrap}
+  input[type="range"]{
+    -webkit-appearance:none;flex:1;min-width:120px;height:4px;
+    background:var(--border);border-radius:2px;cursor:pointer;
+  }
+  input[type="range"]::-webkit-slider-thumb{
+    -webkit-appearance:none;width:16px;height:16px;
+    background:var(--accent);border-radius:50%;cursor:pointer;
+  }
+  .shift-val{
+    font-family:var(--mono);font-size:22px;font-weight:700;
+    color:var(--accent);min-width:28px;text-align:center;
   }
 
-  .project-date {
-    font-size: 12px;
-    color: var(--muted);
-    letter-spacing: 0.04em;
+  /* ── AES diagram ── */
+  .aes-diagram{
+    background:var(--surface);border:1px solid var(--border);border-radius:var(--r);
+    padding:32px;
+  }
+  .aes-rounds{
+    display:flex;gap:6px;overflow-x:auto;padding-bottom:8px;
+    scrollbar-width:thin;scrollbar-color:var(--border) transparent;
+  }
+  .aes-round{
+    flex:0 0 auto;min-width:108px;background:var(--bg);
+    border:1px solid var(--border);border-radius:8px;padding:14px 12px;
+    cursor:pointer;transition:border-color 0.2s,background 0.2s;
+  }
+  .aes-round:hover,.aes-round.active{border-color:var(--accent);background:var(--accent-glow)}
+  .aes-round-num{font-family:var(--mono);font-size:9px;color:var(--muted);letter-spacing:0.08em;margin-bottom:8px}
+  .aes-round-ops{display:flex;flex-direction:column;gap:4px}
+  .aes-op{
+    font-size:10px;font-weight:600;padding:4px 6px;border-radius:4px;
+    text-align:center;letter-spacing:0.02em;
+  }
+  .aes-op--sub{background:rgba(0,212,170,0.15);color:var(--accent)}
+  .aes-op--shift{background:rgba(77,124,254,0.15);color:var(--blue)}
+  .aes-op--mix{background:rgba(255,180,50,0.15);color:#ffb432}
+  .aes-op--key{background:rgba(255,107,107,0.15);color:var(--red)}
+  .aes-detail{
+    margin-top:20px;padding:20px;background:var(--bg);
+    border:1px solid var(--border);border-radius:8px;display:none;
+  }
+  .aes-detail.visible{display:block}
+  .aes-detail h4{font-size:14px;font-weight:700;color:#fff;margin-bottom:8px}
+  .aes-detail p{font-size:13px;color:var(--muted);line-height:1.7}
+
+  /* ── Threat section ── */
+  .threat-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:52px}
+  .threat-card{
+    background:var(--surface);border:1px solid var(--border);border-radius:var(--r);
+    padding:32px;
+  }
+  .threat-card--danger{border-color:rgba(255,107,107,0.28);background:rgba(255,107,107,0.03)}
+  .threat-card--safe{border-color:rgba(0,212,170,0.28);background:rgba(0,212,170,0.03)}
+  .threat-icon{font-size:26px;margin-bottom:14px}
+  .threat-card h3{font-size:18px;font-weight:700;color:#fff;margin-bottom:8px}
+  .threat-card p{font-size:13px;color:var(--muted);line-height:1.7;margin-bottom:14px}
+  .threat-badge{
+    display:inline-flex;align-items:center;gap:6px;
+    font-family:var(--mono);font-size:10px;letter-spacing:0.07em;
+    padding:5px 10px;border-radius:4px;
+  }
+  .threat-badge::before{content:'●';font-size:7px}
+  .threat-badge--danger{background:var(--red-dim);color:var(--red)}
+  .threat-badge--safe{background:var(--accent-dim);color:var(--accent)}
+
+  /* Security bars */
+  .sec-chart{
+    background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:32px;
+  }
+  .sec-chart-head{
+    display:flex;align-items:center;justify-content:space-between;
+    margin-bottom:28px;flex-wrap:wrap;gap:12px;
+  }
+  .sec-chart-head h3{font-size:15px;font-weight:700;color:#fff}
+  .sec-chart-head p{font-size:12px;color:var(--muted);margin-top:3px}
+  .legend{display:flex;gap:16px;font-family:var(--mono);font-size:10px}
+  .legend-item{display:flex;align-items:center;gap:6px}
+  .legend-dot{width:10px;height:3px;border-radius:2px}
+  .sec-bars{display:flex;flex-direction:column;gap:18px}
+  .sec-bar-row{display:grid;grid-template-columns:110px 1fr 50px 1fr 50px;gap:10px;align-items:center}
+  .sec-bar-label{font-family:var(--mono);font-size:11px;color:var(--muted)}
+  .sec-bar-track{height:6px;background:var(--border);border-radius:3px;overflow:hidden}
+  .sec-bar-fill{height:100%;border-radius:3px;transition:width 1.2s var(--ease);width:0}
+  .sec-bar-fill--c{background:var(--blue)}
+  .sec-bar-fill--q{background:var(--accent)}
+  .sec-bar-val{font-family:var(--mono);font-size:11px;color:var(--fg);text-align:right}
+  .sec-bar-val.danger{color:var(--red)}
+  .sec-bar-val.safe{color:var(--accent)}
+
+  /* ── Lattice visual ── */
+  .lattice-split{
+    display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center;
+  }
+  #lattice-mini{
+    display:block;border-radius:8px;background:var(--bg);
+    border:1px solid var(--border);width:100%;
+  }
+  .lattice-explain h3{font-size:20px;font-weight:700;color:#fff;margin-bottom:14px;letter-spacing:-0.02em}
+  .lattice-explain p{font-size:14px;color:var(--muted);line-height:1.75;margin-bottom:12px}
+  .lwe-formula{
+    font-family:var(--mono);font-size:16px;padding:16px 20px;
+    background:var(--bg);border:1px solid var(--border);border-radius:8px;
+    color:var(--accent);letter-spacing:0.04em;margin:16px 0;
   }
 
-  /* ── Body ── */
-  .project-body {
-    max-width: 760px;
-    margin: 0 auto;
-    padding: 60px 40px 100px;
+  /* ── Kyber protocol flow ── */
+  .kyber-flow{
+    background:var(--surface);border:1px solid var(--border);border-radius:var(--r);
+    padding:40px;display:grid;grid-template-columns:1fr 100px 1fr;gap:0;
+    align-items:start;overflow-x:auto;
   }
+  .kyber-party-name{
+    font-family:var(--mono);font-size:11px;letter-spacing:0.1em;text-transform:uppercase;
+    color:var(--accent);margin-bottom:16px;text-align:center;
+  }
+  .kyber-box{
+    background:var(--bg);border:1px solid var(--border);border-radius:8px;
+    padding:14px 16px;margin-bottom:12px;font-size:12px;color:var(--fg);line-height:1.55;
+  }
+  .kyber-box strong{color:#fff;display:block;margin-bottom:3px;font-size:11px}
+  .kyber-box code{font-family:var(--mono);font-size:10px;color:var(--accent)}
+  .kyber-box.result{border-color:rgba(0,212,170,0.35);background:rgba(0,212,170,0.04)}
+  .kyber-middle{
+    display:flex;flex-direction:column;align-items:center;
+    padding-top:56px;gap:52px;
+  }
+  .k-arrow{display:flex;flex-direction:column;align-items:center;gap:5px;width:100%}
+  .k-line{
+    width:80px;height:1px;background:var(--accent);position:relative;
+  }
+  .k-line.right::after{
+    content:'';position:absolute;right:-1px;top:-4px;
+    border:5px solid transparent;border-left-color:var(--accent);
+  }
+  .k-line.left::before{
+    content:'';position:absolute;left:-1px;top:-4px;
+    border:5px solid transparent;border-right-color:var(--accent);
+  }
+  .k-label{font-family:var(--mono);font-size:9px;color:var(--muted);letter-spacing:0.06em;text-align:center}
 
-  .project-section {
-    margin-bottom: 52px;
+  /* ── Code tabs ── */
+  .tool-tabs{display:flex;border-bottom:1px solid var(--border)}
+  .tool-tab{
+    padding:12px 22px;font-family:var(--mono);font-size:11px;letter-spacing:0.06em;
+    text-transform:uppercase;color:var(--muted);background:none;border:none;
+    cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;
+    transition:color 0.2s,border-color 0.2s;
   }
+  .tool-tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+  .tool-tab:hover{color:var(--fg)}
+  .tools-panel{
+    background:var(--surface);border:1px solid var(--border);
+    border-top:none;border-radius:0 0 var(--r) var(--r);
+  }
+  .tool-content{display:none;padding:32px}
+  .tool-content.active{display:block}
+  .tool-content > p{font-size:14px;color:var(--muted);line-height:1.7;margin-bottom:20px}
+  pre{
+    background:var(--bg);border:1px solid var(--border);border-radius:8px;
+    padding:20px;overflow-x:auto;font-family:var(--mono);font-size:12px;
+    line-height:1.75;color:var(--fg);
+    scrollbar-width:thin;scrollbar-color:var(--border) transparent;
+  }
+  .kw{color:#c792ea}
+  .fn{color:#82aaff}
+  .str{color:#c3e88d}
+  .cm{color:var(--muted);font-style:italic}
+  .vn{color:#ffcb6b}
+  .num{color:#f78c6c}
 
-  .project-section h2 {
-    font-size: 13px;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--muted);
-    margin-bottom: 18px;
+  /* ── Takeaways ── */
+  .takeaway-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .takeaway-item{
+    background:var(--surface);border:1px solid var(--border);border-radius:var(--r);
+    padding:26px;display:flex;gap:16px;align-items:flex-start;
+    transition:border-color 0.2s,transform 0.25s var(--ease);
   }
+  .takeaway-item:hover{border-color:rgba(0,212,170,0.4);transform:translateY(-2px)}
+  .takeaway-icon{
+    width:36px;height:36px;border-radius:8px;background:var(--accent-dim);
+    display:flex;align-items:center;justify-content:center;
+    flex-shrink:0;font-size:17px;
+  }
+  .takeaway-item h4{font-size:14px;font-weight:700;color:#fff;margin-bottom:6px}
+  .takeaway-item p{font-size:13px;color:var(--muted);line-height:1.65}
 
-  .project-section p {
-    font-size: 16px;
-    line-height: 1.75;
-    color: #333;
-    margin-bottom: 16px;
-    max-width: 65ch;
+  /* ── Footer / links ── */
+  .page-footer{
+    border-top:1px solid var(--border);padding:40px;
+    display:flex;justify-content:space-between;align-items:center;
+    max-width:1120px;margin:0 auto 60px;flex-wrap:wrap;gap:20px;
   }
+  .footer-links{display:flex;gap:12px;flex-wrap:wrap}
+  .footer-link{
+    display:inline-flex;align-items:center;gap:7px;
+    padding:10px 22px;font-size:12px;font-weight:700;
+    letter-spacing:0.04em;text-transform:uppercase;text-decoration:none;
+    border-radius:999px;transition:all 0.2s var(--ease);
+  }
+  .footer-link--primary{background:var(--accent);color:#000}
+  .footer-link--primary:hover{background:#00efc0}
+  .footer-link--secondary{border:1px solid var(--border);color:var(--muted)}
+  .footer-link--secondary:hover{border-color:var(--fg);color:var(--fg)}
+  .footer-link svg{width:10px;height:10px}
+  .footer-copy{font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:0.06em}
 
-  .project-section p:last-child { margin-bottom: 0; }
+  /* ── Reveal animation — mirrors main site (.is-visible, not .in) ── */
+  .reveal{opacity:0;transform:translateY(24px);transition:opacity 0.65s var(--ease),transform 0.65s var(--ease)}
+  .reveal.is-visible{opacity:1;transform:none}
+  .reveal-zoom{opacity:0;transform:translateY(18px) scale(0.97);transition:opacity 0.6s var(--ease),transform 0.6s var(--ease);transform-origin:center bottom}
+  .reveal-zoom.is-visible{opacity:1;transform:none}
+  .d1{transition-delay:0.1s}
+  .d2{transition-delay:0.2s}
+  .d3{transition-delay:0.3s}
 
-  .project-section a {
-    color: var(--fg);
-    text-decoration: underline;
-    text-decoration-color: rgba(17,17,17,0.3);
-    text-underline-offset: 3px;
-    transition: text-decoration-color 0.15s;
+  /* ── Word-reveal — exact match to main site ── */
+  .word-reveal .word{
+    display:inline-block;opacity:0;transform:translateY(0.35em);filter:blur(5px);
+    transition:opacity 0.5s var(--ease),transform 0.5s var(--ease),filter 0.5s var(--ease);
+    transition-delay:calc(var(--i,0)*0.04s);
   }
-  .project-section a:hover { text-decoration-color: var(--fg); }
+  .word-reveal.is-visible .word{opacity:1;transform:translateY(0);filter:blur(0)}
 
-  /* ── Links row ── */
-  .project-links {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    margin-top: 40px;
+  /* ── Responsive ── */
+  @media(max-width:768px){
+    .topbar{padding:16px 20px}
+    .hero{padding:0 20px 60px}
+    .section,.section-sm{padding:60px 20px}
+    .stats-row,.algo-grid,.cipher-io,.threat-grid,.lattice-split,.takeaway-grid{grid-template-columns:1fr}
+    .kyber-flow{grid-template-columns:1fr}
+    .kyber-middle{padding-top:0;gap:20px;flex-direction:row}
+    .sec-bar-row{grid-template-columns:80px 1fr 38px 1fr 38px;gap:6px}
+    .page-footer{flex-direction:column;align-items:flex-start}
   }
-
-  .project-link {
-    display: inline-flex;
-    align-items: center;
-    gap: 7px;
-    padding: 10px 20px;
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    text-decoration: none;
-    border-radius: 999px;
-    border: 1.5px solid var(--fg);
-    color: var(--fg);
-    background: transparent;
-    transition: background 0.2s var(--ease-out), color 0.2s var(--ease-out), gap 0.2s var(--ease-out);
+  @media(prefers-reduced-motion:reduce){
+    .reveal{opacity:1;transform:none;transition:none}
+    .scroll-cue{animation:none}
+    .sec-bar-fill{transition:none}
   }
-  .project-link:hover { background: var(--fg); color: #fff; gap: 11px; }
-  .project-link svg { width: 11px; height: 11px; flex-shrink: 0; transition: transform 0.2s var(--ease-out); }
-  .project-link:hover svg { transform: translate(1px, -1px); }
-
-  .project-link--secondary {
-    border-color: var(--border);
-    color: var(--muted);
-  }
-  .project-link--secondary:hover {
-    background: var(--fg);
-    color: #fff;
-    border-color: var(--fg);
-  }
-
-  /* ── Divider ── */
-  .project-divider {
-    border: none;
-    border-top: 1px solid var(--border);
-    margin: 0 0 52px;
-  }
-
-  /* ── Footer ── */
-  .project-footer {
-    border-top: 1px solid var(--border);
-    padding: 32px 40px;
-    max-width: 760px;
-    margin: 0 auto 60px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 12px;
-    color: var(--muted);
-  }
-
-  .project-footer a { color: var(--fg); text-decoration: none; font-weight: 600; }
-  .project-footer a:hover { text-decoration: underline; }
-
-  @media (max-width: 600px) {
-    .topbar { padding: 16px 20px; }
-    .project-hero, .project-body { padding-left: 20px; padding-right: 20px; }
-    .project-footer { padding-left: 20px; padding-right: 20px; flex-direction: column; gap: 12px; align-items: flex-start; }
-  }
-
-  /* Entrance animation */
-  @keyframes fade-up {
-    from { opacity: 0; transform: translateY(20px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
-  .project-hero, .project-body {
-    animation: fade-up 0.6s cubic-bezier(0.23, 1, 0.32, 1) both;
-  }
-  .project-body { animation-delay: 0.08s; }
 </style>
 </head>
 <body>
@@ -226,45 +439,728 @@
   <a href="index.html" class="topbar-name">Aidan Liu</a>
 </header>
 
-<main>
-  <div class="project-hero">
-    <div class="project-tag">03 · SVCSI Cybersecurity Research</div>
-    <h1 class="project-title">Post-Quantum Cryptography Research</h1>
-    <div class="project-date">Jul – Aug 2024</div>
-  </div>
-
-  <div class="project-body">
-    <div class="project-section">
-      <h2>Overview</h2>
-    <p>Through the Silicon Valley Cybersecurity Institute (SVCSI) research program, I spent the summer of 2024 diving into post-quantum cryptography — the field focused on developing encryption systems that remain secure even against quantum computers.</p>
-    <p>With the advent of large-scale quantum computing, many of today's widely-used encryption algorithms (like RSA and elliptic-curve cryptography) would become vulnerable. NIST has already begun standardizing post-quantum replacements, and I wanted to understand how and why.</p>
-    </div>
-    <div class="project-section">
-      <h2>The research</h2>
-    <p>My research focused on lattice-based cryptographic algorithms, particularly CRYSTALS-Kyber and CRYSTALS-Dilithium — two of the algorithms NIST selected for standardization. I studied the mathematical foundations of lattice problems (specifically Learning With Errors, or LWE) that make these algorithms computationally hard to break.</p>
-    <p>I wrote a formal research paper covering the threat model (Shor's algorithm against RSA/ECC), an explanation of lattice-based cryptographic constructions, and an analysis of performance trade-offs between classical and post-quantum schemes.</p>
-    </div>
-    <div class="project-section">
-      <h2>Key takeaways</h2>
-    <p>The most surprising thing I learned is that the security of lattice-based cryptography doesn't just rely on quantum hardness — it also holds up against classical attacks in ways that other alternatives (like hash-based or code-based schemes) don't as cleanly.</p>
-    <p>I also came away with a much deeper appreciation for why cryptographic standards take years to finalize. The NIST process involved years of public analysis and attack attempts by the global cryptographic community — that rigor is what gives a standard legitimacy.</p>
-    </div>
-    <div class="project-section">
-      <h2>Presentation</h2>
-    <p>I presented the research to a panel at SVCSI and received feedback from cybersecurity professionals. The full paper is available to read via Google Drive.</p>
-    <p>This was my first formal academic research paper, and the process of writing clearly for a technical audience — structuring arguments, citing sources correctly, and editing for concision — was as valuable as the technical content itself.</p>
-    </div>
-    <div class="project-links">
-    <a href="https://drive.google.com/file/d/1NOyVyaduviVALRvGwEAmc7xIMiMfBltP/view?usp=sharing" target="_blank" rel="noopener" class="project-link">Read the Paper <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 10L10 2M10 2H4M10 2v6"/></svg></a>
-    <a href="https://www.svcsi.org/" target="_blank" rel="noopener" class="project-link project-link--secondary">SVCSI <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 10L10 2M10 2H4M10 2v6"/></svg></a>
+<!-- ── Hero ── -->
+<section class="hero">
+  <canvas id="lattice-canvas" aria-hidden="true"></canvas>
+  <div class="hero-gradient" aria-hidden="true"></div>
+  <div class="hero-content">
+    <div class="hero-tag">SVCSI Cybersecurity Research</div>
+    <h1 class="hero-title">Post-Quantum<br><em>Cryptography</em></h1>
+    <div class="hero-meta">
+      <span class="hero-pill accent">Jul – Aug 2024</span>
+      <span class="hero-pill">Kyber KEM · AES · RSA</span>
+      <span class="hero-pill">Lattice-Based Crypto</span>
     </div>
   </div>
+  <div class="scroll-cue" aria-hidden="true"></div>
+</section>
 
-  <footer class="project-footer">
-    <span>© Aidan Liu 2026</span>
-    <a href="index.html">← Back to portfolio</a>
-  </footer>
-</main>
+<hr class="divider">
 
+<!-- ── Stats ── -->
+<div class="section-sm">
+  <div class="stats-row reveal">
+    <div class="stat-item">
+      <div class="stat-num">5<span>+</span></div>
+      <div class="stat-label">Algorithms analyzed</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">3</div>
+      <div class="stat-label">Crypto libraries implemented</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">256<span>-bit</span></div>
+      <div class="stat-label">Quantum-safe key size target</div>
+    </div>
+  </div>
+</div>
+
+<hr class="divider">
+
+<!-- ── Algorithm overview ── -->
+<section class="section">
+  <div class="section-label">Algorithms Covered</div>
+  <h2 class="section-title reveal word-reveal">From classical ciphers to quantum-resistant schemes</h2>
+  <p class="section-body reveal d1">This research examined five key cryptographic algorithms, tracing the evolution from historical ciphers to the lattice-based constructions being standardized by NIST for the post-quantum era.</p>
+  <div class="algo-grid">
+    <div class="algo-card reveal">
+      <div class="algo-badge algo-badge--warn">Symmetric</div>
+      <h3>AES</h3>
+      <p>Advanced Encryption Standard. 128-bit block, 128/192/256-bit keys, 10-14 rounds. Quantum-resistant at AES-256; Grover's algorithm halves effective key length, reducing AES-128 to ~64-bit security.</p>
+    </div>
+    <div class="algo-card algo-card--red reveal d1">
+      <div class="algo-badge algo-badge--vuln">Broken by Shor's</div>
+      <h3>RSA</h3>
+      <p>Asymmetric encryption based on integer factorization hardness. Shor's algorithm solves this in polynomial time on a quantum computer, making RSA completely insecure in the post-quantum era.</p>
+    </div>
+    <div class="algo-card reveal d2">
+      <div class="algo-badge algo-badge--safe">Post-Quantum Safe</div>
+      <h3>Kyber KEM</h3>
+      <p>Lattice-based Key Encapsulation Mechanism. Security rests on the Module-LWE problem, believed hard for both classical and quantum adversaries. Selected by NIST for standardization in 2022.</p>
+    </div>
+    <div class="algo-card algo-card--red reveal">
+      <div class="algo-badge algo-badge--vuln">Historical / Deprecated</div>
+      <h3>DES</h3>
+      <p>Data Encryption Standard (1977). 56-bit key, 64-bit block. Brute-forced in 22 hours in 1999. Studied here as a historical baseline and to motivate the transition to AES and beyond.</p>
+    </div>
+    <div class="algo-card algo-card--blue reveal d1">
+      <div class="algo-badge algo-badge--warn">Classical Baseline</div>
+      <h3>Hash Functions</h3>
+      <p>SHA-256 and SHA-3 for data integrity. SHA-3 uses the Keccak sponge construction. Both offer strong resistance under Grover's, requiring roughly double key length for equivalent post-quantum security.</p>
+    </div>
+    <div class="algo-card reveal d2">
+      <div class="algo-badge algo-badge--safe">NIST Standard</div>
+      <h3>CRYSTALS-Dilithium</h3>
+      <p>Lattice-based digital signature scheme. Paired with Kyber in the NIST PQC suite. Based on Module-LWE and Module-SIS hardness problems, designed for practical signature sizes and verification speed.</p>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ── Caesar cipher interactive ── -->
+<section class="section">
+  <div class="section-label">Interactive Demo</div>
+  <h2 class="section-title reveal word-reveal">Where it all started: the shift cipher</h2>
+  <p class="section-body reveal d1">Julius Caesar protected military orders by shifting each letter by a fixed number. A shift of 3 turns "HELLO" into "EBIIL." Try it below. With only 26 possible keys, a brute-force attack takes seconds by hand - illustrating exactly why modern cryptography needs mathematical hardness, not just obscurity.</p>
+  <div class="demo-box reveal">
+    <h3>Caesar Shift Cipher</h3>
+    <p class="demo-desc">Type any message and drag the shift slider. Notice how every possible key can be tested manually in under a minute - the fundamental weakness of simple substitution ciphers.</p>
+    <div class="cipher-io">
+      <div class="cipher-field">
+        <label>Plaintext input</label>
+        <textarea id="cipher-input" placeholder="Type a message..." spellcheck="false">HELLO WORLD</textarea>
+      </div>
+      <div class="cipher-field">
+        <label>Ciphertext <span style="color:var(--accent);font-family:var(--mono);font-size:9px">(shift applied)</span></label>
+        <div class="cipher-output" id="cipher-output">EBIIL TLOIA</div>
+      </div>
+    </div>
+    <div class="slider-row">
+      <label>Shift</label>
+      <input type="range" id="cipher-shift" min="0" max="25" value="3">
+      <div class="shift-val" id="cipher-shift-val">3</div>
+      <label style="margin-left:6px;color:var(--muted);font-size:10px">out of 25 possible keys</label>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ── AES rounds ── -->
+<section class="section">
+  <div class="section-label">Algorithm Deep-Dive</div>
+  <h2 class="section-title reveal word-reveal">AES: four transformations per round</h2>
+  <p class="section-body reveal d1">AES operates on 128-bit data blocks. Each of the 10-14 rounds (depending on key size) applies four distinct operations in sequence. The final round omits MixColumns - click any round below to understand what happens and why.</p>
+  <div class="aes-diagram reveal">
+    <div class="aes-rounds" id="aes-rounds"></div>
+    <div class="aes-detail" id="aes-detail">
+      <h4 id="aes-detail-title"></h4>
+      <p id="aes-detail-body"></p>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ── Quantum threat ── -->
+<section class="section">
+  <div class="section-label">Quantum Threat Model</div>
+  <h2 class="section-title reveal word-reveal">Two algorithms that define the threat</h2>
+  <p class="section-body reveal d1">Quantum computing doesn't threaten all cryptography equally. The impact depends on which quantum algorithm applies to the underlying mathematical problem.</p>
+  <div class="threat-grid">
+    <div class="threat-card threat-card--danger reveal">
+      <div class="threat-icon">⚡</div>
+      <h3>Shor's Algorithm</h3>
+      <p>Developed by Peter Shor in 1994. Solves integer factorization and discrete logarithm in polynomial time on a quantum computer. Completely breaks RSA, Diffie-Hellman, and elliptic curve cryptography (ECC) once sufficiently large quantum computers exist.</p>
+      <span class="threat-badge threat-badge--danger">Breaks RSA and ECC entirely</span>
+    </div>
+    <div class="threat-card threat-card--safe reveal d1">
+      <div class="threat-icon">🔑</div>
+      <h3>Grover's Algorithm</h3>
+      <p>Provides a quadratic speedup for unstructured search. Effectively halves the bit-security of symmetric ciphers: AES-128 drops to approximately 64-bit effective security, while AES-256 remains strong at ~128 bits. Mitigated by simply using larger keys.</p>
+      <span class="threat-badge threat-badge--safe">Mitigated by doubling key size</span>
+    </div>
+  </div>
+
+  <div class="sec-chart reveal">
+    <div class="sec-chart-head">
+      <div>
+        <h3>Effective security: classical vs. post-quantum</h3>
+        <p>Bit-security of each algorithm under each threat model</p>
+      </div>
+      <div class="legend">
+        <div class="legend-item"><div class="legend-dot" style="background:var(--blue)"></div><span style="font-family:var(--mono);font-size:10px;color:var(--muted)">Classical computer</span></div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--accent)"></div><span style="font-family:var(--mono);font-size:10px;color:var(--muted)">Quantum computer</span></div>
+      </div>
+    </div>
+    <div class="sec-bars" id="sec-bars">
+      <div class="sec-bar-row">
+        <div class="sec-bar-label">AES-256</div>
+        <div class="sec-bar-track"><div class="sec-bar-fill sec-bar-fill--c" data-target="100"></div></div>
+        <div class="sec-bar-val">256b</div>
+        <div class="sec-bar-track"><div class="sec-bar-fill sec-bar-fill--q" data-target="50"></div></div>
+        <div class="sec-bar-val safe">~128b</div>
+      </div>
+      <div class="sec-bar-row">
+        <div class="sec-bar-label">AES-128</div>
+        <div class="sec-bar-track"><div class="sec-bar-fill sec-bar-fill--c" data-target="50"></div></div>
+        <div class="sec-bar-val">128b</div>
+        <div class="sec-bar-track"><div class="sec-bar-fill sec-bar-fill--q" data-target="25"></div></div>
+        <div class="sec-bar-val">~64b</div>
+      </div>
+      <div class="sec-bar-row">
+        <div class="sec-bar-label">RSA-2048</div>
+        <div class="sec-bar-track"><div class="sec-bar-fill sec-bar-fill--c" data-target="44"></div></div>
+        <div class="sec-bar-val">~112b</div>
+        <div class="sec-bar-track"><div class="sec-bar-fill sec-bar-fill--q" data-target="0"></div></div>
+        <div class="sec-bar-val danger">0</div>
+      </div>
+      <div class="sec-bar-row">
+        <div class="sec-bar-label">Kyber-768</div>
+        <div class="sec-bar-track"><div class="sec-bar-fill sec-bar-fill--c" data-target="92"></div></div>
+        <div class="sec-bar-val">~180b</div>
+        <div class="sec-bar-track"><div class="sec-bar-fill sec-bar-fill--q" data-target="92"></div></div>
+        <div class="sec-bar-val safe">~180b</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ── Lattice visualization ── -->
+<section class="section">
+  <div class="section-label">Mathematical Foundation</div>
+  <h2 class="section-title reveal word-reveal">Why lattices resist quantum attacks</h2>
+  <div class="lattice-split reveal">
+    <canvas id="lattice-mini" width="400" height="330" aria-label="Animated lattice diagram showing the Learning With Errors problem"></canvas>
+    <div class="lattice-explain">
+      <h3>The Learning With Errors (LWE) Problem</h3>
+      <p>A lattice is a regular grid of points in n-dimensional space, defined by a set of basis vectors. The visualization shows a 2D lattice with an observed vector (blue) that has been perturbed by a small error.</p>
+      <div class="lwe-formula">b = As + e (mod q)</div>
+      <p>Given public matrix <strong style="color:#fff">A</strong> and observed vector <strong style="color:#fff">b</strong>, recover secret <strong style="color:var(--accent)">s</strong> knowing only that error <strong style="color:#fff">e</strong> is small. Even for quantum computers, this appears computationally infeasible in high dimensions.</p>
+      <p>Kyber uses the Module-LWE (MLWE) variant, which generalizes LWE to module lattices - balancing security and performance for practical key sizes without sacrificing the underlying hardness guarantees.</p>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ── Kyber protocol ── -->
+<section class="section">
+  <div class="section-label">Protocol Design</div>
+  <h2 class="section-title reveal word-reveal">Kyber KEM: key exchange step by step</h2>
+  <p class="section-body reveal d1">Kyber is a Key Encapsulation Mechanism. Alice generates a key pair and shares her public key. Bob uses it to encapsulate a shared secret and sends back only the ciphertext. Alice decapsulates with her private key. Neither party ever transmits the secret directly.</p>
+  <div class="kyber-flow reveal">
+    <div class="kyber-party">
+      <div class="kyber-party-name">Alice (Recipient)</div>
+      <div class="kyber-box">
+        <strong>1. Key Generation</strong>
+        Generate public key <code>pk</code> and private key <code>sk</code> using a random seed and Module-LWE lattice structure
+      </div>
+      <div style="height:24px"></div>
+      <div class="kyber-box">
+        <strong>3. Decapsulation</strong>
+        Use private key <code>sk</code> to recover shared secret <code>K</code> from received ciphertext <code>c</code>
+      </div>
+      <div class="kyber-box result">
+        <strong>Result</strong>
+        <code>K</code> = shared symmetric key, ready for session encryption
+      </div>
+    </div>
+    <div class="kyber-middle">
+      <div class="k-arrow">
+        <div class="k-label">PUBLIC KEY pk</div>
+        <div class="k-line right"></div>
+      </div>
+      <div class="k-arrow" style="margin-top:8px">
+        <div class="k-label">CIPHERTEXT c</div>
+        <div class="k-line left"></div>
+      </div>
+    </div>
+    <div class="kyber-party">
+      <div class="kyber-party-name">Bob (Sender)</div>
+      <div class="kyber-box" style="margin-top:52px">
+        <strong>2. Encapsulation</strong>
+        Use Alice's <code>pk</code> to generate ciphertext <code>c</code> and a shared secret <code>K</code>, derived from a random value
+      </div>
+      <div class="kyber-box result">
+        <strong>Result</strong>
+        <code>K</code> = same shared symmetric key, independently derived
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ── Tools ── -->
+<section class="section">
+  <div class="section-label">Implementation</div>
+  <h2 class="section-title reveal word-reveal">Libraries used in practice</h2>
+  <p class="section-body reveal d1">Three open-source cryptographic libraries were used to implement and test algorithms hands-on. Each occupies a different layer of the cryptography stack.</p>
+  <div class="reveal">
+    <div class="tool-tabs">
+      <button class="tool-tab active" data-tab="openssl">OpenSSL</button>
+      <button class="tool-tab" data-tab="libsodium">Libsodium / PyNaCl</button>
+      <button class="tool-tab" data-tab="liboqs">Liboqs</button>
+    </div>
+    <div class="tools-panel">
+      <div class="tool-content active" id="tab-openssl">
+        <p>OpenSSL is the industry-standard cryptography toolkit, supporting AES, DES, RSA, ECC, and major hash functions. Used here to implement symmetric AES and DES encryption, demonstrating the encryption-decryption pipeline and comparing security characteristics.</p>
+        <pre><span class="cm"># Encrypt a file with AES-256-CBC</span>
+openssl enc -aes-256-cbc \
+  -in plaintext.txt \
+  -out encrypted.bin \
+  -k <span class="str">"my-secret-key"</span>
+
+<span class="cm"># Decrypt back to plaintext</span>
+openssl enc -d -aes-256-cbc \
+  -in encrypted.bin \
+  -out decrypted.txt \
+  -k <span class="str">"my-secret-key"</span>
+
+<span class="cm"># Verify round-trip integrity</span>
+diff plaintext.txt decrypted.txt
+<span class="cm"># "No differences detected" -- successful implementation</span></pre>
+      </div>
+      <div class="tool-content" id="tab-libsodium">
+        <p>Libsodium (via Python binding PyNaCl) provides a high-level API for secure cryptographic operations. We built a Student-University secure data transmission protocol using ChaCha20-Poly1305 authenticated encryption and Ed25519 digital signatures for message authenticity.</p>
+        <pre><span class="kw">from</span> nacl.public <span class="kw">import</span> PrivateKey, Box
+<span class="kw">from</span> nacl.signing <span class="kw">import</span> SigningKey
+
+<span class="cm"># Curve25519 key generation for both parties</span>
+<span class="vn">alice_key</span> = PrivateKey.<span class="fn">generate</span>()
+<span class="vn">bob_key</span>   = PrivateKey.<span class="fn">generate</span>()
+
+<span class="cm"># Authenticated encryption: Alice sends to Bob</span>
+<span class="vn">box</span> = <span class="fn">Box</span>(alice_key, bob_key.public_key)
+<span class="vn">encrypted</span> = box.<span class="fn">encrypt</span>(<span class="str">b"Transcript: GPA 3.97"</span>)
+<span class="vn">decrypted</span> = box.<span class="fn">decrypt</span>(encrypted)
+
+<span class="cm"># Ed25519 signature for non-repudiation</span>
+<span class="vn">signing_key</span> = SigningKey.<span class="fn">generate</span>()
+<span class="vn">signed_msg</span>  = signing_key.<span class="fn">sign</span>(<span class="vn">encrypted</span>)
+signing_key.verify_key.<span class="fn">verify</span>(<span class="vn">signed_msg</span>)
+<span class="cm"># Verified -- authentic, unmodified message</span></pre>
+      </div>
+      <div class="tool-content" id="tab-liboqs">
+        <p>Liboqs (Open Quantum Safe) provides production-ready implementations of NIST-selected post-quantum algorithms. Used here to implement the full Kyber-768 KEM pipeline: key generation, encapsulation, and decapsulation, with correctness verified by comparing the independently-derived shared secrets.</p>
+        <pre><span class="kw">import</span> oqs
+
+<span class="cm"># Initialize Kyber-768 (NIST security level 3)</span>
+<span class="kw">with</span> oqs.<span class="fn">KeyEncapsulation</span>(<span class="str">"Kyber768"</span>) <span class="kw">as</span> <span class="vn">alice</span>:
+
+    <span class="cm"># Alice: generate key pair</span>
+    <span class="vn">public_key</span> = alice.<span class="fn">generate_keypair</span>()
+
+    <span class="cm"># Bob: encapsulate a shared secret using Alice's public key</span>
+    <span class="kw">with</span> oqs.<span class="fn">KeyEncapsulation</span>(<span class="str">"Kyber768"</span>) <span class="kw">as</span> <span class="vn">bob</span>:
+        <span class="vn">ciphertext</span>, <span class="vn">K_bob</span> = bob.<span class="fn">encap_secret</span>(public_key)
+
+    <span class="cm"># Alice: decapsulate to recover the same shared secret</span>
+    <span class="vn">K_alice</span> = alice.<span class="fn">decap_secret</span>(ciphertext)
+
+    <span class="kw">assert</span> K_alice == K_bob
+    <span class="fn">print</span>(<span class="str">f"Shared key: {K_alice.<span class="fn">hex</span>()[:32]}..."</span>)
+    <span class="cm"># Key exchange successful -- quantum-resistant session key established</span></pre>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ── Takeaways ── -->
+<section class="section">
+  <div class="section-label">Key Findings</div>
+  <h2 class="section-title reveal word-reveal">What this research revealed</h2>
+  <div class="takeaway-grid">
+    <div class="takeaway-item reveal">
+      <div class="takeaway-icon">🔐</div>
+      <div>
+        <h4>Lattice hardness holds against classical and quantum adversaries</h4>
+        <p>Unlike RSA and ECC, lattice-based schemes resist both classical and quantum attacks. The SVP and LWE problems have no known efficient algorithms on either hardware class - a uniquely strong security foundation.</p>
+      </div>
+    </div>
+    <div class="takeaway-item reveal d1">
+      <div class="takeaway-icon">⏱</div>
+      <div>
+        <h4>Standardization rigor takes years for a reason</h4>
+        <p>The NIST PQC process ran from 2016 to 2022 with rounds of public cryptanalysis. Multiple candidate algorithms were broken or weakened during review. That scrutiny is exactly what makes a standard trustworthy.</p>
+      </div>
+    </div>
+    <div class="takeaway-item reveal d2">
+      <div class="takeaway-icon">⚡</div>
+      <div>
+        <h4>Kyber achieves competitive performance</h4>
+        <p>Despite larger key sizes than RSA, Kyber uses NTT-based polynomial multiplication over module lattices, enabling fast key generation and encapsulation. In benchmarks, Kyber outperforms RSA on both key-gen and decapsulation speed.</p>
+      </div>
+    </div>
+    <div class="takeaway-item reveal d3">
+      <div class="takeaway-icon">🌐</div>
+      <div>
+        <h4>"Harvest now, decrypt later" is a present threat</h4>
+        <p>Adversaries can intercept and store encrypted traffic today, waiting until quantum hardware matures to decrypt it. Systems protecting long-lived sensitive data need to begin migrating to PQC algorithms now - not when quantum computers arrive.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<footer class="page-footer">
+  <div class="footer-links">
+    <a href="https://drive.google.com/file/d/1NOyVyaduviVALRvGwEAmc7xIMiMfBltP/view?usp=sharing" target="_blank" rel="noopener" class="footer-link footer-link--primary">
+      Read the Paper
+      <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 10L10 2M10 2H4M10 2v6"/></svg>
+    </a>
+    <a href="https://www.svcsi.org/" target="_blank" rel="noopener" class="footer-link footer-link--secondary">
+      SVCSI
+      <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 10L10 2M10 2H4M10 2v6"/></svg>
+    </a>
+  </div>
+  <div class="footer-copy">© Aidan Liu 2026 · SVCSI Research</div>
+</footer>
+
+<script>
+// ── Hero lattice canvas ────────────────────────────────────────
+(function(){
+  const cv = document.getElementById('lattice-canvas');
+  const cx = cv.getContext('2d');
+  let W, H, nodes = [], tick = 0;
+  const ACCENT = [0,212,170];
+
+  const resize = () => {
+    W = cv.width  = cv.offsetWidth;
+    H = cv.height = cv.offsetHeight;
+    nodes = [];
+    const cols = Math.ceil(W/80)+3;
+    const rows = Math.ceil(H/70)+3;
+    for(let r=0;r<rows;r++){
+      for(let c=0;c<cols;c++){
+        nodes.push({
+          bx: c*80-40, by: r*70-40,
+          phase: Math.random()*Math.PI*2,
+          freq:  0.3+Math.random()*0.4,
+          amp:   3+Math.random()*5
+        });
+      }
+    }
+  };
+
+  const draw = () => {
+    cx.clearRect(0,0,W,H);
+    const t = tick*0.008;
+    const cols = Math.ceil(W/80)+3;
+
+    const pts = nodes.map(n=>({
+      x: n.bx + Math.sin(t*n.freq+n.phase)*n.amp,
+      y: n.by + Math.cos(t*n.freq*0.7+n.phase+1)*n.amp
+    }));
+
+    pts.forEach((p,i)=>{
+      const col = i%cols;
+      const row = Math.floor(i/cols);
+      if(col<cols-1){
+        const q=pts[i+1];
+        const a=Math.max(0,1-Math.hypot(q.x-p.x,q.y-p.y)/115)*0.22;
+        cx.strokeStyle=`rgba(${ACCENT},${a})`;
+        cx.lineWidth=0.7;
+        cx.beginPath();cx.moveTo(p.x,p.y);cx.lineTo(q.x,q.y);cx.stroke();
+      }
+      if(row<Math.floor(nodes.length/cols)-1){
+        const q=pts[i+cols];
+        if(!q)return;
+        const a=Math.max(0,1-Math.hypot(q.x-p.x,q.y-p.y)/115)*0.22;
+        cx.strokeStyle=`rgba(${ACCENT},${a})`;
+        cx.lineWidth=0.7;
+        cx.beginPath();cx.moveTo(p.x,p.y);cx.lineTo(q.x,q.y);cx.stroke();
+      }
+    });
+
+    pts.forEach((p,i)=>{
+      const pulse=(Math.sin(t*nodes[i].freq*2+nodes[i].phase)+1)*0.5;
+      const a=0.12+pulse*0.38;
+      const r=1.8+pulse*1.4;
+      cx.beginPath();cx.arc(p.x,p.y,r,0,Math.PI*2);
+      cx.fillStyle=`rgba(${ACCENT},${a})`;
+      cx.fill();
+    });
+
+    tick++;
+    requestAnimationFrame(draw);
+  };
+
+  window.addEventListener('resize', resize);
+  resize();
+  draw();
+})();
+
+// ── Lattice mini (LWE illustration) ───────────────────────────
+(function(){
+  const cv = document.getElementById('lattice-mini');
+  if(!cv)return;
+  const cx = cv.getContext('2d');
+  const W = cv.width, H = cv.height;
+  let tick = 0;
+
+  const B = [[56,0],[26,48]]; // basis vectors
+  const nodes = [];
+  for(let a=-1;a<=5;a++){
+    for(let b=-1;b<=6;b++){
+      nodes.push({
+        ox: 70 + a*B[0][0] + b*B[1][0],
+        oy: 30 + a*B[0][1] + b*B[1][1],
+        phase:(a*3+b)*0.7
+      });
+    }
+  }
+
+  const target={x:225,y:160};
+  let closestIdx=0, minD=Infinity;
+  nodes.forEach((n,i)=>{
+    const d=Math.hypot(n.ox-target.x,n.oy-target.y);
+    if(d<minD){minD=d;closestIdx=i;}
+  });
+
+  const draw = () => {
+    cx.clearRect(0,0,W,H);
+    const t = tick*0.006;
+
+    const pts = nodes.map(n=>({
+      x:n.ox+Math.sin(t+n.phase)*2.5,
+      y:n.oy+Math.cos(t*0.7+n.phase)*2.5
+    }));
+
+    // edges between nearby nodes
+    pts.forEach((p,i)=>{
+      pts.forEach((q,j)=>{
+        if(j<=i)return;
+        const d=Math.hypot(q.x-p.x,q.y-p.y);
+        if(d<70){
+          cx.strokeStyle='rgba(0,212,170,0.1)';
+          cx.lineWidth=0.8;
+          cx.beginPath();cx.moveTo(p.x,p.y);cx.lineTo(q.x,q.y);cx.stroke();
+        }
+      });
+    });
+
+    // lattice nodes
+    pts.forEach((p,i)=>{
+      const isClose=i===closestIdx;
+      cx.beginPath();cx.arc(p.x,p.y,isClose?5:2.5,0,Math.PI*2);
+      cx.fillStyle=isClose?'rgba(0,212,170,0.9)':'rgba(0,212,170,0.3)';
+      cx.fill();
+    });
+
+    // target point (observed vector with error)
+    const pulse=(Math.sin(t*2)+1)*0.5;
+    cx.beginPath();cx.arc(target.x,target.y,4+pulse,0,Math.PI*2);
+    cx.fillStyle='rgba(77,124,254,0.85)';cx.fill();
+    cx.strokeStyle='rgba(77,124,254,0.4)';cx.lineWidth=2;
+    cx.beginPath();cx.arc(target.x,target.y,8+pulse*2,0,Math.PI*2);cx.stroke();
+
+    // dashed line to nearest lattice point
+    const cp=pts[closestIdx];
+    cx.setLineDash([4,4]);
+    cx.strokeStyle='rgba(77,124,254,0.45)';cx.lineWidth=1.5;
+    cx.beginPath();cx.moveTo(target.x,target.y);cx.lineTo(cp.x,cp.y);cx.stroke();
+    cx.setLineDash([]);
+
+    // labels
+    cx.font='9.5px "JetBrains Mono",monospace';
+    cx.fillStyle='rgba(77,124,254,0.85)';
+    cx.fillText('b = As + e',target.x+10,target.y-10);
+    cx.fillStyle='rgba(0,212,170,0.85)';
+    cx.fillText('nearest lattice pt',cp.x+8,cp.y-8);
+
+    tick++;
+    requestAnimationFrame(draw);
+  };
+  draw();
+})();
+
+// ── Caesar cipher ─────────────────────────────────────────────
+(function(){
+  const inp = document.getElementById('cipher-input');
+  const out = document.getElementById('cipher-output');
+  const sli = document.getElementById('cipher-shift');
+  const sv  = document.getElementById('cipher-shift-val');
+
+  const caesar = (text, shift) => text.split('').map(ch=>{
+    if(/[A-Z]/.test(ch)) return String.fromCharCode(((ch.charCodeAt(0)-65-shift+260)%26)+65);
+    if(/[a-z]/.test(ch)) return String.fromCharCode(((ch.charCodeAt(0)-97-shift+260)%26)+97);
+    return ch;
+  }).join('');
+
+  const update = () => {
+    const s=parseInt(sli.value);
+    sv.textContent=s;
+    out.textContent=caesar(inp.value.toUpperCase(),s);
+  };
+
+  inp.addEventListener('input',update);
+  sli.addEventListener('input',update);
+  update();
+})();
+
+// ── AES rounds ────────────────────────────────────────────────
+(function(){
+  const container = document.getElementById('aes-rounds');
+  const detail    = document.getElementById('aes-detail');
+  const dtitle    = document.getElementById('aes-detail-title');
+  const dbody     = document.getElementById('aes-detail-body');
+
+  const opMeta = {
+    SubBytes:    {cls:'aes-op--sub',  short:'SUBBYTES',  desc:'Each of the 16 bytes in the state is replaced via a fixed S-box lookup table. This non-linear substitution is the primary source of confusion in AES, making it resistant to linear and differential cryptanalysis.'},
+    ShiftRows:   {cls:'aes-op--shift',short:'SHIFTROWS',  desc:'Rows of the 4x4 byte matrix are cyclically shifted: row 0 unchanged, row 1 left by 1, row 2 by 2, row 3 by 3. This ensures bytes from one column spread into multiple columns, creating diffusion.'},
+    MixColumns:  {cls:'aes-op--mix',  short:'MIXCOLS',   desc:'Each 4-byte column is multiplied modulo x^4+1 with a fixed polynomial over GF(2^8). This linear mixing provides diffusion across the column, ensuring each output byte depends on all four input bytes.'},
+    AddRoundKey: {cls:'aes-op--key',  short:'ADDKEY',    desc:'The 128-bit state is XOR\'d with a subkey derived from the cipher key via the key schedule. This is the only operation directly involving the secret key, binding the ciphertext to it.'},
+  };
+
+  const rounds = [
+    {label:'INITIAL',   ops:['AddRoundKey'],                            note:'Key whitening before the first main round. Only AddRoundKey is applied - no SubBytes, ShiftRows, or MixColumns.'},
+    ...Array.from({length:9},(_,i)=>({label:`ROUND ${i+1}`,            ops:['SubBytes','ShiftRows','MixColumns','AddRoundKey']})),
+    {label:'FINAL',     ops:['SubBytes','ShiftRows','AddRoundKey'],     note:'MixColumns is omitted from the final round. This simplifies the inverse cipher without reducing security, since the MixColumns in round 10 would be "undone" by the inverse immediately anyway.'},
+  ];
+
+  rounds.forEach((round,i)=>{
+    const div=document.createElement('div');
+    div.className='aes-round';
+    div.innerHTML=`<div class="aes-round-num">${round.label}</div><div class="aes-round-ops">${
+      round.ops.map(op=>`<div class="aes-op ${opMeta[op].cls}">${opMeta[op].short}</div>`).join('')
+    }</div>`;
+    div.addEventListener('click',()=>{
+      document.querySelectorAll('.aes-round').forEach(el=>el.classList.remove('active'));
+      div.classList.add('active');
+      dtitle.textContent=round.label;
+      dbody.innerHTML=(round.note||'All four AES operations applied in standard sequence.')+
+        round.ops.map(op=>`<br><br><strong style="color:#fff">${op}:</strong> ${opMeta[op].desc}`).join('');
+      detail.classList.add('visible');
+    });
+    container.appendChild(div);
+  });
+})();
+
+// ── Tool tabs ─────────────────────────────────────────────────
+document.querySelectorAll('.tool-tab').forEach(tab=>{
+  tab.addEventListener('click',()=>{
+    document.querySelectorAll('.tool-tab').forEach(t=>t.classList.remove('active'));
+    document.querySelectorAll('.tool-content').forEach(c=>c.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById('tab-'+tab.dataset.tab).classList.add('active');
+  });
+});
+
+// ── Smooth scroll — matches main site (Lenis-style, 0.045 factor) ──
+(() => {
+  const maxScroll = () => document.documentElement.scrollHeight - window.innerHeight;
+  let target = window.scrollY, current = window.scrollY, ticking = false;
+  const clamp = v => Math.min(Math.max(v, 0), maxScroll());
+
+  const step = () => {
+    current += (target - current) * 0.045;
+    if (Math.abs(target - current) < 0.05) current = target;
+    window.scrollTo(0, current);
+    if (current !== target) requestAnimationFrame(step);
+    else ticking = false;
+  };
+
+  window.addEventListener('wheel', e => {
+    e.preventDefault();
+    let delta = e.deltaY;
+    if (e.deltaMode === 1) delta *= 18;
+    else if (e.deltaMode === 2) delta *= window.innerHeight;
+    delta = Math.max(Math.min(delta, 220), -220);
+    target = clamp(target + delta);
+    if (!ticking) { ticking = true; requestAnimationFrame(step); }
+  }, { passive: false });
+
+  window.addEventListener('resize', () => { target = clamp(target); });
+
+  window.addEventListener('scroll', () => {
+    if (!ticking) { target = window.scrollY; current = window.scrollY; }
+  }, { passive: true });
+})();
+
+// ── Scroll reveal — mirrors main site checkReveals pattern ────
+const revealEls = Array.from(document.querySelectorAll('.reveal, .reveal-zoom'));
+let pendingReveal = revealEls.slice();
+
+function checkReveals() {
+  const vh = window.innerHeight;
+  pendingReveal = pendingReveal.filter(el => {
+    const rect = el.getBoundingClientRect();
+    if (rect.top < vh * 0.92 && rect.bottom > 0) {
+      el.classList.add('is-visible');
+      return false;
+    }
+    return true;
+  });
+  if (pendingReveal.length === 0) {
+    window.removeEventListener('scroll', checkReveals);
+    window.removeEventListener('resize', checkReveals);
+  }
+}
+
+window.addEventListener('scroll', checkReveals, { passive: true });
+window.addEventListener('resize', checkReveals);
+requestAnimationFrame(() => requestAnimationFrame(checkReveals));
+
+// ── Word-reveal — exact match to main site ────────────────────
+(() => {
+  const splitIntoWords = el => {
+    let i = 0;
+    const frag = document.createDocumentFragment();
+    Array.from(el.childNodes).forEach(node => {
+      if (node.nodeType === Node.TEXT_NODE) {
+        node.textContent.split(/(\s+)/).forEach(chunk => {
+          if (chunk.trim() === '') {
+            if (chunk !== '') frag.appendChild(document.createTextNode(' '));
+          } else {
+            const sp = document.createElement('span');
+            sp.className = 'word';
+            sp.style.setProperty('--i', i++);
+            sp.textContent = chunk;
+            frag.appendChild(sp);
+          }
+        });
+      } else if (node.nodeType === Node.ELEMENT_NODE) {
+        const w = document.createElement(node.tagName);
+        w.className = 'word';
+        w.style.setProperty('--i', i++);
+        w.textContent = node.textContent;
+        frag.appendChild(w);
+      }
+    });
+    el.replaceChildren(frag);
+  };
+
+  document.querySelectorAll('.word-reveal').forEach(el => {
+    splitIntoWords(el);
+    const obs = new IntersectionObserver(entries => {
+      entries.forEach(e => el.classList.toggle('is-visible', e.isIntersecting));
+    }, { threshold: 0.4 });
+    obs.observe(el);
+  });
+})();
+
+// ── Security bar animation ────────────────────────────────────
+const barsIO = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.querySelectorAll('.sec-bar-fill').forEach(bar => {
+        bar.style.width = bar.dataset.target + '%';
+      });
+      barsIO.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.25 });
+
+const sb = document.getElementById('sec-bars');
+if (sb) barsIO.observe(sb);
+</script>
 </body>
 </html>

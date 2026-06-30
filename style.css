@@ -456,63 +456,86 @@ section {
   transition: transform 0.35s ease-out;
 }
 
-/* 8-frame sprite-style walk. Each leg group (<g>) rotates at the hip
-   (transform-origin: top center on fill-box). Four legs have quarter-cycle
-   offsets creating a proper diagonal-pair quadruped gait.
-   Draw order in SVG: far legs first (behind body), near legs last (in front). */
+/* Shin must also be frozen when resting — otherwise the knee-bend
+   animation continues visibly even though the thigh is static. */
+.corgi.is-paused .shin {
+  animation: none;
+  transform: rotate(0deg);
+  transition: transform 0.35s ease-out;
+}
+
+/* 6-frame sprite walk. Thigh groups pivot at hip (top center of fill-box).
+   Shin groups (nested inside thigh) pivot at knee (their own fill-box top center).
+   KEY: every element in a leg group shares the same cx — so the combined fill-box
+   stays centered on the hip x and transform-origin hits exactly the right pivot. */
 .leg {
   transform-box: fill-box;
   transform-origin: top center;
-  /* step-end = hold each pose until the next frame, like a sprite sheet.
-     Duration is overridden by JS per walking speed (base ~0.64s). */
-  animation: walk-leg 0.64s step-end infinite;
+  animation: walk-leg 0.72s step-end infinite;
 }
 
-/* 4-beat quadruped gait: each leg a quarter-cycle apart */
-.leg-2 { animation-delay: -0.16s; }
-.leg-3 { animation-delay: -0.32s; }
-.leg-4 { animation-delay: -0.48s; }
+/* 4-beat walk: each leg a quarter-cycle (0.18s) apart */
+.leg-2 { animation-delay: -0.18s; }
+.leg-3 { animation-delay: -0.36s; }
+.leg-4 { animation-delay: -0.54s; }
 
 /* Far-side legs rendered behind the body — slightly translucent for depth */
 .far-leg { opacity: 0.62; }
 
-/* Body bob: 8 discrete steps matching the leg frames */
+/* Shin hinges at knee. Nested inside thigh group, so it rotates in the
+   thigh's moving coordinate space — the knee tracks the thigh automatically. */
+.shin {
+  transform-box: fill-box;
+  transform-origin: top center;
+  animation: shin-bend 0.72s step-end infinite;
+}
+.leg-2 .shin { animation-delay: -0.18s; }
+.leg-3 .shin { animation-delay: -0.36s; }
+.leg-4 .shin { animation-delay: -0.54s; }
+
+/* Body bob: 6 discrete steps matching the leg frames */
 @keyframes corgi-bob {
-  0%    { transform: translateY(0px);    }
-  12.5% { transform: translateY(-1.5px); }
-  25%   { transform: translateY(-2.5px); }
-  37.5% { transform: translateY(-1px);   }
-  50%   { transform: translateY(0px);    }
-  62.5% { transform: translateY(-1.5px); }
-  75%   { transform: translateY(-2.5px); }
-  87.5% { transform: translateY(-1px);   }
-  100%  { transform: translateY(0px);    }
+  0%      { transform: translateY(0px);    }
+  16.67%  { transform: translateY(-1.5px); }
+  33.33%  { transform: translateY(-2px);   }
+  50%     { transform: translateY(-0.5px); }
+  66.67%  { transform: translateY(0px);    }
+  83.33%  { transform: translateY(-1px);   }
+  100%    { transform: translateY(0px);    }
 }
 
 @keyframes corgi-bob-rtl {
-  0%    { transform: translateY(0px)    scaleX(-1); }
-  12.5% { transform: translateY(-1.5px) scaleX(-1); }
-  25%   { transform: translateY(-2.5px) scaleX(-1); }
-  37.5% { transform: translateY(-1px)   scaleX(-1); }
-  50%   { transform: translateY(0px)    scaleX(-1); }
-  62.5% { transform: translateY(-1.5px) scaleX(-1); }
-  75%   { transform: translateY(-2.5px) scaleX(-1); }
-  87.5% { transform: translateY(-1px)   scaleX(-1); }
-  100%  { transform: translateY(0px)    scaleX(-1); }
+  0%      { transform: translateY(0px)    scaleX(-1); }
+  16.67%  { transform: translateY(-1.5px) scaleX(-1); }
+  33.33%  { transform: translateY(-2px)   scaleX(-1); }
+  50%     { transform: translateY(-0.5px) scaleX(-1); }
+  66.67%  { transform: translateY(0px)    scaleX(-1); }
+  83.33%  { transform: translateY(-1px)   scaleX(-1); }
+  100%    { transform: translateY(0px)    scaleX(-1); }
 }
 
-/* Leg swing: wide arc for energetic trot. Negative = leg forward, positive = leg back.
-   Stance phase frames 0-4 (forward → rear), swing phase frames 5-7 (fast return). */
+/* 6-frame walk: thigh swings forward → back (stance), then snaps forward (swing).
+   Negative = leg forward (landing), positive = leg back (pushing off). */
 @keyframes walk-leg {
-  0%    { transform: rotate(-42deg); }
-  12.5% { transform: rotate(-22deg); }
-  25%   { transform: rotate(0deg); }
-  37.5% { transform: rotate(22deg); }
-  50%   { transform: rotate(42deg); }
-  62.5% { transform: rotate(38deg); }
-  75%   { transform: rotate(8deg); }
-  87.5% { transform: rotate(-30deg); }
-  100%  { transform: rotate(-42deg); }
+  0%      { transform: rotate(-28deg); }
+  16.67%  { transform: rotate(-12deg); }
+  33.33%  { transform: rotate(5deg);   }
+  50%     { transform: rotate(20deg);  }
+  66.67%  { transform: rotate(30deg);  }
+  83.33%  { transform: rotate(-5deg);  }
+  100%    { transform: rotate(-28deg); }
+}
+
+/* Shin nearly straight during stance; bends sharply backward at frame 83.33%
+   (swing phase) so knee is clearly visible as thigh sweeps forward. */
+@keyframes shin-bend {
+  0%      { transform: rotate(6deg);  }
+  16.67%  { transform: rotate(0deg);  }
+  33.33%  { transform: rotate(-4deg); }
+  50%     { transform: rotate(2deg);  }
+  66.67%  { transform: rotate(10deg); }
+  83.33%  { transform: rotate(42deg); }
+  100%    { transform: rotate(6deg);  }
 }
 
 /* Color variants — beagle colorways (classic tricolor, chocolate tri, lemon, red-and-white). */
@@ -1093,6 +1116,152 @@ section {
 }
 .stack-read-more:hover svg {
   transform: translate(1px, -1px);
+}
+
+/* ── Crypto card — dark theme matching project-crypto.html ── */
+.stack-card--crypto {
+  background: #0c0c18;
+  border-color: rgba(0, 212, 170, 0.22);
+  box-shadow: 0 2px 24px -4px rgba(0, 212, 170, 0.08),
+              0 1px 4px rgba(0, 0, 0, 0.35);
+  overflow: hidden;
+}
+
+/* Teal accent line along the top edge */
+.stack-card--crypto::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; height: 1.5px;
+  background: linear-gradient(90deg, transparent, #00d4aa 40%, #00d4aa 60%, transparent);
+  border-radius: 14px 14px 0 0;
+  pointer-events: none;
+}
+
+/* Subtle lattice-dot background pattern */
+.stack-card--crypto::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(circle, rgba(0,212,170,0.08) 1px, transparent 1px);
+  background-size: 20px 20px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Ensure card content sits above the dot pattern */
+.stack-card--crypto > * {
+  position: relative;
+  z-index: 1;
+}
+
+.stack-card--crypto .stack-tag {
+  color: #00d4aa;
+}
+
+.stack-card--crypto h3 {
+  color: #e2e2f0;
+  font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+  font-weight: 700;
+  font-size: 20px;
+}
+
+.stack-card--crypto p {
+  color: #7a7a9a;
+}
+
+.stack-card--crypto p a {
+  color: #a0a0c8;
+  text-decoration-color: rgba(160, 160, 200, 0.3);
+}
+
+.stack-card--crypto p a:hover {
+  text-decoration-color: #a0a0c8;
+}
+
+.stack-card--crypto .stack-date {
+  color: #55556e;
+}
+
+.stack-card--crypto .stack-read-more {
+  color: #00d4aa;
+  border-color: rgba(0, 212, 170, 0.3);
+}
+
+.stack-card--crypto .stack-read-more:hover {
+  background: #00d4aa;
+  color: #000;
+  border-color: #00d4aa;
+}
+
+/* ── ElderlyAI card — iOS / Apple dark theme ── */
+.stack-card--elderlyai {
+  background: #1c1c1e;
+  border-color: rgba(0, 122, 255, 0.22);
+  box-shadow: 0 2px 24px -4px rgba(0, 122, 255, 0.10), 0 1px 4px rgba(0, 0, 0, 0.35);
+  overflow: hidden;
+}
+
+/* iOS blue accent line along the top edge */
+.stack-card--elderlyai::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; height: 1.5px;
+  background: linear-gradient(90deg, transparent, #007AFF 40%, #3395ff 60%, transparent);
+  border-radius: 14px 14px 0 0;
+  pointer-events: none;
+}
+
+/* Subtle dot-grid background in blue */
+.stack-card--elderlyai::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(circle, rgba(0,122,255,0.07) 1px, transparent 1px);
+  background-size: 20px 20px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.stack-card--elderlyai > * {
+  position: relative;
+  z-index: 1;
+}
+
+.stack-card--elderlyai .stack-tag {
+  color: #007AFF;
+}
+
+.stack-card--elderlyai h3 {
+  color: #f2f2f7;
+  font-weight: 700;
+}
+
+.stack-card--elderlyai p {
+  color: #8e8e93;
+}
+
+.stack-card--elderlyai p a {
+  color: #a8c7f5;
+  text-decoration-color: rgba(168, 199, 245, 0.3);
+}
+
+.stack-card--elderlyai p a:hover {
+  text-decoration-color: #a8c7f5;
+}
+
+.stack-card--elderlyai .stack-date {
+  color: #8e8e93;
+}
+
+.stack-card--elderlyai .stack-read-more {
+  color: #007AFF;
+  border-color: rgba(0, 122, 255, 0.3);
+}
+
+.stack-card--elderlyai .stack-read-more:hover {
+  background: #007AFF;
+  color: #fff;
+  border-color: #007AFF;
 }
 
 @media (max-width: 700px) {
