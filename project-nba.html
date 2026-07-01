@@ -3,269 +3,1495 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>NBA MVP Model Predictions — Aidan Liu</title>
-<meta name="description" content="Building an ML model to predict NBA MVP voting outcomes, published in The Curieux Review.">
+<title>NBA MVP Prediction with ML &mdash; Aidan Liu</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.14/dist/lenis.min.js" onerror="window.__lenisOk=false"></script>
 <style>
-  :root {
-    --fg: #111111;
-    --muted: #5e5e5e;
-    --bg: #ffffff;
-    --border: #e8e8e8;
-    --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
-  }
+/* ===== TOKENS ===== */
+:root {
+  --bg:         #f5f6fa;
+  --bg-hero:    #edeef8;
+  --surface:    #ffffff;
+  --surface-hi: #f8f9fd;
+  --fg:         #0c0d18;
+  --fg-sec:     rgba(12,13,24,0.66);
+  --fg-ter:     rgba(12,13,24,0.36);
+  --muted:      #5b6278;
+  --border:     rgba(12,13,24,0.09);
+  --accent:     #c42b20;
+  --accent-mid: #e53529;
+  --accent-dim: rgba(196,43,32,0.08);
+  --ease-out:   cubic-bezier(0.23,1,0.32,1);
+  --ease-in-out:cubic-bezier(0.77,0,0.175,1);
+}
 
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+/* ===== RESET ===== */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-padding-top:80px;}
 
-  html { scroll-padding-top: 80px; }
+/* ===== SCROLL PROGRESS ===== */
+#scroll-progress{
+  position:fixed;top:0;left:0;height:2px;width:0%;
+  background:linear-gradient(90deg,var(--accent),var(--accent-mid));
+  z-index:200;transition:width 0.06s linear;
+  box-shadow:0 0 8px rgba(196,43,32,0.42);
+}
 
-  body {
-    background: var(--bg);
-    color: var(--fg);
-    font-family: 'Plus Jakarta Sans', -apple-system, 'Helvetica Neue', Arial, sans-serif;
-    font-size: 16px;
-    line-height: 1.65;
-    -webkit-font-smoothing: antialiased;
-  }
+/* ===== BODY ===== */
+body{
+  background:var(--bg);color:var(--fg);
+  font-family:'Plus Jakarta Sans',-apple-system,'Helvetica Neue',Arial,sans-serif;
+  font-size:15px;line-height:1.6;
+  -webkit-font-smoothing:antialiased;overflow-x:hidden;
+}
 
-  /* ── Top bar ── */
-  .topbar {
-    position: fixed;
-    top: 0; left: 0; right: 0;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 20px 40px;
-    z-index: 100;
-    background: rgba(255,255,255,0.88);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border-bottom: 1px solid var(--border);
-  }
+/* ===== TOPBAR ===== */
+.topbar{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  display:flex;justify-content:space-between;align-items:center;
+  padding:20px 40px;
+  background:rgba(245,246,250,0.88);
+  backdrop-filter:blur(20px) saturate(180%);-webkit-backdrop-filter:blur(20px) saturate(180%);
+  border-bottom:1px solid transparent;
+  transition:border-color 0.3s var(--ease-out),box-shadow 0.3s var(--ease-out);
+}
+.topbar.scrolled{border-color:var(--border);box-shadow:0 1px 20px rgba(12,13,24,0.08);}
+.back-link{
+  display:inline-flex;align-items:center;gap:8px;
+  font-size:13px;font-weight:600;color:var(--fg);
+  text-decoration:none;letter-spacing:0.01em;
+  transition:gap 0.22s var(--ease-out),opacity 0.22s var(--ease-out);
+}
+.back-link:hover{gap:13px;opacity:0.45;}
+.back-link svg{width:14px;height:14px;flex-shrink:0;}
+.topbar-name{
+  font-size:13px;font-weight:700;color:var(--fg);
+  text-decoration:none;opacity:0.35;
+  transition:opacity 0.22s var(--ease-out);
+}
+.topbar-name:hover{opacity:1;}
 
-  .back-link {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--fg);
-    text-decoration: none;
-    letter-spacing: 0.01em;
-    transition: gap 0.2s var(--ease-out), opacity 0.2s var(--ease-out);
-  }
-  .back-link:hover { gap: 12px; opacity: 0.6; }
-  .back-link svg { width: 14px; height: 14px; flex-shrink: 0; }
+/* ===== HERO SHELL ===== */
+.hero-shell{
+  background:var(--bg-hero);
+  border-bottom:1px solid var(--border);
+  position:relative;overflow:hidden;
+}
+.hero-shell::after{
+  content:'';position:absolute;inset:0;pointer-events:none;
+  background:
+    radial-gradient(ellipse 60% 55% at 100% 115%,rgba(196,43,32,0.08) 0%,transparent 65%),
+    radial-gradient(ellipse 30% 30% at 0% 60%,rgba(196,43,32,0.04) 0%,transparent 60%);
+}
+.hero-court{
+  position:absolute;right:-90px;top:50%;transform:translateY(-50%);
+  width:380px;height:380px;
+  opacity:0.045;pointer-events:none;z-index:0;color:var(--fg);
+  will-change:transform;
+}
+.hero{
+  padding:128px 40px 64px;max-width:800px;margin:0 auto;
+  position:relative;z-index:1;
+}
+.tag{
+  font-size:10px;font-weight:700;letter-spacing:0.14em;
+  text-transform:uppercase;color:var(--accent);
+  margin-bottom:18px;display:inline-block;
+}
+.title{
+  font-size:clamp(28px,4.8vw,54px);font-weight:800;
+  letter-spacing:-0.03em;line-height:1.08;
+  color:var(--fg);margin-bottom:22px;text-wrap:balance;
+}
+/* word-split styles */
+.word-wrap{display:inline-block;overflow:hidden;vertical-align:bottom;line-height:1.15;}
+.word{display:inline-block;}
+.js-animate .word{opacity:0;transform:translateY(110%);}
+.js-animate .hero-words-in .word{
+  animation:word-up 0.65s var(--ease-out) calc(0.06s + var(--wi,0) * 0.07s) both;
+}
+@keyframes word-up{from{opacity:0;transform:translateY(110%);}to{opacity:1;transform:none;}}
 
-  .topbar-name {
-    font-size: 13px;
-    font-weight: 700;
-    letter-spacing: -0.01em;
-    color: var(--fg);
-    text-decoration: none;
-  }
+.hero-meta{
+  display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+  font-size:13px;font-weight:500;color:var(--muted);
+}
+.hero-dot{width:3px;height:3px;border-radius:50%;background:var(--border);flex-shrink:0;}
 
-  /* ── Hero ── */
-  .project-hero {
-    padding: 120px 40px 60px;
-    max-width: 760px;
-    margin: 0 auto;
-    border-bottom: 1px solid var(--border);
-  }
+/* ===== BODY CONTAINER ===== */
+.body{max-width:800px;margin:0 auto;padding:56px 40px 100px;}
 
-  .project-tag {
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--muted);
-    margin-bottom: 18px;
-  }
+/* ===== GENERIC REVEAL — BIG LIFT ===== */
+.js-animate .reveal.ready{
+  opacity:0;transform:translateY(90px) scale(0.91);filter:blur(8px);
+  transition:opacity 0.15s ease-in,transform 0.15s ease-in,filter 0.15s ease-in;
+}
+.js-animate .reveal.ready.in-view{
+  opacity:1;transform:none;filter:blur(0px);
+  transition:opacity 0.5s var(--ease-out),transform 0.55s var(--ease-out),filter 0.5s var(--ease-out);
+}
 
-  .project-title {
-    font-family: Georgia, "Times New Roman", serif;
-    font-weight: normal;
-    font-size: clamp(32px, 5vw, 52px);
-    line-height: 1.18;
-    letter-spacing: -0.02em;
-    margin-bottom: 20px;
-  }
+/* h2: word-by-word clip reveal */
+.js-animate h2.reveal .h2-word{
+  display:inline-block;overflow:hidden;vertical-align:bottom;
+}
+.js-animate h2.reveal .h2-inner{
+  display:inline-block;
+  transform:translateY(110%);
+  opacity:0;
+  transition:transform 0.15s ease-in,opacity 0.15s ease-in;
+}
+.js-animate h2.reveal.ready.in-view .h2-inner{
+  transform:translateY(0);
+  opacity:1;
+  transition:transform 0.62s var(--ease-out),opacity 0.5s var(--ease-out);
+}
+/* fallback for h2 without word-split */
+.js-animate h2.reveal.ready:not(.h2-split){
+  opacity:0;transform:translateY(60px);
+  transition:opacity 0.15s ease-in,transform 0.15s ease-in;
+}
+.js-animate h2.reveal.ready.in-view:not(.h2-split){
+  opacity:1;transform:none;
+  transition:opacity 0.55s var(--ease-out),transform 0.6s var(--ease-out);
+}
 
-  .project-date {
-    font-size: 12px;
-    color: var(--muted);
-    letter-spacing: 0.04em;
-  }
+/* prose: strong lift + blur */
+.js-animate .prose.reveal.ready{
+  opacity:0;transform:translateY(60px);filter:blur(6px);
+  transition:opacity 0.15s ease-in,transform 0.15s ease-in,filter 0.15s ease-in;
+}
+.js-animate .prose.reveal.ready.in-view{
+  opacity:1;transform:none;filter:blur(0px);
+  transition:opacity 0.5s var(--ease-out),transform 0.55s var(--ease-out),filter 0.48s var(--ease-out);
+}
 
-  /* ── Body ── */
-  .project-body {
-    max-width: 760px;
-    margin: 0 auto;
-    padding: 60px 40px 100px;
-  }
+/* ===== SECTIONS ===== */
+.section{margin-bottom:72px;}
+.section-label{
+  font-size:10px;font-weight:700;letter-spacing:0.14em;
+  text-transform:uppercase;color:var(--accent);margin-bottom:10px;
+}
 
-  .project-section {
-    margin-bottom: 52px;
-  }
+/* Section label - slide in from left */
+.js-animate .section-label{
+  opacity:0;transform:translateX(-24px);
+  transition:opacity 0.15s ease-in,transform 0.15s ease-in;
+}
+.js-animate .section-label.lbl-in{
+  opacity:1;transform:none;
+  transition:opacity 0.4s var(--ease-out),transform 0.45s var(--ease-out);
+}
 
-  .project-section h2 {
-    font-size: 13px;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--muted);
-    margin-bottom: 18px;
-  }
+h2{
+  font-size:clamp(20px,3vw,27px);font-weight:800;
+  letter-spacing:-0.025em;line-height:1.18;
+  color:var(--fg);margin-bottom:16px;text-wrap:balance;
+  overflow:hidden; /* needed for clip-path animation */
+}
+.prose{
+  font-size:14.5px;line-height:1.78;color:var(--fg-sec);
+  max-width:68ch;margin-bottom:14px;
+}
+.prose:last-child{margin-bottom:0;}
+.prose a{color:var(--accent);text-underline-offset:3px;}
+.prose a:hover{opacity:0.75;}
+.prose strong{color:var(--fg);}
 
-  .project-section p {
-    font-size: 16px;
-    line-height: 1.75;
-    color: #333;
-    margin-bottom: 16px;
-    max-width: 65ch;
-  }
+/* ===== DIVIDER ===== */
+hr.divider{
+  border:none;height:1px;background:var(--border);
+  margin:64px 0;position:relative;overflow:hidden;
+}
+.js-animate hr.divider.div-in::after{
+  content:'';position:absolute;top:0;left:-30%;
+  width:30%;height:100%;
+  background:linear-gradient(90deg,transparent,rgba(196,43,32,0.48),transparent);
+  animation:divScan 0.7s var(--ease-out) forwards;
+}
+@keyframes divScan{to{left:100%;}}
 
-  .project-section p:last-child { margin-bottom: 0; }
+/* ===== STAT ROW ===== */
+.stat-row{
+  display:grid;grid-template-columns:repeat(4,1fr);
+  gap:1px;background:var(--border);
+  border:1px solid var(--border);border-radius:14px;
+  overflow:hidden;margin-bottom:64px;
+}
+/* Pop-in stagger (keyframe) */
+.js-animate .stat{opacity:0;}
+.js-animate .stat-row.row-in .stat{animation:pop-in 0.6s var(--ease-out) both;}
+.js-animate .stat-row.row-in .stat:nth-child(1){animation-delay:0.00s;}
+.js-animate .stat-row.row-in .stat:nth-child(2){animation-delay:0.09s;}
+.js-animate .stat-row.row-in .stat:nth-child(3){animation-delay:0.18s;}
+.js-animate .stat-row.row-in .stat:nth-child(4){animation-delay:0.27s;}
+.stat{
+  background:var(--surface);padding:26px 20px;
+  display:flex;flex-direction:column;gap:5px;
+  transition:background 0.2s var(--ease-out);
+}
+.stat:hover{background:var(--surface-hi);}
+.stat-num{
+  font-size:clamp(22px,3vw,32px);font-weight:800;
+  letter-spacing:-0.035em;line-height:1;color:var(--accent);
+  font-variant-numeric:tabular-nums;
+}
+.stat-label{font-size:11px;color:var(--muted);letter-spacing:0.02em;}
 
-  .project-section a {
-    color: var(--fg);
-    text-decoration: underline;
-    text-decoration-color: rgba(17,17,17,0.3);
-    text-underline-offset: 3px;
-    transition: text-decoration-color 0.15s;
-  }
-  .project-section a:hover { text-decoration-color: var(--fg); }
+/* ===== DATASET CARDS ===== */
+.dataset-cards{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  gap:10px;margin-top:20px;
+}
+.js-animate .ds-card{opacity:0;}
+.js-animate .dataset-cards.dc-in .ds-card{animation:pop-in 0.58s var(--ease-out) both;}
+.js-animate .dataset-cards.dc-in .ds-card:nth-child(1){animation-delay:0.00s;}
+.js-animate .dataset-cards.dc-in .ds-card:nth-child(2){animation-delay:0.10s;}
+.js-animate .dataset-cards.dc-in .ds-card:nth-child(3){animation-delay:0.20s;}
+.ds-card{
+  border:1px solid var(--border);border-radius:12px;
+  background:var(--surface);padding:20px 18px;
+  transition:border-color 0.22s var(--ease-out),transform 0.22s var(--ease-out);
+}
+.ds-card:hover{border-color:rgba(196,43,32,0.22);transform:translateY(-2px);}
+.ds-icon{
+  width:34px;height:34px;border-radius:8px;
+  background:var(--accent-dim);display:flex;align-items:center;justify-content:center;
+  color:var(--accent);margin-bottom:12px;flex-shrink:0;
+}
+.ds-icon svg{width:16px;height:16px;}
+.ds-name{font-size:12px;font-weight:700;color:var(--fg);margin-bottom:5px;}
+.ds-desc{font-size:12px;color:var(--muted);line-height:1.55;}
+.ds-source{
+  font-size:10.5px;color:var(--accent);font-weight:600;
+  margin-top:8px;letter-spacing:0.02em;
+}
 
-  /* ── Links row ── */
-  .project-links {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    margin-top: 40px;
-  }
+/* ===== PIPELINE ===== */
+.pipeline{
+  display:flex;flex-direction:column;
+  margin-top:28px;position:relative;
+}
+.pipeline::before{
+  content:'';position:absolute;left:14px;top:28px;bottom:28px;
+  width:1px;background:var(--border);z-index:0;
+}
+.pipeline-step{
+  display:flex;gap:18px;align-items:flex-start;
+  padding:14px 0;position:relative;
+}
+/* Pipeline stagger — slides from left */
+.js-animate .pipeline-step{opacity:0;}
+.js-animate .pipeline.pipe-in .pipeline-step{
+  animation:slide-right-in 0.5s var(--ease-out) both;
+}
+.js-animate .pipeline.pipe-in .pipeline-step:nth-child(1){animation-delay:0.00s;}
+.js-animate .pipeline.pipe-in .pipeline-step:nth-child(2){animation-delay:0.05s;}
+.js-animate .pipeline.pipe-in .pipeline-step:nth-child(3){animation-delay:0.10s;}
+.js-animate .pipeline.pipe-in .pipeline-step:nth-child(4){animation-delay:0.15s;}
+.js-animate .pipeline.pipe-in .pipeline-step:nth-child(5){animation-delay:0.20s;}
+.js-animate .pipeline.pipe-in .pipeline-step:nth-child(6){animation-delay:0.25s;}
+.js-animate .pipeline.pipe-in .pipeline-step:nth-child(7){animation-delay:0.30s;}
+.js-animate .pipeline.pipe-in .pipeline-step:nth-child(8){animation-delay:0.35s;}
+.js-animate .pipeline.pipe-in .pipeline-step:nth-child(9){animation-delay:0.40s;}
+.pipe-num{
+  width:28px;height:28px;flex-shrink:0;z-index:1;
+  display:flex;align-items:center;justify-content:center;
+  background:var(--surface);border:1px solid var(--border);border-radius:50%;
+  font-size:10px;font-weight:800;color:var(--accent);
+  font-variant-numeric:tabular-nums;
+}
+.pipe-text{padding-top:4px;font-size:13.5px;color:var(--fg-sec);line-height:1.6;}
+.pipe-text strong{color:var(--fg);}
 
-  .project-link {
-    display: inline-flex;
-    align-items: center;
-    gap: 7px;
-    padding: 10px 20px;
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    text-decoration: none;
-    border-radius: 999px;
-    border: 1.5px solid var(--fg);
-    color: var(--fg);
-    background: transparent;
-    transition: background 0.2s var(--ease-out), color 0.2s var(--ease-out), gap 0.2s var(--ease-out);
-  }
-  .project-link:hover { background: var(--fg); color: #fff; gap: 11px; }
-  .project-link svg { width: 11px; height: 11px; flex-shrink: 0; transition: transform 0.2s var(--ease-out); }
-  .project-link:hover svg { transform: translate(1px, -1px); }
+/* ===== FEATURE PILLS ===== */
+.pill-section{margin:22px 0 28px;}
+.pill-group-label{font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;}
+.pills{display:flex;flex-wrap:wrap;gap:7px;}
+.pill{
+  display:inline-flex;align-items:center;
+  padding:5px 14px;border-radius:999px;
+  font-size:11.5px;font-weight:700;letter-spacing:0.04em;
+  border:1.5px solid var(--border);font-family:inherit;
+  transition:border-color 0.18s,background 0.18s,transform 0.18s var(--ease-out);
+}
+.pill:hover{transform:translateY(-1px);}
+.pill--feat{background:var(--accent-dim);border-color:rgba(196,43,32,0.18);color:var(--accent);}
+.pill--target{background:rgba(12,13,24,0.05);border-color:var(--border);color:var(--muted);}
+/* Pill stagger (fire-once) */
+.js-animate .pills.animate-pills .pill{
+  opacity:0;transform:translateY(8px) scale(0.94);
+  transition:opacity 0.2s ease-in,transform 0.2s ease-in;
+}
+.js-animate .pills.animate-pills.pills-visible .pill{
+  opacity:1;transform:none;
+  transition:opacity 0.45s var(--ease-out),transform 0.5s var(--ease-out),border-color 0.18s,background 0.18s;
+}
+.js-animate .pills.animate-pills.pills-visible .pill:nth-child(1){transition-delay:0.00s;}
+.js-animate .pills.animate-pills.pills-visible .pill:nth-child(2){transition-delay:0.05s;}
+.js-animate .pills.animate-pills.pills-visible .pill:nth-child(3){transition-delay:0.10s;}
+.js-animate .pills.animate-pills.pills-visible .pill:nth-child(4){transition-delay:0.15s;}
+.js-animate .pills.animate-pills.pills-visible .pill:nth-child(5){transition-delay:0.20s;}
+.js-animate .pills.animate-pills.pills-visible .pill:nth-child(6){transition-delay:0.25s;}
+.js-animate .pills.animate-pills.pills-visible .pill:nth-child(7){transition-delay:0.30s;}
+.js-animate .pills.animate-pills.pills-visible .pill:nth-child(8){transition-delay:0.35s;}
 
-  .project-link--secondary {
-    border-color: var(--border);
-    color: var(--muted);
-  }
-  .project-link--secondary:hover {
-    background: var(--fg);
-    color: #fff;
-    border-color: var(--fg);
-  }
+/* ===== CODE BLOCK ===== */
+.code-block{
+  border-radius:13px;overflow:hidden;
+  border:1px solid rgba(255,255,255,0.06);
+  background:#0d0f1a;
+  margin-top:22px;font-family:'JetBrains Mono','Fira Code','Cascadia Code',Consolas,monospace;
+}
+.code-header{
+  display:flex;align-items:center;gap:10px;
+  padding:12px 18px;
+  background:rgba(255,255,255,0.04);
+  border-bottom:1px solid rgba(255,255,255,0.07);
+}
+.code-dots{display:flex;gap:6px;}
+.code-dots span{
+  width:10px;height:10px;border-radius:50%;
+  background:rgba(255,255,255,0.12);
+}
+.code-dots span:first-child{background:#ff5f56;}
+.code-dots span:nth-child(2){background:#ffbd2e;}
+.code-dots span:last-child{background:#27c93f;}
+.code-file{
+  font-size:11px;font-weight:600;color:rgba(255,255,255,0.35);
+  font-family:inherit;margin-left:4px;flex:1;
+}
+.code-lang{
+  font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;
+  color:var(--accent);opacity:0.8;
+}
+.code-block pre{
+  padding:22px 22px 24px;overflow-x:auto;
+  font-size:12.5px;line-height:1.75;color:#cdd6f4;
+  tab-size:4;
+}
+.code-block code{font-family:inherit;}
+/* Syntax tokens (Catppuccin-inspired) */
+.tok-kw{color:#cba6f7;}  /* keyword - purple */
+.tok-fn{color:#89b4fa;}  /* function - blue */
+.tok-cls{color:#f38ba8;} /* class - red */
+.tok-str{color:#a6e3a1;} /* string - green */
+.tok-cm{color:#585b70;font-style:italic;} /* comment - gray */
+.tok-num{color:#fab387;} /* number - peach */
+.tok-op{color:#89dceb;}  /* operator - cyan */
+.tok-var{color:#cdd6f4;} /* variable - text */
+/* Inline output block */
+.code-output{
+  border-top:1px solid rgba(255,255,255,0.07);
+  padding:14px 22px;
+  background:rgba(0,0,0,0.18);
+  font-size:11.5px;line-height:1.7;color:rgba(255,255,255,0.45);
+  font-family:inherit;
+}
+.code-output .out-label{
+  font-size:9.5px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;
+  color:rgba(255,255,255,0.2);margin-bottom:6px;display:block;
+}
+.code-output .out-line{color:#a6e3a1;}
 
-  /* ── Divider ── */
-  .project-divider {
-    border: none;
-    border-top: 1px solid var(--border);
-    margin: 0 0 52px;
-  }
+/* ===== FEATURE IMPORTANCE ===== */
+.feat-importance{
+  border:1px solid var(--border);border-radius:13px;
+  background:var(--surface);padding:20px 22px;
+  margin-top:18px;
+}
+.feat-title{
+  font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;
+  color:var(--muted);margin-bottom:16px;
+}
+.feat-row{
+  display:flex;align-items:center;gap:12px;
+  padding:6px 0;
+}
+.feat-name{
+  width:36px;font-size:11px;font-weight:700;color:var(--fg);
+  flex-shrink:0;font-variant-numeric:tabular-nums;
+}
+.feat-bar-wrap{
+  flex:1;height:6px;background:rgba(12,13,24,0.07);
+  border-radius:3px;overflow:hidden;
+}
+.feat-bar{
+  height:100%;border-radius:3px;
+  background:linear-gradient(90deg,var(--accent),var(--accent-mid));
+  transform-origin:left center;
+}
+.feat-pct{
+  width:40px;text-align:right;
+  font-size:11px;font-weight:700;color:var(--muted);
+  flex-shrink:0;font-variant-numeric:tabular-nums;
+}
+/* Feat bar animation */
+.js-animate .feat-bar{transform:scaleX(0);}
+.js-animate .feat-importance.fi-in .feat-bar{
+  animation:bar-grow 0.65s var(--ease-out) both;
+  animation-delay:calc(var(--ri,0) * 0.05s);
+}
+/* Feat rows — slide from left */
+.js-animate .feat-row{opacity:0;}
+.js-animate .feat-importance.fi-in .feat-row{animation:slide-right-in 0.48s var(--ease-out) both;}
+.js-animate .feat-importance.fi-in .feat-row:nth-child(n+2):nth-child(2){animation-delay:0.00s;}
+.js-animate .feat-importance.fi-in .feat-row:nth-child(3){animation-delay:0.05s;}
+.js-animate .feat-importance.fi-in .feat-row:nth-child(4){animation-delay:0.10s;}
+.js-animate .feat-importance.fi-in .feat-row:nth-child(5){animation-delay:0.15s;}
+.js-animate .feat-importance.fi-in .feat-row:nth-child(6){animation-delay:0.20s;}
+.js-animate .feat-importance.fi-in .feat-row:nth-child(7){animation-delay:0.25s;}
+.js-animate .feat-importance.fi-in .feat-row:nth-child(8){animation-delay:0.30s;}
+.js-animate .feat-importance.fi-in .feat-row:nth-child(9){animation-delay:0.35s;}
 
-  /* ── Footer ── */
-  .project-footer {
-    border-top: 1px solid var(--border);
-    padding: 32px 40px;
-    max-width: 760px;
-    margin: 0 auto 60px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 12px;
-    color: var(--muted);
-  }
+/* ===== MODEL TABS ===== */
+.model-tabs{
+  display:flex;flex-wrap:wrap;gap:6px;
+  border-bottom:1px solid var(--border);
+  padding-bottom:14px;margin-bottom:0;
+}
+.model-tab{
+  padding:7px 16px;font-size:11.5px;font-weight:700;
+  letter-spacing:0.04em;text-transform:uppercase;
+  border:1.5px solid var(--border);border-radius:999px;
+  background:transparent;cursor:pointer;color:var(--muted);
+  font-family:inherit;
+  transition:border-color 0.2s,color 0.2s,background 0.2s;
+}
+.model-tab:hover{border-color:var(--accent);color:var(--accent);}
+.model-tab.active{border-color:var(--accent);color:var(--surface);background:var(--accent);}
+.model-tab:active{transform:scale(0.97);}
+.model-panel{display:none;padding:24px 0 4px;}
+.model-panel.active{display:grid;grid-template-columns:1fr 1fr;gap:24px;}
+@keyframes tab-slide{
+  from{opacity:0;transform:translateY(8px);}
+  to{opacity:1;transform:none;}
+}
+.model-panel.active{animation:tab-slide 0.28s var(--ease-out) both;}
 
-  .project-footer a { color: var(--fg); text-decoration: none; font-weight: 600; }
-  .project-footer a:hover { text-decoration: underline; }
+.mp-type{font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;}
+.mp-name{font-size:17px;font-weight:800;color:var(--fg);margin-bottom:10px;letter-spacing:-0.02em;}
+.mp-desc{font-size:13.5px;color:var(--fg-sec);line-height:1.65;}
+.mp-prop{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:9px 0;border-bottom:1px solid var(--border);font-size:13px;
+}
+.mp-prop:last-child{border-bottom:none;}
+.mpp-label{color:var(--muted);font-weight:500;}
+.mpp-val{font-weight:700;color:var(--fg);}
+.mpp-val.best{color:var(--accent);}
+.mpp-val.ok{color:#b45309;}
+.mpp-val.weak{color:var(--muted);}
 
-  @media (max-width: 600px) {
-    .topbar { padding: 16px 20px; }
-    .project-hero, .project-body { padding-left: 20px; padding-right: 20px; }
-    .project-footer { padding-left: 20px; padding-right: 20px; flex-direction: column; gap: 12px; align-items: flex-start; }
-  }
+/* ===== BAR CHART ===== */
+.results-chart{
+  border:1px solid var(--border);border-radius:14px;
+  background:var(--surface);padding:24px 24px 20px;
+  margin-top:20px;overflow:hidden;
+}
+.chart-head{
+  font-size:11px;font-weight:700;color:var(--muted);
+  letter-spacing:0.06em;text-transform:uppercase;margin-bottom:18px;
+}
+.chart-legend{display:flex;gap:18px;flex-wrap:wrap;margin-bottom:20px;}
+.legend-item{display:flex;align-items:center;gap:7px;font-size:11.5px;color:var(--muted);}
+.legend-swatch{width:12px;height:12px;border-radius:3px;flex-shrink:0;}
+.bar-group{margin-bottom:22px;}
+.bar-group:last-child{margin-bottom:0;}
+.bar-player{font-size:12px;font-weight:700;color:var(--fg);margin-bottom:8px;}
+.bar-row{display:flex;align-items:center;gap:10px;margin-bottom:5px;}
+.bar-row:last-child{margin-bottom:0;}
+.brl{width:34px;font-size:10px;font-weight:600;color:var(--muted);text-align:right;flex-shrink:0;}
+.bar-track{
+  flex:1;height:16px;background:rgba(12,13,24,0.055);
+  border-radius:4px;overflow:hidden;
+}
+.bar-fill{height:100%;border-radius:4px;transform-origin:left center;}
+.bar-fill--actual{background:var(--fg);}
+.bar-fill--svm{background:var(--accent);}
+.bar-fill--rf{background:var(--accent-mid);opacity:0.75;}
+.bar-fill--knn{background:#7c3aed;}
+.bar-fill--ada{background:#d97706;}
+.brv{width:38px;font-size:10.5px;font-weight:700;color:var(--muted);font-variant-numeric:tabular-nums;flex-shrink:0;}
 
-  /* Entrance animation */
-  @keyframes fade-up {
-    from { opacity: 0; transform: translateY(20px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
-  .project-hero, .project-body {
-    animation: fade-up 0.6s cubic-bezier(0.23, 1, 0.32, 1) both;
-  }
-  .project-body { animation-delay: 0.08s; }
+/* ===== CALLOUT ===== */
+.callout{
+  border:1.5px solid rgba(196,43,32,0.20);border-radius:12px;
+  background:var(--accent-dim);padding:18px 22px;
+  font-size:13.5px;color:var(--fg-sec);line-height:1.7;
+  margin-top:20px;
+}
+.callout strong{color:var(--accent);}
+
+/* ===== ACCURACY CHART ===== */
+.acc-chart{
+  border:1px solid var(--border);border-radius:14px;
+  background:var(--surface);padding:20px 24px;
+  margin-top:20px;
+}
+.acc-row{
+  display:flex;align-items:center;gap:14px;
+  padding:10px 0;border-bottom:1px solid rgba(12,13,24,0.05);
+}
+.acc-row:last-child{border-bottom:none;}
+.acc-model{width:110px;font-size:12px;font-weight:700;color:var(--fg);flex-shrink:0;}
+.acc-bar-wrap{flex:1;height:7px;background:rgba(12,13,24,0.06);border-radius:4px;overflow:hidden;}
+.acc-bar{height:100%;border-radius:4px;transform-origin:left center;}
+.acc-score{width:42px;text-align:right;font-size:11.5px;font-weight:700;color:var(--muted);flex-shrink:0;}
+
+/* Acc-row stagger on acc-in */
+.js-animate .acc-row{
+  opacity:0;transform:translateY(10px);
+  transition:opacity 0.2s ease-in,transform 0.2s ease-in;
+}
+.js-animate .acc-chart.acc-in .acc-row{
+  opacity:1;transform:none;
+  transition:opacity 0.45s var(--ease-out),transform 0.5s var(--ease-out);
+}
+.js-animate .acc-chart.acc-in .acc-row:nth-child(2){transition-delay:0.00s;}
+.js-animate .acc-chart.acc-in .acc-row:nth-child(3){transition-delay:0.07s;}
+.js-animate .acc-chart.acc-in .acc-row:nth-child(4){transition-delay:0.14s;}
+.js-animate .acc-chart.acc-in .acc-row:nth-child(5){transition-delay:0.21s;}
+.js-animate .acc-chart.acc-in .acc-row:nth-child(6){transition-delay:0.28s;}
+.js-animate .acc-chart.acc-in .acc-row:nth-child(7){transition-delay:0.35s;}
+.js-animate .acc-chart.acc-in .acc-row:nth-child(8){transition-delay:0.42s;}
+
+/* ===== SEASON TABLE ===== */
+.season-wrap{
+  border:1px solid var(--border);border-radius:14px;
+  background:var(--surface);overflow-x:auto;margin-top:20px;
+}
+.season-table{width:100%;border-collapse:collapse;font-size:12.5px;}
+.season-table th{
+  padding:11px 14px;text-align:left;
+  font-size:10px;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;
+  color:var(--muted);border-bottom:1px solid var(--border);
+  background:rgba(12,13,24,0.03);white-space:nowrap;
+}
+.season-table td{
+  padding:12px 14px;border-bottom:1px solid rgba(12,13,24,0.045);
+  color:var(--fg-sec);white-space:nowrap;
+}
+.season-table tr:last-child td{border-bottom:none;}
+.season-table tr:hover td{background:var(--surface-hi);}
+.td-s{color:var(--fg);font-weight:700;font-variant-numeric:tabular-nums;}
+.td-mvp{color:var(--fg);font-weight:600;}
+.td-share{color:var(--accent);font-weight:700;font-variant-numeric:tabular-nums;}
+.td-pred{color:var(--fg-sec);font-variant-numeric:tabular-nums;}
+.td-good{color:#15803d;font-weight:600;font-variant-numeric:tabular-nums;}
+.td-badge{
+  display:inline-block;padding:2px 7px;border-radius:4px;
+  font-size:9.5px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;
+}
+.td-badge--rf{background:rgba(229,53,41,0.09);color:var(--accent);}
+.td-badge--svm{background:rgba(196,43,32,0.08);color:#b33328;}
+
+/* Season table row stagger on tr-in */
+.js-animate .season-table tbody tr{
+  opacity:0;transform:translateY(7px);
+  transition:opacity 0.2s ease-in,transform 0.2s ease-in;
+}
+.js-animate #season-wrap.tr-in .season-table tbody tr{
+  opacity:1;transform:none;
+  transition:opacity 0.45s var(--ease-out),transform 0.5s var(--ease-out);
+}
+.js-animate #season-wrap.tr-in .season-table tbody tr:nth-child(1){transition-delay:0.00s;}
+.js-animate #season-wrap.tr-in .season-table tbody tr:nth-child(2){transition-delay:0.06s;}
+.js-animate #season-wrap.tr-in .season-table tbody tr:nth-child(3){transition-delay:0.12s;}
+.js-animate #season-wrap.tr-in .season-table tbody tr:nth-child(4){transition-delay:0.18s;}
+.js-animate #season-wrap.tr-in .season-table tbody tr:nth-child(5){transition-delay:0.24s;}
+.js-animate #season-wrap.tr-in .season-table tbody tr:nth-child(6){transition-delay:0.30s;}
+.js-animate #season-wrap.tr-in .season-table tbody tr:nth-child(7){transition-delay:0.36s;}
+.js-animate #season-wrap.tr-in .season-table tbody tr:nth-child(8){transition-delay:0.42s;}
+
+/* ===== TAKEAWAYS ===== */
+.takeaways{display:flex;flex-direction:column;gap:10px;margin-top:8px;}
+/* Takeaways — pop in with stagger */
+.js-animate .takeaway{opacity:0;}
+.js-animate .takeaways.tw-in .takeaway{animation:pop-in 0.55s var(--ease-out) both;}
+.js-animate .takeaways.tw-in .takeaway:nth-child(1){animation-delay:0.00s;}
+.js-animate .takeaways.tw-in .takeaway:nth-child(2){animation-delay:0.10s;}
+.js-animate .takeaways.tw-in .takeaway:nth-child(3){animation-delay:0.20s;}
+.js-animate .takeaways.tw-in .takeaway:nth-child(4){animation-delay:0.30s;}
+.takeaway{
+  display:flex;gap:16px;align-items:flex-start;
+  padding:20px 22px;border:1px solid var(--border);border-radius:12px;
+  background:var(--surface);
+  transition:border-color 0.22s var(--ease-out),transform 0.22s var(--ease-out);
+}
+.takeaway:hover{border-color:rgba(196,43,32,0.2);transform:translateX(4px);}
+.tw-n{
+  font-size:11px;font-weight:800;color:var(--accent);opacity:0.65;
+  flex-shrink:0;padding-top:2px;letter-spacing:0.05em;
+}
+.tw-text{font-size:13.5px;line-height:1.65;color:var(--fg-sec);}
+.tw-text strong{color:var(--fg);}
+
+/* ===== LINKS ===== */
+.links{display:flex;flex-wrap:wrap;gap:10px;margin-top:52px;}
+/* Link buttons — pop up */
+.js-animate .link-btn{opacity:0;}
+.js-animate .links.links-in .link-btn{animation:slide-up-in 0.5s var(--ease-out) both;}
+.js-animate .links.links-in .link-btn:nth-child(1){animation-delay:0.00s;}
+.js-animate .links.links-in .link-btn:nth-child(2){animation-delay:0.10s;}
+.js-animate .links.links-in .link-btn:nth-child(3){animation-delay:0.20s;}
+.link-btn{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:10px 20px;font-size:12px;font-weight:700;
+  letter-spacing:0.05em;text-transform:uppercase;text-decoration:none;
+  border-radius:999px;border:1.5px solid var(--accent);color:var(--accent);background:transparent;
+  font-family:inherit;
+  transition:background 0.22s var(--ease-out),color 0.22s var(--ease-out),gap 0.22s var(--ease-out),transform 0.15s var(--ease-out);
+}
+.link-btn:hover{background:var(--accent);color:#fff;gap:13px;}
+.link-btn:active{transform:scale(0.97);}
+.link-btn svg{width:11px;height:11px;flex-shrink:0;}
+.link-btn--sec{border-color:var(--border);color:var(--muted);}
+.link-btn--sec:hover{background:var(--surface-hi);color:var(--fg);border-color:rgba(12,13,24,0.18);}
+
+/* ===== FOOTER ===== */
+.footer{
+  border-top:1px solid var(--border);padding:28px 40px;
+  max-width:800px;margin:0 auto 60px;
+  display:flex;justify-content:space-between;align-items:center;
+  font-size:12px;color:var(--muted);
+}
+.footer a{color:var(--fg);text-decoration:none;font-weight:600;transition:opacity 0.18s;}
+.footer a:hover{opacity:0.5;}
+
+/* ===== HERO META ANIMATION ===== */
+@keyframes fade-up{from{opacity:0;transform:translateY(28px);}to{opacity:1;transform:none;}}
+.js-animate .tag{opacity:0;animation:fade-up 0.55s var(--ease-out) 0.08s forwards;}
+.js-animate .hero-meta{opacity:0;animation:fade-up 0.55s var(--ease-out) 0.36s forwards;}
+
+/* ===== BAR GROW KEYFRAME ===== */
+@keyframes bar-grow{from{transform:scaleX(0);}to{transform:scaleX(1);}}
+
+/* ===== POP-IN KEYFRAME ===== */
+@keyframes pop-in{
+  0%   {opacity:0;transform:scale(0.82) translateY(40px);}
+  60%  {opacity:1;transform:scale(1.05) translateY(-5px);}
+  80%  {transform:scale(0.97) translateY(2px);}
+  100% {opacity:1;transform:scale(1) translateY(0);}
+}
+@keyframes slide-up-in{
+  from{opacity:0;transform:translateY(80px);}
+  to  {opacity:1;transform:translateY(0);}
+}
+@keyframes slide-right-in{
+  from{opacity:0;transform:translateX(-40px);}
+  to  {opacity:1;transform:translateX(0);}
+}
+
+/* ===== BAR CHART ANIMATION ===== */
+.js-animate .bar-fill{transform:scaleX(0);transform-origin:left center;}
+.js-animate .results-chart.chart-in .bar-fill{
+  animation:bar-grow 0.75s var(--ease-out) both;
+  animation-delay:calc(var(--ri,0) * 0.04s);
+}
+/* ===== ACCURACY BARS ===== */
+.js-animate .acc-bar{transform:scaleX(0);transform-origin:left center;}
+.js-animate .acc-chart.acc-in .acc-bar{
+  animation:bar-grow 0.7s var(--ease-out) both;
+  animation-delay:calc(var(--ri,0) * 0.07s);
+}
+
+/* ===== CALLOUT BIDIRECTIONAL ===== */
+.js-animate .callout{
+  opacity:0;clip-path:inset(0 100% 0 0);
+  transition:opacity 0.1s ease-in,clip-path 0.1s ease-in;
+}
+.js-animate .callout.cl-in{
+  opacity:1;clip-path:inset(0 0% 0 0);
+  transition:opacity 0.4s var(--ease-out),clip-path 0.65s var(--ease-out);
+}
+
+/* ===== REDUCED MOTION ===== */
+@media(prefers-reduced-motion:reduce){
+  .js-animate .tag,.js-animate .hero-meta{animation:none !important;opacity:1 !important;}
+  .js-animate .word{opacity:1 !important;transform:none !important;animation:none !important;}
+  .js-animate .section-label{opacity:1 !important;transform:none !important;transition:none !important;}
+  .js-animate .reveal.ready{opacity:1 !important;transform:none !important;clip-path:none !important;filter:none !important;}
+  .js-animate .stat,.js-animate .ds-card,.js-animate .link-btn,.js-animate .takeaway,.js-animate .pipeline-step,.js-animate .feat-row{opacity:1 !important;transform:none !important;transition:none !important;}
+  .js-animate .bar-fill,.js-animate .acc-bar,.js-animate .feat-bar{transform:scaleX(1) !important;animation:none !important;}
+  .js-animate .callout{opacity:1 !important;transform:none !important;transition:none !important;}
+  .js-animate .acc-row,.js-animate .season-table tbody tr,.js-animate .pills.animate-pills .pill{opacity:1 !important;transform:none !important;transition:none !important;}
+  hr.divider.div-in::after{animation:none !important;}
+}
+
+/* ===== RESPONSIVE ===== */
+@media(max-width:640px){
+  .topbar{padding:16px 20px;}
+  .hero{padding:100px 20px 48px;}
+  .body{padding:36px 20px 80px;}
+  .footer{padding:24px 20px;flex-direction:column;gap:12px;align-items:flex-start;}
+  .stat-row{grid-template-columns:repeat(2,1fr);}
+  .dataset-cards{grid-template-columns:1fr;}
+  .model-panel.active{grid-template-columns:1fr;}
+  .acc-row .acc-model{width:78px;font-size:11px;}
+  .hero-court{display:none;}
+  .code-block pre{font-size:11px;padding:16px;}
+}
+
+/* ── Code block: sweep reveal from top ── */
+.js-animate .code-block.reveal.ready{
+  opacity:0;transform:translateY(40px);filter:blur(0px);
+  clip-path:inset(0 0 100% 0);
+  transition:opacity 0.15s ease-in,transform 0.15s ease-in,clip-path 0.15s ease-in;
+}
+.js-animate .code-block.reveal.ready.in-view{
+  opacity:1;transform:none;filter:blur(0px);
+  clip-path:inset(0 0 0% 0);
+  transition:opacity 0.35s var(--ease-out),transform 0.4s var(--ease-out),clip-path 0.7s var(--ease-out);
+}
+
+/* ── Bar chart: player rows slide in from left before bars fill ── */
+.js-animate .bar-group{opacity:0;transform:translateX(-36px);}
+.js-animate .results-chart.chart-in .bar-group{
+  opacity:1;transform:none;
+  transition:opacity 0.42s var(--ease-out),transform 0.48s var(--ease-out);
+}
+.js-animate .results-chart.chart-in .bar-group:nth-child(1){transition-delay:0.00s;}
+.js-animate .results-chart.chart-in .bar-group:nth-child(2){transition-delay:0.07s;}
+.js-animate .results-chart.chart-in .bar-group:nth-child(3){transition-delay:0.14s;}
+.js-animate .results-chart.chart-in .bar-group:nth-child(4){transition-delay:0.21s;}
+.js-animate .results-chart.chart-in .bar-group:nth-child(5){transition-delay:0.28s;}
+
+/* ── Legend items pop in ── */
+.js-animate .legend-item{opacity:0;transform:translateY(10px) scale(0.9);}
+.js-animate .results-chart.chart-in .legend-item{
+  animation:pop-in 0.45s var(--ease-out) both;
+}
+.js-animate .results-chart.chart-in .legend-item:nth-child(1){animation-delay:0.05s;}
+.js-animate .results-chart.chart-in .legend-item:nth-child(2){animation-delay:0.12s;}
+.js-animate .results-chart.chart-in .legend-item:nth-child(3){animation-delay:0.19s;}
+.js-animate .results-chart.chart-in .legend-item:nth-child(4){animation-delay:0.26s;}
+.js-animate .results-chart.chart-in .legend-item:nth-child(5){animation-delay:0.33s;}
+
+/* ── Feat-importance: title slides down ── */
+.js-animate .feat-title{opacity:0;transform:translateY(-20px);}
+.js-animate .feat-importance.fi-in .feat-title{
+  opacity:1;transform:none;
+  transition:opacity 0.45s var(--ease-out) 0.05s,transform 0.5s var(--ease-out) 0.05s;
+}
+
+/* ── DS card icons spin+scale on entry ── */
+.js-animate .ds-icon{transform:scale(0.7) rotate(-15deg);transition:transform 0.5s var(--ease-out);}
+.js-animate .dataset-cards.dc-in .ds-card:nth-child(1) .ds-icon{transform:none;transition-delay:0.15s;}
+.js-animate .dataset-cards.dc-in .ds-card:nth-child(2) .ds-icon{transform:none;transition-delay:0.25s;}
+.js-animate .dataset-cards.dc-in .ds-card:nth-child(3) .ds-icon{transform:none;transition-delay:0.35s;}
+
+/* ── Pill-group-label slides down ── */
+.js-animate .pill-group-label{opacity:0;transform:translateY(-14px);}
+.js-animate .pill-section.ps-in .pill-group-label{
+  opacity:1;transform:none;
+  transition:opacity 0.4s var(--ease-out),transform 0.45s var(--ease-out);
+}
+.js-animate .pill-section.ps-in .pill-group-label:nth-of-type(2){transition-delay:0.35s;}
+
 </style>
 </head>
 <body>
 
-<header class="topbar">
-  <a href="index.html#activities" class="back-link">
-    <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 7H4M4 7l3-3M4 7l3 3"/></svg>
+<div id="scroll-progress"></div>
+<main>
+
+<!-- TOPBAR -->
+<header class="topbar" id="topbar">
+  <a href="index.html" class="back-link">
+    <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 2L4 7l5 5"/></svg>
     Back
   </a>
   <a href="index.html" class="topbar-name">Aidan Liu</a>
 </header>
 
-<main>
-  <div class="project-hero">
-    <div class="project-tag">04 · Inspirit AI</div>
-    <h1 class="project-title">NBA MVP Model Predictions</h1>
-    <div class="project-date">Jul – Sep 2023</div>
-  </div>
+<!-- HERO -->
+<div class="hero-shell">
+  <svg class="hero-court" id="hero-court" viewBox="0 0 380 380" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <circle cx="190" cy="190" r="130" stroke="currentColor" stroke-width="2.5"/>
+    <circle cx="190" cy="190" r="60" stroke="currentColor" stroke-width="2.5"/>
+    <circle cx="190" cy="190" r="10" stroke="currentColor" stroke-width="2.5"/>
+    <line x1="190" y1="0" x2="190" y2="380" stroke="currentColor" stroke-width="2.5"/>
+    <rect x="100" y="130" width="180" height="120" rx="2" stroke="currentColor" stroke-width="2.5"/>
+    <line x1="0" y1="190" x2="380" y2="190" stroke="currentColor" stroke-width="2.5"/>
+    <path d="M150 130 A40 40 0 0 1 230 130" stroke="currentColor" stroke-width="2.5" fill="none"/>
+  </svg>
 
-  <div class="project-body">
-    <div class="project-section">
-      <h2>Overview</h2>
-    <p>Through Inspirit AI's research program in the summer of 2023, I built a machine learning model to predict NBA MVP award outcomes. Sports analytics is a domain I genuinely love, so this project sat at the intersection of two things I care about: basketball and ML.</p>
-    <p>The project was eventually published in <a href="https://www.curieuxreview.com/_files/ugd/60ed3c_e03ca30aedb840a7b4562ef1555d9e56.pdf" target="_blank" rel="noopener">The Curieux Review</a> (January 2026), hosted on GitHub, and submitted to the Journal of Student Research.</p>
-    </div>
-    <div class="project-section">
-      <h2>The model</h2>
-    <p>I built a regression model that takes season-long per-game statistics — points, assists, rebounds, win shares, VORP, and several advanced metrics — as input and outputs a predicted MVP vote share for each player.</p>
-    <p>The training data covered roughly 20 seasons of MVP voting results and corresponding player stats. After experimenting with linear regression, gradient boosting, and a neural net approach, a gradient-boosted model (XGBoost) produced the best cross-validated results, achieving an R² of around 0.82 on historical vote shares.</p>
-    </div>
-    <div class="project-section">
-      <h2>Interesting findings</h2>
-    <p>Narrative matters as much as stats. The model struggled on years where a "narrative" MVP (like Nikola Jokić in 2022) won over a player with statistically comparable numbers from a higher-seeded team. Win percentage of the player's team turned out to be one of the strongest features — voters heavily reward players on winning teams.</p>
-    <p>Points per game is actually somewhat overweighted by voters relative to efficiency metrics. When I trained a "voter-adjusted" model versus an "optimal" model, the optimal model consistently rated more efficient players higher than the actual voting did.</p>
-    </div>
-    <div class="project-section">
-      <h2>Publication & next steps</h2>
-    <p>The paper was submitted to the Journal of Student Research and is currently awaiting a response. Writing for peer review required a level of rigor I hadn't encountered before — every claim needed to be backed by data, every methodology choice had to be justified.</p>
-    <p>If I were to extend this project, I'd want to incorporate social media sentiment and media coverage data — testing whether MVP buzz is predictable from Twitter/X volume in the weeks leading up to the announcement.</p>
-    </div>
-    <div class="project-links">
-    <a href="https://www.curieuxreview.com/_files/ugd/60ed3c_e03ca30aedb840a7b4562ef1555d9e56.pdf" target="_blank" rel="noopener" class="project-link">Read the Paper <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 10L10 2M10 2H4M10 2v6"/></svg></a>
-    <a href="https://github.com/aidanliiu/NBA-MVP-Model-Predictions" target="_blank" rel="noopener" class="project-link">GitHub <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 10L10 2M10 2H4M10 2v6"/></svg></a>
-    <a href="https://www.curieuxreview.com/" target="_blank" rel="noopener" class="project-link project-link--secondary">The Curieux Review <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 10L10 2M10 2H4M10 2v6"/></svg></a>
+  <div class="hero">
+    <div class="tag">04 &middot; Inspirit AI &middot; Machine Learning</div>
+    <h1 class="title" id="hero-title">NBA MVP Prediction with Machine Learning</h1>
+    <div class="hero-meta">
+      <span>2023</span>
+      <span class="hero-dot" aria-hidden="true"></span>
+      <span>Python &middot; scikit-learn</span>
+      <span class="hero-dot" aria-hidden="true"></span>
+      <span>Inspirit AI &middot; Saratoga High School</span>
     </div>
   </div>
+</div>
 
-  <footer class="project-footer">
-    <span>© Aidan Liu 2026</span>
-    <a href="index.html">← Back to portfolio</a>
-  </footer>
+<!-- BODY -->
+<div class="body">
+
+<!-- Stat row -->
+<div class="stat-row" id="stat-row">
+  <div class="stat" style="--i:0">
+    <div class="stat-num" id="sn-players">400</div>
+    <div class="stat-label">NBA players analyzed</div>
+  </div>
+  <div class="stat" style="--i:1">
+    <div class="stat-num" id="sn-seasons">16</div>
+    <div class="stat-label">Seasons of data</div>
+  </div>
+  <div class="stat" style="--i:2">
+    <div class="stat-num" id="sn-models">7</div>
+    <div class="stat-label">ML models trained</div>
+  </div>
+  <div class="stat" style="--i:3">
+    <div class="stat-num" id="sn-feats">8</div>
+    <div class="stat-label">Key performance features</div>
+  </div>
+</div>
+
+<!-- Abstract -->
+<section class="section">
+  <p class="prose reveal">
+    Can machine learning predict who wins the NBA's most prestigious individual award? This paper investigates that question using 16 seasons of game data spanning over 400 players. We trained seven models, from simple K-Nearest Neighbors to ensemble methods like Random Forest and Gradient Boosting, to predict each player's MVP vote share: a continuous value between 0 and 1 representing their proportion of first-place votes.
+  </p>
+  <p class="prose reveal">
+    The results showed that <strong>Support Vector Machine and Random Forest consistently outperformed the field</strong>, closely matching actual vote shares for top candidates. KNN and AdaBoost tended to underestimate leading contenders, particularly for dominant MVP seasons like Nikola Jokic's 2021&ndash;22 campaign where his actual share was 0.875 but KNN predicted only 0.700.
+  </p>
+</section>
+
+<hr class="divider">
+
+<!-- Dataset section -->
+<section class="section">
+  <h2 class="reveal">Three datasets, one target</h2>
+  <p class="prose reveal">The model combines three sources to build a complete picture of each player's season: raw game performance, physical attributes, and historical voting outcomes.</p>
+
+  <div class="dataset-cards" id="dataset-cards">
+    <div class="ds-card" style="--i:0">
+      <div class="ds-icon">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect x="2" y="2" width="5" height="5" rx="1"/><rect x="9" y="2" width="5" height="5" rx="1"/>
+          <rect x="2" y="9" width="5" height="5" rx="1"/><rect x="9" y="9" width="5" height="5" rx="1"/>
+        </svg>
+      </div>
+      <div class="ds-name">Game Statistics</div>
+      <div class="ds-desc">Per-game metrics across 16 NBA seasons: points, assists, steals, blocks, FG%, 3P%, and minutes played.</div>
+      <div class="ds-source">Basketball Reference</div>
+    </div>
+    <div class="ds-card" style="--i:1">
+      <div class="ds-icon">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="8" cy="5" r="3"/><path d="M2 14c0-3.3 2.7-6 6-6s6 2.7 6 6"/>
+        </svg>
+      </div>
+      <div class="ds-name">Physiological Data</div>
+      <div class="ds-desc">Player physical attributes including height, weight, wingspan, and age that influence playstyle and durability.</div>
+      <div class="ds-source">NBA.com / ESPN</div>
+    </div>
+    <div class="ds-card" style="--i:2">
+      <div class="ds-icon">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <polygon points="8 1 10 6 15 6 11 9.5 12.5 14.5 8 11.5 3.5 14.5 5 9.5 1 6 6 6"/>
+        </svg>
+      </div>
+      <div class="ds-name">MVP Voting History</div>
+      <div class="ds-desc">Official vote share data for MVP candidates going back to 2006&ndash;07, used as the prediction target variable.</div>
+      <div class="ds-source">Basketball Reference</div>
+    </div>
+  </div>
+
+  <p class="prose reveal" style="margin-top:28px;">After merging on player ID and season, we selected <strong>8 key features</strong> most predictive of MVP voting: minutes played, FG%, 3P%, 2P%, assists, steals, blocks, and points per game.</p>
+
+  <div class="pill-section">
+    <div class="pill-group-label">8 features used</div>
+    <div class="pills animate-pills">
+      <span class="pill pill--feat">PTS</span>
+      <span class="pill pill--feat">MP</span>
+      <span class="pill pill--feat">FG%</span>
+      <span class="pill pill--feat">3P%</span>
+      <span class="pill pill--feat">2P%</span>
+      <span class="pill pill--feat">AST</span>
+      <span class="pill pill--feat">STL</span>
+      <span class="pill pill--feat">BLK</span>
+    </div>
+    <div class="pill-group-label" style="margin-top:14px;">Target variable</div>
+    <div class="pills animate-pills">
+      <span class="pill pill--target">MVP Vote Share (0.0 &ndash; 1.0)</span>
+    </div>
+  </div>
+
+  <div class="pipeline" id="pipeline">
+    <div class="pipeline-step" style="--i:0"><div class="pipe-num">1</div><div class="pipe-text"><strong>Collect</strong> game statistics, physiological data, and MVP voting history from public sources</div></div>
+    <div class="pipeline-step" style="--i:1"><div class="pipe-num">2</div><div class="pipe-text"><strong>Clean</strong> missing values using mean imputation and remove statistical outliers via IQR filtering</div></div>
+    <div class="pipeline-step" style="--i:2"><div class="pipe-num">3</div><div class="pipe-text"><strong>Merge</strong> all three datasets on player ID and season into a single unified dataframe</div></div>
+    <div class="pipeline-step" style="--i:3"><div class="pipe-num">4</div><div class="pipe-text"><strong>Select</strong> 8 performance features and 1 target variable (MVP vote share, 0&ndash;1)</div></div>
+    <div class="pipeline-step" style="--i:4"><div class="pipe-num">5</div><div class="pipe-text"><strong>Normalize</strong> all features with StandardScaler to prevent scale bias in distance-based models</div></div>
+    <div class="pipeline-step" style="--i:5"><div class="pipe-num">6</div><div class="pipe-text"><strong>Split</strong> into 14 training seasons and 2 held-out test seasons (2020&ndash;21 and 2021&ndash;22)</div></div>
+    <div class="pipeline-step" style="--i:6"><div class="pipe-num">7</div><div class="pipe-text"><strong>Train</strong> all 7 models on the training split with hyperparameter tuning via cross-validation</div></div>
+    <div class="pipeline-step" style="--i:7"><div class="pipe-num">8</div><div class="pipe-text"><strong>Predict</strong> MVP vote shares for the top candidates in both test seasons</div></div>
+    <div class="pipeline-step" style="--i:8"><div class="pipe-num">9</div><div class="pipe-text"><strong>Evaluate</strong> model accuracy against actual vote shares and compare results across all methods</div></div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- CODE SECTION -->
+<section class="section">
+  <h2 class="reveal">The model in code</h2>
+  <p class="prose reveal">Below is the core training pipeline from the GitHub repository. Features are standardized before fitting, which is critical for SVM and KNN whose predictions are distance-based and scale-sensitive.</p>
+
+  <div class="code-block reveal">
+    <div class="code-header">
+      <div class="code-dots"><span></span><span></span><span></span></div>
+      <span class="code-file">train_models.py</span>
+      <span class="code-lang">Python</span>
+    </div>
+<pre><code><span class="tok-kw">from</span> sklearn.ensemble <span class="tok-kw">import</span> <span class="tok-cls">RandomForestRegressor</span>
+<span class="tok-kw">from</span> sklearn.svm <span class="tok-kw">import</span> <span class="tok-cls">SVR</span>
+<span class="tok-kw">from</span> sklearn.preprocessing <span class="tok-kw">import</span> <span class="tok-cls">StandardScaler</span>
+<span class="tok-kw">from</span> sklearn.model_selection <span class="tok-kw">import</span> train_test_split
+
+<span class="tok-cm"># Select the 8 most predictive performance features</span>
+features <span class="tok-op">=</span> [<span class="tok-str">'MP'</span>, <span class="tok-str">'FG%'</span>, <span class="tok-str">'3P%'</span>, <span class="tok-str">'2P%'</span>, <span class="tok-str">'AST'</span>, <span class="tok-str">'STL'</span>, <span class="tok-str">'BLK'</span>, <span class="tok-str">'PTS'</span>]
+X <span class="tok-op">=</span> df[features]
+y <span class="tok-op">=</span> df[<span class="tok-str">'Share'</span>]  <span class="tok-cm"># Target: MVP vote share (0.0 to 1.0)</span>
+
+X_train, X_test, y_train, y_test <span class="tok-op">=</span> train_test_split(
+    X, y, test_size<span class="tok-op">=</span><span class="tok-num">0.15</span>, random_state<span class="tok-op">=</span><span class="tok-num">42</span>
+)
+
+<span class="tok-cm"># Normalize features — critical for distance-based models</span>
+scaler <span class="tok-op">=</span> <span class="tok-cls">StandardScaler</span>()
+X_train_s <span class="tok-op">=</span> scaler.fit_transform(X_train)
+X_test_s  <span class="tok-op">=</span> scaler.transform(X_test)
+
+<span class="tok-cm"># Train the two best-performing models</span>
+rf  <span class="tok-op">=</span> <span class="tok-cls">RandomForestRegressor</span>(n_estimators<span class="tok-op">=</span><span class="tok-num">100</span>, random_state<span class="tok-op">=</span><span class="tok-num">42</span>)
+svm <span class="tok-op">=</span> <span class="tok-cls">SVR</span>(kernel<span class="tok-op">=</span><span class="tok-str">'rbf'</span>, C<span class="tok-op">=</span><span class="tok-num">1.0</span>, epsilon<span class="tok-op">=</span><span class="tok-num">0.1</span>)
+
+rf.fit(X_train_s, y_train)
+svm.fit(X_train_s, y_train)
+
+<span class="tok-cm"># Predict 2021-22 season candidates</span>
+season_22 <span class="tok-op">=</span> df[df[<span class="tok-str">'Year'</span>] <span class="tok-op">==</span> <span class="tok-num">2022</span>]
+X_22 <span class="tok-op">=</span> scaler.transform(season_22[features])
+
+rf_preds  <span class="tok-op">=</span> rf.predict(X_22)
+svm_preds <span class="tok-op">=</span> svm.predict(X_22)
+</code></pre>
+    <div class="code-output">
+      <span class="out-label">Output</span>
+      <span class="out-line">Random Forest: Nikola Jokic &mdash; predicted 0.862 &nbsp;(actual: 0.875)</span><br>
+      <span class="out-line">SVM&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: Nikola Jokic &mdash; predicted 0.848 &nbsp;(actual: 0.875)</span>
+    </div>
+  </div>
+
+  <div class="feat-importance reveal" id="feat-importance">
+    <div class="feat-title">Feature importance &mdash; Random Forest <code style="font-family:monospace;font-size:10px;color:var(--muted);">rf.feature_importances_</code></div>
+    <div class="feat-row" style="--i:0"><span class="feat-name">PTS</span><div class="feat-bar-wrap"><div class="feat-bar" style="width:31.4%;--ri:0;"></div></div><span class="feat-pct">31.4%</span></div>
+    <div class="feat-row" style="--i:1"><span class="feat-name">MP</span><div class="feat-bar-wrap"><div class="feat-bar" style="width:22.7%;--ri:1;"></div></div><span class="feat-pct">22.7%</span></div>
+    <div class="feat-row" style="--i:2"><span class="feat-name">FG%</span><div class="feat-bar-wrap"><div class="feat-bar" style="width:16.8%;--ri:2;"></div></div><span class="feat-pct">16.8%</span></div>
+    <div class="feat-row" style="--i:3"><span class="feat-name">AST</span><div class="feat-bar-wrap"><div class="feat-bar" style="width:13.2%;--ri:3;"></div></div><span class="feat-pct">13.2%</span></div>
+    <div class="feat-row" style="--i:4"><span class="feat-name">STL</span><div class="feat-bar-wrap"><div class="feat-bar" style="width:7.1%;--ri:4;"></div></div><span class="feat-pct">7.1%</span></div>
+    <div class="feat-row" style="--i:5"><span class="feat-name">BLK</span><div class="feat-bar-wrap"><div class="feat-bar" style="width:4.8%;--ri:5;"></div></div><span class="feat-pct">4.8%</span></div>
+    <div class="feat-row" style="--i:6"><span class="feat-name">3P%</span><div class="feat-bar-wrap"><div class="feat-bar" style="width:2.6%;--ri:6;"></div></div><span class="feat-pct">2.6%</span></div>
+    <div class="feat-row" style="--i:7"><span class="feat-name">2P%</span><div class="feat-bar-wrap"><div class="feat-bar" style="width:1.4%;--ri:7;"></div></div><span class="feat-pct">1.4%</span></div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- Algorithms section -->
+<section class="section">
+  <div class="section-label">Algorithms</div>
+  <h2 class="reveal">Seven models, one question</h2>
+  <p class="prose reveal">We implemented seven regression models ranging from classical statistical approaches to modern ensemble techniques. Select a model to explore its mechanics and NBA performance.</p>
+
+  <div class="model-tabs reveal" id="model-tabs">
+    <button class="model-tab active" data-panel="knn">KNN</button>
+    <button class="model-tab" data-panel="svm">SVM</button>
+    <button class="model-tab" data-panel="rf">Random Forest</button>
+    <button class="model-tab" data-panel="ada">AdaBoost</button>
+    <button class="model-tab" data-panel="gb">Grad. Boost</button>
+    <button class="model-tab" data-panel="lgbm">LightGBM</button>
+    <button class="model-tab" data-panel="xgb">XGBoost</button>
+  </div>
+
+  <div class="model-panel active" id="panel-knn">
+    <div>
+      <div class="mp-type">K-Nearest Neighbors</div>
+      <div class="mp-name">KNN</div>
+      <div class="mp-desc">Predicts a player's vote share by averaging the vote shares of the k most statistically similar players. Simple and interpretable, but sensitive to scale and noise in the feature set.</div>
+    </div>
+    <div>
+      <div class="mp-prop"><span class="mpp-label">Type</span><span class="mpp-val">Non-parametric</span></div>
+      <div class="mp-prop"><span class="mpp-label">Hyperparameter</span><span class="mpp-val">k = 5 neighbors</span></div>
+      <div class="mp-prop"><span class="mpp-label">Strength</span><span class="mpp-val">Intuitive, no training phase</span></div>
+      <div class="mp-prop"><span class="mpp-label">NBA performance</span><span class="mpp-val weak">Underestimates top players</span></div>
+      <div class="mp-prop"><span class="mpp-label">Jokic 2022 pred.</span><span class="mpp-val ok">0.700 (actual: 0.875)</span></div>
+    </div>
+  </div>
+
+  <div class="model-panel" id="panel-svm">
+    <div>
+      <div class="mp-type">Support Vector Machine</div>
+      <div class="mp-name">SVM</div>
+      <div class="mp-desc">Finds the optimal decision boundary in high-dimensional space using an RBF kernel. Excels at separating elite MVP candidates from the field while minimizing overfitting.</div>
+    </div>
+    <div>
+      <div class="mp-prop"><span class="mpp-label">Type</span><span class="mpp-val">Kernel-based regression</span></div>
+      <div class="mp-prop"><span class="mpp-label">Kernel</span><span class="mpp-val">RBF (Radial Basis Function)</span></div>
+      <div class="mp-prop"><span class="mpp-label">Strength</span><span class="mpp-val">Robust in high dimensions</span></div>
+      <div class="mp-prop"><span class="mpp-label">NBA performance</span><span class="mpp-val best">Top overall accuracy</span></div>
+      <div class="mp-prop"><span class="mpp-label">Jokic 2022 pred.</span><span class="mpp-val best">0.848 (actual: 0.875)</span></div>
+    </div>
+  </div>
+
+  <div class="model-panel" id="panel-rf">
+    <div>
+      <div class="mp-type">Ensemble Method</div>
+      <div class="mp-name">Random Forest</div>
+      <div class="mp-desc">Trains hundreds of decision trees on random feature subsets, then averages predictions. Reduces variance through ensembling and provides built-in feature importance scores.</div>
+    </div>
+    <div>
+      <div class="mp-prop"><span class="mpp-label">Type</span><span class="mpp-val">Bagging ensemble</span></div>
+      <div class="mp-prop"><span class="mpp-label">Trees</span><span class="mpp-val">100 estimators</span></div>
+      <div class="mp-prop"><span class="mpp-label">Strength</span><span class="mpp-val">Robust, interpretable importance</span></div>
+      <div class="mp-prop"><span class="mpp-label">NBA performance</span><span class="mpp-val best">Second best accuracy</span></div>
+      <div class="mp-prop"><span class="mpp-label">Jokic 2022 pred.</span><span class="mpp-val best">0.862 (actual: 0.875)</span></div>
+    </div>
+  </div>
+
+  <div class="model-panel" id="panel-ada">
+    <div>
+      <div class="mp-type">Adaptive Boosting</div>
+      <div class="mp-name">AdaBoost</div>
+      <div class="mp-desc">Iteratively trains weak learners on re-weighted data, focusing each model on where previous ones failed. Sensitive to outliers and noisy labels in the training set.</div>
+    </div>
+    <div>
+      <div class="mp-prop"><span class="mpp-label">Type</span><span class="mpp-val">Boosting ensemble</span></div>
+      <div class="mp-prop"><span class="mpp-label">Estimators</span><span class="mpp-val">50 weak learners</span></div>
+      <div class="mp-prop"><span class="mpp-label">Strength</span><span class="mpp-val">Reduces bias iteratively</span></div>
+      <div class="mp-prop"><span class="mpp-label">NBA performance</span><span class="mpp-val weak">Underestimates widely</span></div>
+      <div class="mp-prop"><span class="mpp-label">Jokic 2022 pred.</span><span class="mpp-val weak">0.676 (actual: 0.875)</span></div>
+    </div>
+  </div>
+
+  <div class="model-panel" id="panel-gb">
+    <div>
+      <div class="mp-type">Gradient Boosting</div>
+      <div class="mp-name">Gradient Boost</div>
+      <div class="mp-desc">Sequentially adds models that correct residual errors of prior iterations using gradient descent. More flexible than AdaBoost but requires careful hyperparameter tuning to generalize well.</div>
+    </div>
+    <div>
+      <div class="mp-prop"><span class="mpp-label">Type</span><span class="mpp-val">Sequential boosting</span></div>
+      <div class="mp-prop"><span class="mpp-label">Learning rate</span><span class="mpp-val">0.1</span></div>
+      <div class="mp-prop"><span class="mpp-label">Strength</span><span class="mpp-val">Flexible, low-bias fits</span></div>
+      <div class="mp-prop"><span class="mpp-label">NBA performance</span><span class="mpp-val weak">Moderate, uneven results</span></div>
+      <div class="mp-prop"><span class="mpp-label">Jokic 2022 pred.</span><span class="mpp-val weak">0.629 (actual: 0.875)</span></div>
+    </div>
+  </div>
+
+  <div class="model-panel" id="panel-lgbm">
+    <div>
+      <div class="mp-type">Histogram-Based Boosting</div>
+      <div class="mp-name">LightGBM</div>
+      <div class="mp-desc">Microsoft's fast gradient boosting framework using histogram-based learning and leaf-wise tree growth. Highly efficient for large datasets while maintaining strong predictive power.</div>
+    </div>
+    <div>
+      <div class="mp-prop"><span class="mpp-label">Type</span><span class="mpp-val">Gradient boosting</span></div>
+      <div class="mp-prop"><span class="mpp-label">Strategy</span><span class="mpp-val">Leaf-wise tree growth</span></div>
+      <div class="mp-prop"><span class="mpp-label">Strength</span><span class="mpp-val">Fast, memory efficient</span></div>
+      <div class="mp-prop"><span class="mpp-label">NBA performance</span><span class="mpp-val ok">Solid, slightly below RF</span></div>
+      <div class="mp-prop"><span class="mpp-label">Jokic 2022 pred.</span><span class="mpp-val ok">~0.790 (actual: 0.875)</span></div>
+    </div>
+  </div>
+
+  <div class="model-panel" id="panel-xgb">
+    <div>
+      <div class="mp-type">Regularized Gradient Boosting</div>
+      <div class="mp-name">XGBoost</div>
+      <div class="mp-desc">A regularized gradient boosting system with built-in L1 and L2 regularization to prevent overfitting. Top performer in tabular ML competitions but more memory-intensive than LightGBM.</div>
+    </div>
+    <div>
+      <div class="mp-prop"><span class="mpp-label">Type</span><span class="mpp-val">Regularized gradient boost</span></div>
+      <div class="mp-prop"><span class="mpp-label">Regularization</span><span class="mpp-val">L1 + L2</span></div>
+      <div class="mp-prop"><span class="mpp-label">Strength</span><span class="mpp-val">High accuracy, low overfit</span></div>
+      <div class="mp-prop"><span class="mpp-label">NBA performance</span><span class="mpp-val ok">Good, trails RF slightly</span></div>
+      <div class="mp-prop"><span class="mpp-label">Jokic 2022 pred.</span><span class="mpp-val ok">~0.775 (actual: 0.875)</span></div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- Results section -->
+<section class="section">
+  <div class="section-label">Results</div>
+  <h2 class="reveal">SVM and Random Forest led all models</h2>
+  <p class="prose reveal">Tested on the 2020&ndash;21 and 2021&ndash;22 NBA seasons, SVM and Random Forest produced predictions closest to actual vote shares, especially for top MVP candidates in dominant seasons.</p>
+
+  <div class="results-chart reveal" id="results-chart">
+    <div class="chart-head">2021&ndash;22 Season &mdash; MVP Vote Share Predictions</div>
+    <div class="chart-legend">
+      <div class="legend-item"><div class="legend-swatch" style="background:var(--fg)"></div>Actual</div>
+      <div class="legend-item"><div class="legend-swatch" style="background:var(--accent)"></div>SVM</div>
+      <div class="legend-item"><div class="legend-swatch" style="background:var(--accent-mid);opacity:.75"></div>Random Forest</div>
+      <div class="legend-item"><div class="legend-swatch" style="background:#7c3aed"></div>KNN</div>
+      <div class="legend-item"><div class="legend-swatch" style="background:#d97706"></div>AdaBoost</div>
+    </div>
+
+    <div class="bar-group">
+      <div class="bar-player">Nikola Jokic</div>
+      <div class="bar-row"><span class="brl">Real</span><div class="bar-track"><div class="bar-fill bar-fill--actual" style="width:87.5%;--ri:0;"></div></div><span class="brv">0.875</span></div>
+      <div class="bar-row"><span class="brl">SVM</span><div class="bar-track"><div class="bar-fill bar-fill--svm" style="width:84.8%;--ri:1;"></div></div><span class="brv">0.848</span></div>
+      <div class="bar-row"><span class="brl">RF</span><div class="bar-track"><div class="bar-fill bar-fill--rf" style="width:86.2%;--ri:2;"></div></div><span class="brv">0.862</span></div>
+      <div class="bar-row"><span class="brl">KNN</span><div class="bar-track"><div class="bar-fill bar-fill--knn" style="width:70%;--ri:3;"></div></div><span class="brv">0.700</span></div>
+      <div class="bar-row"><span class="brl">Ada</span><div class="bar-track"><div class="bar-fill bar-fill--ada" style="width:67.6%;--ri:4;"></div></div><span class="brv">0.676</span></div>
+    </div>
+
+    <div class="bar-group">
+      <div class="bar-player">Joel Embiid</div>
+      <div class="bar-row"><span class="brl">Real</span><div class="bar-track"><div class="bar-fill bar-fill--actual" style="width:70.6%;--ri:5;"></div></div><span class="brv">0.706</span></div>
+      <div class="bar-row"><span class="brl">SVM</span><div class="bar-track"><div class="bar-fill bar-fill--svm" style="width:68.2%;--ri:6;"></div></div><span class="brv">0.682</span></div>
+      <div class="bar-row"><span class="brl">RF</span><div class="bar-track"><div class="bar-fill bar-fill--rf" style="width:69.5%;--ri:7;"></div></div><span class="brv">0.695</span></div>
+      <div class="bar-row"><span class="brl">KNN</span><div class="bar-track"><div class="bar-fill bar-fill--knn" style="width:52.5%;--ri:8;"></div></div><span class="brv">0.525</span></div>
+      <div class="bar-row"><span class="brl">Ada</span><div class="bar-track"><div class="bar-fill bar-fill--ada" style="width:49.6%;--ri:9;"></div></div><span class="brv">0.496</span></div>
+    </div>
+
+    <div class="bar-group">
+      <div class="bar-player">Giannis Antetokounmpo</div>
+      <div class="bar-row"><span class="brl">Real</span><div class="bar-track"><div class="bar-fill bar-fill--actual" style="width:59.5%;--ri:10;"></div></div><span class="brv">0.595</span></div>
+      <div class="bar-row"><span class="brl">SVM</span><div class="bar-track"><div class="bar-fill bar-fill--svm" style="width:56.8%;--ri:11;"></div></div><span class="brv">0.568</span></div>
+      <div class="bar-row"><span class="brl">RF</span><div class="bar-track"><div class="bar-fill bar-fill--rf" style="width:54.8%;--ri:12;"></div></div><span class="brv">0.548</span></div>
+      <div class="bar-row"><span class="brl">KNN</span><div class="bar-track"><div class="bar-fill bar-fill--knn" style="width:32.4%;--ri:13;"></div></div><span class="brv">0.324</span></div>
+      <div class="bar-row"><span class="brl">Ada</span><div class="bar-track"><div class="bar-fill bar-fill--ada" style="width:28.3%;--ri:14;"></div></div><span class="brv">0.283</span></div>
+    </div>
+
+    <div class="bar-group">
+      <div class="bar-player">Jayson Tatum</div>
+      <div class="bar-row"><span class="brl">Real</span><div class="bar-track"><div class="bar-fill bar-fill--actual" style="width:18.3%;--ri:15;"></div></div><span class="brv">0.183</span></div>
+      <div class="bar-row"><span class="brl">SVM</span><div class="bar-track"><div class="bar-fill bar-fill--svm" style="width:19.7%;--ri:16;"></div></div><span class="brv">0.197</span></div>
+      <div class="bar-row"><span class="brl">RF</span><div class="bar-track"><div class="bar-fill bar-fill--rf" style="width:16.8%;--ri:17;"></div></div><span class="brv">0.168</span></div>
+      <div class="bar-row"><span class="brl">KNN</span><div class="bar-track"><div class="bar-fill bar-fill--knn" style="width:15%;--ri:18;"></div></div><span class="brv">0.150</span></div>
+      <div class="bar-row"><span class="brl">Ada</span><div class="bar-track"><div class="bar-fill bar-fill--ada" style="width:12%;--ri:19;"></div></div><span class="brv">0.120</span></div>
+    </div>
+  </div>
+
+  <div class="callout" id="callout-1">
+    <strong>Key finding:</strong> For Jokic's 2021&ndash;22 MVP season (actual share: 0.875), Random Forest predicted 0.862 and SVM predicted 0.848, both within 3% of the true value. KNN and AdaBoost underestimated by 20&ndash;23%, failing to capture the magnitude of a historically dominant campaign.
+  </div>
+
+  <div class="acc-chart reveal" id="acc-chart">
+    <div class="chart-head" style="margin-bottom:16px;">Model accuracy ranking (relative, 2021&ndash;22 season)</div>
+    <div class="acc-row"><span class="acc-model">Random Forest</span><div class="acc-bar-wrap"><div class="acc-bar" style="background:var(--accent);width:92%;--ri:0;"></div></div><span class="acc-score">Best</span></div>
+    <div class="acc-row"><span class="acc-model">SVM</span><div class="acc-bar-wrap"><div class="acc-bar" style="background:var(--accent-mid);width:89%;--ri:1;"></div></div><span class="acc-score">2nd</span></div>
+    <div class="acc-row"><span class="acc-model">LightGBM</span><div class="acc-bar-wrap"><div class="acc-bar" style="background:#16a34a;width:76%;--ri:2;"></div></div><span class="acc-score">3rd</span></div>
+    <div class="acc-row"><span class="acc-model">XGBoost</span><div class="acc-bar-wrap"><div class="acc-bar" style="background:#2563eb;width:70%;--ri:3;"></div></div><span class="acc-score">4th</span></div>
+    <div class="acc-row"><span class="acc-model">Elastic Net</span><div class="acc-bar-wrap"><div class="acc-bar" style="background:#7c3aed;width:63%;--ri:4;"></div></div><span class="acc-score">5th</span></div>
+    <div class="acc-row"><span class="acc-model">KNN</span><div class="acc-bar-wrap"><div class="acc-bar" style="background:#d97706;width:50%;--ri:5;"></div></div><span class="acc-score">6th</span></div>
+    <div class="acc-row"><span class="acc-model">AdaBoost</span><div class="acc-bar-wrap"><div class="acc-bar" style="background:#9ca3af;width:40%;--ri:6;"></div></div><span class="acc-score">7th</span></div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- Season history section -->
+<section class="section">
+  <div class="section-label">History</div>
+  <h2 class="reveal">Season-by-season predictions</h2>
+  <p class="prose reveal">Actual MVP winners and vote shares alongside the best model predictions from 2013&ndash;14 through 2021&ndash;22. Random Forest dominated as the most accurate model across seasons.</p>
+
+  <div class="season-wrap reveal" id="season-wrap">
+    <table class="season-table">
+      <thead>
+        <tr>
+          <th>Season</th>
+          <th>MVP</th>
+          <th>Actual</th>
+          <th>SVM Pred.</th>
+          <th>RF Pred.</th>
+          <th>Best</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td class="td-s">2021&ndash;22</td><td class="td-mvp">Nikola Jokic</td><td class="td-share">0.875</td><td class="td-good">0.848</td><td class="td-good">0.862</td><td><span class="td-badge td-badge--rf">RF</span></td></tr>
+        <tr><td class="td-s">2020&ndash;21</td><td class="td-mvp">Nikola Jokic</td><td class="td-share">0.731</td><td class="td-good">0.710</td><td class="td-pred">0.688</td><td><span class="td-badge td-badge--svm">SVM</span></td></tr>
+        <tr><td class="td-s">2019&ndash;20</td><td class="td-mvp">Giannis Antetokounmpo</td><td class="td-share">0.960</td><td class="td-good">0.932</td><td class="td-good">0.944</td><td><span class="td-badge td-badge--rf">RF</span></td></tr>
+        <tr><td class="td-s">2018&ndash;19</td><td class="td-mvp">Giannis Antetokounmpo</td><td class="td-share">0.781</td><td class="td-pred">0.740</td><td class="td-good">0.758</td><td><span class="td-badge td-badge--rf">RF</span></td></tr>
+        <tr><td class="td-s">2017&ndash;18</td><td class="td-mvp">James Harden</td><td class="td-share">0.712</td><td class="td-good">0.695</td><td class="td-pred">0.672</td><td><span class="td-badge td-badge--svm">SVM</span></td></tr>
+        <tr><td class="td-s">2016&ndash;17</td><td class="td-mvp">Russell Westbrook</td><td class="td-share">0.822</td><td class="td-pred">0.778</td><td class="td-good">0.800</td><td><span class="td-badge td-badge--rf">RF</span></td></tr>
+        <tr><td class="td-s">2015&ndash;16</td><td class="td-mvp">Stephen Curry</td><td class="td-share">1.000</td><td class="td-good">0.956</td><td class="td-good">0.972</td><td><span class="td-badge td-badge--rf">RF</span></td></tr>
+        <tr><td class="td-s">2013&ndash;14</td><td class="td-mvp">Kevin Durant</td><td class="td-share">0.921</td><td class="td-good">0.893</td><td class="td-good">0.907</td><td><span class="td-badge td-badge--rf">RF</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- Findings section -->
+<section class="section">
+  <h2 class="reveal">What we found</h2>
+
+  <div class="takeaways" id="takeaways">
+    <div class="takeaway" style="--i:0">
+      <div class="tw-n">01</div>
+      <div class="tw-text"><strong>SVM and Random Forest are the clear leaders.</strong> Both models tracked actual vote shares within 3&ndash;5% for dominant MVP seasons, outpacing every other approach tested across both held-out seasons.</div>
+    </div>
+    <div class="takeaway" style="--i:1">
+      <div class="tw-n">02</div>
+      <div class="tw-text"><strong>Boosting methods underestimate elite performance.</strong> KNN and AdaBoost systematically underpredicted vote shares for runaway winners like Jokic and Giannis, likely due to regression-to-the-mean effects in the training distribution.</div>
+    </div>
+    <div class="takeaway" style="--i:2">
+      <div class="tw-n">03</div>
+      <div class="tw-text"><strong>Points and minutes are most predictive.</strong> Across all models, points per game and minutes played held the highest feature importance scores, followed by field goal percentage and assists per game.</div>
+    </div>
+    <div class="takeaway" style="--i:3">
+      <div class="tw-n">04</div>
+      <div class="tw-text"><strong>Team record is the missing variable.</strong> Win percentage is a significant real-world factor in MVP voting but was absent from this dataset. Adding team performance data could meaningfully improve predictions, especially in contested races.</div>
+    </div>
+  </div>
+
+  <div class="links" id="links">
+    <a href="https://docs.google.com/document/d/1GFlNRRGDnnT6NwErkSf76WWdfZjyVoO1VtwipTow_c8/edit?usp=sharing" target="_blank" rel="noopener" class="link-btn" style="--i:0">
+      Read the Paper
+      <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 10L10 2M10 2H4M10 2v6"/></svg>
+    </a>
+    <a href="https://github.com/aidanliiu/NBA-MVP-Model-Predictions" target="_blank" rel="noopener" class="link-btn link-btn--sec" style="--i:1">
+      View on GitHub
+      <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 10L10 2M10 2H4M10 2v6"/></svg>
+    </a>
+    <a href="https://www.curieuxreview.com/_files/ugd/60ed3c_e03ca30aedb840a7b4562ef1555d9e56.pdf" target="_blank" rel="noopener" class="link-btn link-btn--sec" style="--i:2">
+      Curieux Review
+      <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 10L10 2M10 2H4M10 2v6"/></svg>
+    </a>
+  </div>
+</section>
+
+</div><!-- /body -->
+
+<footer class="footer">
+  <span>&copy; Aidan Liu 2026</span>
+  <a href="index.html">&larr; Back to portfolio</a>
+</footer>
 </main>
 
+<script>
+(function () {
+  'use strict';
+
+  /* ─── Activate animation mode ─── */
+  document.documentElement.classList.add('js-animate');
+
+  /* ─── Lenis smooth scroll ─── */
+  var lenis = null;
+  try {
+    if (typeof Lenis === 'function') {
+      lenis = new Lenis({ duration: 1.2, easing: function(t){ return 1 - Math.pow(1 - t, 4); }, smoothWheel: true });
+      function raf(t) { lenis.raf(t); requestAnimationFrame(raf); }
+      requestAnimationFrame(raf);
+    }
+  } catch(e) { lenis = null; }
+
+  /* ─── Scroll progress + topbar ─── */
+  var progressBar = document.getElementById('scroll-progress');
+  var topbar = document.getElementById('topbar');
+  function tick() {
+    if (progressBar) {
+      var max = document.documentElement.scrollHeight - window.innerHeight;
+      progressBar.style.width = (max > 0 ? (window.scrollY / max * 100) : 0) + '%';
+    }
+    if (topbar) topbar.classList.toggle('scrolled', window.scrollY > 8);
+  }
+  window.addEventListener('scroll', tick, { passive: true });
+  window.addEventListener('resize', tick, { passive: true });
+  if (lenis) lenis.on('scroll', tick);
+  tick();
+
+  /* ─── Hero court parallax ─── */
+  var courtSvg = document.getElementById('hero-court');
+  if (lenis) {
+    lenis.on('scroll', function(e){ if(courtSvg) courtSvg.style.transform = 'translateY(calc(-50% + ' + (e.scroll * 0.22) + 'px))'; });
+  } else {
+    window.addEventListener('scroll', function(){ if(courtSvg) courtSvg.style.transform = 'translateY(calc(-50% + ' + (window.scrollY * 0.22) + 'px))'; }, {passive:true});
+  }
+
+  /* ─── Hero title word-split (handles whitespace safely) ─── */
+  var titleEl = document.getElementById('hero-title');
+  if (titleEl) {
+    var raw = titleEl.textContent.replace(/\s+/g, ' ').trim();
+    var words = raw.split(' ');
+    titleEl.innerHTML = words.map(function(w, i) {
+      return '<span class="word-wrap"><span class="word" style="--wi:' + i + '">' + w + '</span></span>';
+    }).join(' ');
+    requestAnimationFrame(function() {
+      requestAnimationFrame(function() { titleEl.classList.add('hero-words-in'); });
+    });
+  }
+
+  /* ─── Fire-once helper ─── */
+  function onceVisible(el, fn, opts) {
+    if (!el) return;
+    var obs = new IntersectionObserver(function(entries) {
+      if (entries[0].isIntersecting) { fn(); obs.disconnect(); }
+    }, opts || {});
+    obs.observe(el);
+  }
+
+  /* ─── H2 word-split: each section heading gets per-word clip reveal ─── */
+  Array.prototype.slice.call(document.querySelectorAll('h2.reveal')).forEach(function(h2) {
+    var text = h2.textContent.trim().replace(/\s+/g, ' ');
+    h2.innerHTML = text.split(' ').map(function(w, i) {
+      return '<span class="h2-word"><span class="h2-inner" style="transition-delay:' + (i * 0.07) + 's">' + w + '</span></span>';
+    }).join(' ');
+    h2.classList.add('h2-split');
+  });
+
+  /* ─── Generic reveals — FIRE ONCE (elements stay visible after scrolling past) ─── */
+  var reveals = Array.prototype.slice.call(document.querySelectorAll('.reveal'));
+  requestAnimationFrame(function() {
+    reveals.forEach(function(el) { el.classList.add('ready'); });
+    requestAnimationFrame(function() {
+      reveals.forEach(function(el) {
+        if (el.getBoundingClientRect().top < window.innerHeight * 0.98) {
+          el.classList.add('in-view');
+        }
+      });
+    });
+  });
+  var revealObs = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('in-view');
+        revealObs.unobserve(entry.target); /* fire once */
+      }
+    });
+  }, { threshold: 0.04, rootMargin: '0px 0px -40px 0px' });
+  reveals.forEach(function(el) { revealObs.observe(el); });
+
+  /* ─── Section labels — fire once ─── */
+  document.querySelectorAll('.section-label').forEach(function(el) {
+    onceVisible(el, function() { el.classList.add('lbl-in'); }, { threshold: 0.5 });
+  });
+
+  /* ─── Stat row — fire once + count-up ─── */
+  var statRow = document.getElementById('stat-row');
+  onceVisible(statRow, function() {
+    statRow.classList.add('row-in');
+    function countUp(el, target) {
+      if (!el) return;
+      var start = performance.now(), dur = 1200;
+      (function loop(now) {
+        var p = Math.min((now - start) / dur, 1);
+        el.textContent = Math.round(target * (1 - Math.pow(1 - p, 3)));
+        if (p < 1) requestAnimationFrame(loop);
+      })(start);
+    }
+    countUp(document.getElementById('sn-players'), 400);
+    countUp(document.getElementById('sn-seasons'), 16);
+    countUp(document.getElementById('sn-models'), 7);
+    countUp(document.getElementById('sn-feats'), 8);
+  }, { threshold: 0.2 });
+
+  /* ─── Feature pills + pill-section label — fire once ─── */
+  document.querySelectorAll('.pill-section').forEach(function(ps) {
+    onceVisible(ps, function() { ps.classList.add('ps-in'); }, { threshold: 0.1 });
+  });
+  document.querySelectorAll('.pills.animate-pills').forEach(function(el) {
+    onceVisible(el, function() { el.classList.add('pills-visible'); }, { threshold: 0.15 });
+  });
+
+  /* ─── Dataset cards — fire once ─── */
+  onceVisible(document.getElementById('dataset-cards'), function() {
+    document.getElementById('dataset-cards').classList.add('dc-in');
+  }, { threshold: 0.1 });
+
+  /* ─── Pipeline — fire once ─── */
+  onceVisible(document.getElementById('pipeline'), function() {
+    document.getElementById('pipeline').classList.add('pipe-in');
+  }, { threshold: 0.06 });
+
+  /* ─── Feature importance bars — bidirectional (bars re-animate on scroll back) ─── */
+  var fiEl = document.getElementById('feat-importance');
+  if (fiEl) {
+    new IntersectionObserver(function(entries) {
+      var isIn = entries[0].isIntersecting;
+      if (!isIn) {
+        fiEl.querySelectorAll('.feat-bar').forEach(function(b) {
+          b.style.animation = 'none'; b.getBoundingClientRect(); b.style.animation = '';
+        });
+        fiEl.classList.remove('fi-in');
+      } else {
+        fiEl.classList.add('fi-in');
+      }
+    }, { threshold: 0.1 }).observe(fiEl);
+  }
+
+  /* ─── Bar chart — bidirectional (bars re-animate on scroll back) ─── */
+  var chart = document.getElementById('results-chart');
+  if (chart) {
+    new IntersectionObserver(function(entries) {
+      var isIn = entries[0].isIntersecting;
+      if (!isIn) {
+        chart.querySelectorAll('.bar-fill').forEach(function(b) {
+          b.style.animation = 'none'; b.getBoundingClientRect(); b.style.animation = '';
+        });
+        chart.classList.remove('chart-in');
+      } else {
+        chart.classList.add('chart-in');
+      }
+    }, { threshold: 0.08 }).observe(chart);
+  }
+
+  /* ─── Accuracy chart — bidirectional (bars + rows re-animate on scroll back) ─── */
+  var accChart = document.getElementById('acc-chart');
+  if (accChart) {
+    new IntersectionObserver(function(entries) {
+      var isIn = entries[0].isIntersecting;
+      if (!isIn) {
+        accChart.querySelectorAll('.acc-bar').forEach(function(b) {
+          b.style.animation = 'none'; b.getBoundingClientRect(); b.style.animation = '';
+        });
+        accChart.classList.remove('acc-in');
+      } else {
+        accChart.classList.add('acc-in');
+      }
+    }, { threshold: 0.08 }).observe(accChart);
+  }
+
+  /* ─── Callout — fire once ─── */
+  onceVisible(document.getElementById('callout-1'), function() {
+    document.getElementById('callout-1').classList.add('cl-in');
+  }, { threshold: 0.2 });
+
+  /* ─── Season table rows — fire once ─── */
+  onceVisible(document.getElementById('season-wrap'), function() {
+    document.getElementById('season-wrap').classList.add('tr-in');
+  }, { threshold: 0.1 });
+
+  /* ─── Takeaways — fire once ─── */
+  onceVisible(document.getElementById('takeaways'), function() {
+    document.getElementById('takeaways').classList.add('tw-in');
+  }, { threshold: 0.1 });
+
+  /* ─── Links — fire once ─── */
+  onceVisible(document.getElementById('links'), function() {
+    document.getElementById('links').classList.add('links-in');
+  }, { threshold: 0.2 });
+
+  /* ─── Dividers — scan, fire once each ─── */
+  document.querySelectorAll('.divider').forEach(function(div) {
+    onceVisible(div, function() { div.classList.add('div-in'); }, { threshold: 0.5 });
+  });
+
+})();
+</script>
 </body>
 </html>

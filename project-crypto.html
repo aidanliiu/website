@@ -15,7 +15,7 @@
     --surface-2:   #161624;
     --border:      #1f1f35;
     --fg:          #e2e2f0;
-    --muted:       #6b6b90;
+    --muted:       #9898b8;
     --accent:      #00d4aa;
     --accent-dim:  rgba(0,212,170,0.12);
     --accent-glow: rgba(0,212,170,0.06);
@@ -30,7 +30,7 @@
   }
 
   *{box-sizing:border-box;margin:0;padding:0}
-  html{scroll-behavior:smooth;scroll-padding-top:80px}
+  html{scroll-padding-top:80px}
 
   body{
     background:var(--bg);
@@ -117,7 +117,7 @@
     letter-spacing:-0.025em;line-height:1.12;color:#fff;margin-bottom:16px;
   }
   .section-body{
-    font-size:15px;line-height:1.8;color:#a0a0c0;max-width:65ch;margin-bottom:52px;
+    font-size:15px;line-height:1.8;color:#c2c2da;max-width:65ch;margin-bottom:52px;
   }
 
   /* ── Stats row ── */
@@ -163,7 +163,7 @@
   .algo-badge--warn{background:var(--blue-dim);color:var(--blue)}
   .algo-badge--vuln{background:var(--red-dim);color:var(--red)}
   .algo-card h3{font-size:17px;font-weight:700;color:#fff;margin-bottom:7px;letter-spacing:-0.01em}
-  .algo-card p{font-size:12px;color:var(--muted);line-height:1.65}
+  .algo-card p{font-size:12px;color:#b0b0cc;line-height:1.65}
 
   /* ── Cipher demo ── */
   .demo-box{
@@ -243,7 +243,7 @@
   .threat-card--safe{border-color:rgba(0,212,170,0.28);background:rgba(0,212,170,0.03)}
   .threat-icon{font-size:26px;margin-bottom:14px}
   .threat-card h3{font-size:18px;font-weight:700;color:#fff;margin-bottom:8px}
-  .threat-card p{font-size:13px;color:var(--muted);line-height:1.7;margin-bottom:14px}
+  .threat-card p{font-size:13px;color:#c0c0d8;line-height:1.7;margin-bottom:14px}
   .threat-badge{
     display:inline-flex;align-items:center;gap:6px;
     font-family:var(--mono);font-size:10px;letter-spacing:0.07em;
@@ -286,7 +286,7 @@
     border:1px solid var(--border);width:100%;
   }
   .lattice-explain h3{font-size:20px;font-weight:700;color:#fff;margin-bottom:14px;letter-spacing:-0.02em}
-  .lattice-explain p{font-size:14px;color:var(--muted);line-height:1.75;margin-bottom:12px}
+  .lattice-explain p{font-size:14px;color:#b8b8d4;line-height:1.75;margin-bottom:12px}
   .lwe-formula{
     font-family:var(--mono);font-size:16px;padding:16px 20px;
     background:var(--bg);border:1px solid var(--border);border-radius:8px;
@@ -372,7 +372,7 @@
     flex-shrink:0;font-size:17px;
   }
   .takeaway-item h4{font-size:14px;font-weight:700;color:#fff;margin-bottom:6px}
-  .takeaway-item p{font-size:13px;color:var(--muted);line-height:1.65}
+  .takeaway-item p{font-size:13px;color:#c0c0d8;line-height:1.65}
 
   /* ── Footer / links ── */
   .page-footer{
@@ -394,11 +394,7 @@
   .footer-link svg{width:10px;height:10px}
   .footer-copy{font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:0.06em}
 
-  /* ── Reveal animation — mirrors main site (.is-visible, not .in) ── */
-  .reveal{opacity:0;transform:translateY(24px);transition:opacity 0.65s var(--ease),transform 0.65s var(--ease)}
-  .reveal.is-visible{opacity:1;transform:none}
-  .reveal-zoom{opacity:0;transform:translateY(18px) scale(0.97);transition:opacity 0.6s var(--ease),transform 0.6s var(--ease);transform-origin:center bottom}
-  .reveal-zoom.is-visible{opacity:1;transform:none}
+  /* ── Reveal animation — gated by .js-animate (see below) ── */
   .d1{transition-delay:0.1s}
   .d2{transition-delay:0.2s}
   .d3{transition-delay:0.3s}
@@ -423,16 +419,231 @@
     .page-footer{flex-direction:column;align-items:flex-start}
   }
   @media(prefers-reduced-motion:reduce){
-    .reveal{opacity:1;transform:none;transition:none}
     .scroll-cue{animation:none}
     .sec-bar-fill{transition:none}
   }
+  /* ── Scroll progress ── */
+  #scroll-progress {
+    position: fixed; top: 0; left: 0; height: 2px; width: 0%;
+    background: linear-gradient(90deg, var(--accent), #00efc0);
+    z-index: 200; transition: width 0.06s linear;
+    box-shadow: 0 0 8px rgba(0,212,170,0.5);
+  }
+
+  /* ── Topbar scroll state ── */
+  .topbar { transition: box-shadow 0.3s var(--ease), border-color 0.3s var(--ease); }
+  .topbar.scrolled { box-shadow: 0 1px 24px rgba(0,0,0,0.5); border-color: rgba(0,212,170,0.15); }
+
+  /* ── js-animate guards (safe reveals) ── */
+  .js-animate .reveal       { opacity: 0; transform: translateY(28px); }
+  .js-animate .reveal.is-visible { opacity: 1; transform: none; }
+  .js-animate .reveal-zoom  { opacity: 0; transform: translateY(18px) scale(0.97); }
+  .js-animate .reveal-zoom.is-visible { opacity: 1; transform: none; }
+
+  /* ── Stagger classes for grouped elements ── */
+  .js-animate .stagger-child {
+    opacity: 0; transform: translateY(36px) scale(0.97);
+    transition: opacity 0.65s var(--ease), transform 0.7s var(--ease);
+  }
+  .js-animate .stagger-parent.group-visible .stagger-child { opacity: 1; transform: none; }
+
+  /* delay tiers */
+  .stagger-child:nth-child(1) { transition-delay: 0.00s; }
+  .stagger-child:nth-child(2) { transition-delay: 0.08s; }
+  .stagger-child:nth-child(3) { transition-delay: 0.16s; }
+  .stagger-child:nth-child(4) { transition-delay: 0.24s; }
+  .stagger-child:nth-child(5) { transition-delay: 0.32s; }
+  .stagger-child:nth-child(6) { transition-delay: 0.40s; }
+
+  /* ── Slide in from sides (threat cards) ── */
+  .js-animate .slide-left  { opacity: 0; transform: translateX(-36px); transition: opacity 0.65s var(--ease), transform 0.7s var(--ease); }
+  .js-animate .slide-right { opacity: 0; transform: translateX(36px);  transition: opacity 0.65s var(--ease), transform 0.7s var(--ease); }
+  .js-animate .slide-left.slide-in, .js-animate .slide-right.slide-in  { opacity: 1; transform: none; }
+  .js-animate .slide-right.slide-in { transition-delay: 0.10s; }
+
+  /* ── Hero entrance ── */
+  .js-animate .hero-content .hero-tag   { opacity: 0; transform: translateY(16px); animation: hero-tag-in 0.55s var(--ease) 0.1s forwards; }
+  .js-animate .hero-content .hero-title { opacity: 0; transform: translateY(24px); animation: hero-title-in 0.7s var(--ease) 0.22s forwards; }
+  .js-animate .hero-content .hero-meta  { opacity: 0; transform: translateY(18px); animation: hero-meta-in 0.55s var(--ease) 0.42s forwards; }
+  @keyframes hero-tag-in   { to { opacity: 1; transform: none; } }
+  @keyframes hero-title-in { to { opacity: 1; transform: none; } }
+  @keyframes hero-meta-in  { to { opacity: 1; transform: none; } }
+
+  /* ── Count-up stat display ── */
+  .stat-num { transition: transform 0.2s var(--ease); }
+  .stat-item:hover .stat-num { transform: translateY(-3px); }
+
+  @media(prefers-reduced-motion:reduce){
+    .js-animate .reveal, .js-animate .reveal-zoom,
+    .js-animate .stagger-child,
+    .js-animate .slide-left, .js-animate .slide-right,
+    .js-animate .hero-content .hero-tag,
+    .js-animate .hero-content .hero-title,
+    .js-animate .hero-content .hero-meta { opacity:1; transform:none; animation:none; }
+  }
+
+  /* ── Divider scan animation ── */
+  hr.divider { position:relative; overflow:hidden; }
+  .js-animate hr.divider.div-in::after {
+    content:''; position:absolute; top:0; left:-100%; width:30%; height:100%;
+    background:linear-gradient(90deg,transparent,rgba(0,212,170,0.45),transparent);
+    animation:divScan 0.7s var(--ease) forwards;
+  }
+  @keyframes divScan { to { left:100%; } }
+
+  /* ── Section label fade-right ── */
+  .js-animate .section-label {
+    opacity:0; transform:translateX(-12px);
+    transition:opacity 0.45s var(--ease), transform 0.5s var(--ease);
+  }
+  .js-animate .section-label.lbl-in { opacity:1; transform:none; }
+
+  /* ── Section title clip-reveal ── */
+  .js-animate .section-title { overflow:visible; }
+
+  /* ── Kyber box stagger ── */
+  .js-animate .kyber-box {
+    opacity:0; transform:translateY(22px);
+    transition:opacity 0.55s var(--ease), transform 0.6s var(--ease), border-color 0.2s, background 0.2s;
+  }
+  .js-animate .kyber-flow.kf-in .kyber-box { opacity:1; transform:none; }
+  .kyber-flow.kf-in .kyber-box:nth-child(1) { transition-delay:0.00s; }
+  .kyber-flow.kf-in .kyber-box:nth-child(2) { transition-delay:0.10s; }
+  .kyber-flow.kf-in .kyber-box:nth-child(3) { transition-delay:0.20s; }
+  .kyber-flow.kf-in .kyber-party:last-child .kyber-box:nth-child(1) { transition-delay:0.08s; }
+  .kyber-flow.kf-in .kyber-party:last-child .kyber-box:nth-child(2) { transition-delay:0.18s; }
+
+  /* ── Lattice split: left slides left, right slides right ── */
+  .js-animate .lattice-split > :first-child {
+    opacity:0; transform:translateX(-40px);
+    transition:opacity 0.7s var(--ease), transform 0.75s var(--ease);
+  }
+  .js-animate .lattice-split > :last-child {
+    opacity:0; transform:translateX(40px);
+    transition:opacity 0.7s var(--ease) 0.1s, transform 0.75s var(--ease) 0.1s;
+  }
+  .js-animate .lattice-split.lat-in > :first-child,
+  .js-animate .lattice-split.lat-in > :last-child { opacity:1; transform:none; }
+
+  /* ── Security bar rows: stagger ── */
+  .js-animate .sec-bar-row {
+    opacity:0; transform:translateX(-20px);
+    transition:opacity 0.5s var(--ease), transform 0.55s var(--ease);
+  }
+  .js-animate .sec-chart.sc-in .sec-bar-row { opacity:1; transform:none; }
+  .sec-chart.sc-in .sec-bar-row:nth-child(1) { transition-delay:0.00s; }
+  .sec-chart.sc-in .sec-bar-row:nth-child(2) { transition-delay:0.07s; }
+  .sec-chart.sc-in .sec-bar-row:nth-child(3) { transition-delay:0.14s; }
+  .sec-chart.sc-in .sec-bar-row:nth-child(4) { transition-delay:0.21s; }
+
+  /* ── Demo box inner stagger ── */
+  .js-animate .demo-box h3, .js-animate .demo-box .demo-desc,
+  .js-animate .demo-box .cipher-io, .js-animate .demo-box .slider-row {
+    opacity:0; transform:translateY(14px);
+    transition:opacity 0.45s var(--ease), transform 0.5s var(--ease);
+  }
+  .js-animate .demo-box.demo-in h3       { opacity:1; transform:none; transition-delay:0.05s; }
+  .js-animate .demo-box.demo-in .demo-desc  { opacity:1; transform:none; transition-delay:0.12s; }
+  .js-animate .demo-box.demo-in .cipher-io  { opacity:1; transform:none; transition-delay:0.20s; }
+  .js-animate .demo-box.demo-in .slider-row { opacity:1; transform:none; transition-delay:0.30s; }
+
+  /* ── AES diagram entrance ── */
+  .js-animate .aes-diagram {
+    opacity:0; transform:translateY(28px) scale(0.98);
+    transition:opacity 0.65s var(--ease), transform 0.7s var(--ease);
+  }
+  .js-animate .aes-diagram.aes-in { opacity:1; transform:none; }
+
+  /* ── Footer links stagger ── */
+  .js-animate .footer-link {
+    opacity:0; transform:translateY(14px);
+    transition:opacity 0.45s var(--ease), transform 0.5s var(--ease), background 0.2s, color 0.2s, border-color 0.2s;
+  }
+  .js-animate .page-footer.ft-in .footer-link { opacity:1; transform:none; }
+  .page-footer.ft-in .footer-link:nth-child(1) { transition-delay:0.00s; }
+  .page-footer.ft-in .footer-link:nth-child(2) { transition-delay:0.08s; }
+
+  .js-animate .footer-copy {
+    opacity:0; transition:opacity 0.5s var(--ease) 0.18s;
+  }
+  .js-animate .page-footer.ft-in .footer-copy { opacity:1; }
+
+  /* ── Takeaway stagger (override reveal classes) ── */
+  .js-animate .takeaway-item {
+    opacity:0; transform:translateY(32px) scale(0.98);
+    transition:opacity 0.6s var(--ease), transform 0.65s var(--ease),
+               border-color 0.2s, transform 0.25s var(--ease);
+  }
+  .js-animate .takeaway-grid.tg-in .takeaway-item { opacity:1; transform:translateY(0) scale(1); }
+  .takeaway-grid.tg-in .takeaway-item:nth-child(1) { transition-delay:0.00s; }
+  .takeaway-grid.tg-in .takeaway-item:nth-child(2) { transition-delay:0.09s; }
+  .takeaway-grid.tg-in .takeaway-item:nth-child(3) { transition-delay:0.18s; }
+  .takeaway-grid.tg-in .takeaway-item:nth-child(4) { transition-delay:0.27s; }
+  /* hover still works */
+  .takeaway-grid.tg-in .takeaway-item:hover { transform:translateY(-2px) scale(1) !important; }
+
+  /* ── AES round stagger (fires when parent gets aes-in) ── */
+  @keyframes aes-round-in {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: none; }
+  }
+  .js-animate .aes-round { opacity: 0; }
+  .js-animate .aes-diagram.aes-in .aes-round {
+    animation: aes-round-in 0.4s var(--ease) both;
+    animation-delay: calc(var(--ri, 0) * 0.03s);
+  }
+
+  /* ── Kyber party name entrance ── */
+  .js-animate .kyber-party-name {
+    opacity: 0; transform: translateY(-10px);
+    transition: opacity 0.4s var(--ease), transform 0.45s var(--ease);
+  }
+  .js-animate .kyber-flow.kf-in .kyber-party:nth-child(1) .kyber-party-name {
+    opacity: 1; transform: none; transition-delay: 0.00s;
+  }
+  .js-animate .kyber-flow.kf-in .kyber-party:nth-child(2) .kyber-party-name {
+    opacity: 1; transform: none; transition-delay: 0.14s;
+  }
+
+  /* ── Security chart header slide-in ── */
+  .js-animate .sec-chart-head {
+    opacity: 0; transform: translateY(-18px);
+    transition: opacity 0.5s var(--ease), transform 0.55s var(--ease);
+  }
+  .js-animate .sec-chart.sc-in .sec-chart-head { opacity: 1; transform: none; }
+
+  /* ── Tool tab content slide-in on switch ── */
+  @keyframes tab-slide-in {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: none; }
+  }
+  .tool-content.active { animation: tab-slide-in 0.3s var(--ease) both; }
+
+  /* ── prefers-reduced-motion: kill all new animations ── */
+  @media(prefers-reduced-motion:reduce){
+    .js-animate .section-label,
+    .js-animate .kyber-box,
+    .js-animate .kyber-party-name,
+    .js-animate .lattice-split > :first-child,
+    .js-animate .lattice-split > :last-child,
+    .js-animate .sec-bar-row,
+    .js-animate .sec-chart-head,
+    .js-animate .aes-round,
+    .js-animate .demo-box h3, .js-animate .demo-box .demo-desc,
+    .js-animate .demo-box .cipher-io, .js-animate .demo-box .slider-row,
+    .js-animate .aes-diagram,
+    .js-animate .footer-link, .js-animate .footer-copy,
+    .js-animate .takeaway-item { opacity:1; transform:none; animation:none; transition:none; }
+    .tool-content.active { animation: none; }
+  }
+
 </style>
 </head>
 <body>
 
-<header class="topbar">
-  <a href="index.html#activities" class="back-link">
+<div id="scroll-progress" aria-hidden="true"></div>
+<header class="topbar" id="topbar">
+  <a href="index.html" class="back-link">
     <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 7H4M4 7l3-3M4 7l3 3"/></svg>
     Back
   </a>
@@ -455,60 +666,60 @@
   <div class="scroll-cue" aria-hidden="true"></div>
 </section>
 
-<hr class="divider">
+<hr class="divider" id="div1">
 
 <!-- ── Stats ── -->
 <div class="section-sm">
-  <div class="stats-row reveal">
-    <div class="stat-item">
+  <div class="stats-row stagger-parent" id="stats-row">
+    <div class="stat-item stagger-child">
       <div class="stat-num">5<span>+</span></div>
       <div class="stat-label">Algorithms analyzed</div>
     </div>
-    <div class="stat-item">
+    <div class="stat-item stagger-child">
       <div class="stat-num">3</div>
       <div class="stat-label">Crypto libraries implemented</div>
     </div>
-    <div class="stat-item">
+    <div class="stat-item stagger-child">
       <div class="stat-num">256<span>-bit</span></div>
       <div class="stat-label">Quantum-safe key size target</div>
     </div>
   </div>
 </div>
 
-<hr class="divider">
+<hr class="divider" id="div2">
 
 <!-- ── Algorithm overview ── -->
 <section class="section">
   <div class="section-label">Algorithms Covered</div>
   <h2 class="section-title reveal word-reveal">From classical ciphers to quantum-resistant schemes</h2>
   <p class="section-body reveal d1">This research examined five key cryptographic algorithms, tracing the evolution from historical ciphers to the lattice-based constructions being standardized by NIST for the post-quantum era.</p>
-  <div class="algo-grid">
-    <div class="algo-card reveal">
+  <div class="algo-grid stagger-parent" id="algo-grid">
+    <div class="algo-card stagger-child">
       <div class="algo-badge algo-badge--warn">Symmetric</div>
       <h3>AES</h3>
       <p>Advanced Encryption Standard. 128-bit block, 128/192/256-bit keys, 10-14 rounds. Quantum-resistant at AES-256; Grover's algorithm halves effective key length, reducing AES-128 to ~64-bit security.</p>
     </div>
-    <div class="algo-card algo-card--red reveal d1">
+    <div class="algo-card algo-card--red stagger-child">
       <div class="algo-badge algo-badge--vuln">Broken by Shor's</div>
       <h3>RSA</h3>
       <p>Asymmetric encryption based on integer factorization hardness. Shor's algorithm solves this in polynomial time on a quantum computer, making RSA completely insecure in the post-quantum era.</p>
     </div>
-    <div class="algo-card reveal d2">
+    <div class="algo-card stagger-child">
       <div class="algo-badge algo-badge--safe">Post-Quantum Safe</div>
       <h3>Kyber KEM</h3>
       <p>Lattice-based Key Encapsulation Mechanism. Security rests on the Module-LWE problem, believed hard for both classical and quantum adversaries. Selected by NIST for standardization in 2022.</p>
     </div>
-    <div class="algo-card algo-card--red reveal">
+    <div class="algo-card algo-card--red stagger-child">
       <div class="algo-badge algo-badge--vuln">Historical / Deprecated</div>
       <h3>DES</h3>
       <p>Data Encryption Standard (1977). 56-bit key, 64-bit block. Brute-forced in 22 hours in 1999. Studied here as a historical baseline and to motivate the transition to AES and beyond.</p>
     </div>
-    <div class="algo-card algo-card--blue reveal d1">
+    <div class="algo-card algo-card--blue stagger-child">
       <div class="algo-badge algo-badge--warn">Classical Baseline</div>
       <h3>Hash Functions</h3>
       <p>SHA-256 and SHA-3 for data integrity. SHA-3 uses the Keccak sponge construction. Both offer strong resistance under Grover's, requiring roughly double key length for equivalent post-quantum security.</p>
     </div>
-    <div class="algo-card reveal d2">
+    <div class="algo-card stagger-child">
       <div class="algo-badge algo-badge--safe">NIST Standard</div>
       <h3>CRYSTALS-Dilithium</h3>
       <p>Lattice-based digital signature scheme. Paired with Kyber in the NIST PQC suite. Based on Module-LWE and Module-SIS hardness problems, designed for practical signature sizes and verification speed.</p>
@@ -516,14 +727,14 @@
   </div>
 </section>
 
-<hr class="divider">
+<hr class="divider" id="div3">
 
 <!-- ── Caesar cipher interactive ── -->
 <section class="section">
   <div class="section-label">Interactive Demo</div>
   <h2 class="section-title reveal word-reveal">Where it all started: the shift cipher</h2>
   <p class="section-body reveal d1">Julius Caesar protected military orders by shifting each letter by a fixed number. A shift of 3 turns "HELLO" into "EBIIL." Try it below. With only 26 possible keys, a brute-force attack takes seconds by hand - illustrating exactly why modern cryptography needs mathematical hardness, not just obscurity.</p>
-  <div class="demo-box reveal">
+  <div class="demo-box" id="demo-box">
     <h3>Caesar Shift Cipher</h3>
     <p class="demo-desc">Type any message and drag the shift slider. Notice how every possible key can be tested manually in under a minute - the fundamental weakness of simple substitution ciphers.</p>
     <div class="cipher-io">
@@ -545,14 +756,14 @@
   </div>
 </section>
 
-<hr class="divider">
+<hr class="divider" id="div4">
 
 <!-- ── AES rounds ── -->
 <section class="section">
   <div class="section-label">Algorithm Deep-Dive</div>
   <h2 class="section-title reveal word-reveal">AES: four transformations per round</h2>
   <p class="section-body reveal d1">AES operates on 128-bit data blocks. Each of the 10-14 rounds (depending on key size) applies four distinct operations in sequence. The final round omits MixColumns - click any round below to understand what happens and why.</p>
-  <div class="aes-diagram reveal">
+  <div class="aes-diagram" id="aes-diagram">
     <div class="aes-rounds" id="aes-rounds"></div>
     <div class="aes-detail" id="aes-detail">
       <h4 id="aes-detail-title"></h4>
@@ -561,7 +772,7 @@
   </div>
 </section>
 
-<hr class="divider">
+<hr class="divider" id="div5">
 
 <!-- ── Quantum threat ── -->
 <section class="section">
@@ -569,13 +780,13 @@
   <h2 class="section-title reveal word-reveal">Two algorithms that define the threat</h2>
   <p class="section-body reveal d1">Quantum computing doesn't threaten all cryptography equally. The impact depends on which quantum algorithm applies to the underlying mathematical problem.</p>
   <div class="threat-grid">
-    <div class="threat-card threat-card--danger reveal">
+    <div class="threat-card threat-card--danger slide-left" id="threat-left">
       <div class="threat-icon">⚡</div>
       <h3>Shor's Algorithm</h3>
       <p>Developed by Peter Shor in 1994. Solves integer factorization and discrete logarithm in polynomial time on a quantum computer. Completely breaks RSA, Diffie-Hellman, and elliptic curve cryptography (ECC) once sufficiently large quantum computers exist.</p>
       <span class="threat-badge threat-badge--danger">Breaks RSA and ECC entirely</span>
     </div>
-    <div class="threat-card threat-card--safe reveal d1">
+    <div class="threat-card threat-card--safe slide-right" id="threat-right">
       <div class="threat-icon">🔑</div>
       <h3>Grover's Algorithm</h3>
       <p>Provides a quadratic speedup for unstructured search. Effectively halves the bit-security of symmetric ciphers: AES-128 drops to approximately 64-bit effective security, while AES-256 remains strong at ~128 bits. Mitigated by simply using larger keys.</p>
@@ -583,7 +794,7 @@
     </div>
   </div>
 
-  <div class="sec-chart reveal">
+  <div class="sec-chart" id="sec-chart">
     <div class="sec-chart-head">
       <div>
         <h3>Effective security: classical vs. post-quantum</h3>
@@ -627,13 +838,13 @@
   </div>
 </section>
 
-<hr class="divider">
+<hr class="divider" id="div6">
 
 <!-- ── Lattice visualization ── -->
 <section class="section">
   <div class="section-label">Mathematical Foundation</div>
   <h2 class="section-title reveal word-reveal">Why lattices resist quantum attacks</h2>
-  <div class="lattice-split reveal">
+  <div class="lattice-split" id="lattice-split">
     <canvas id="lattice-mini" width="400" height="330" aria-label="Animated lattice diagram showing the Learning With Errors problem"></canvas>
     <div class="lattice-explain">
       <h3>The Learning With Errors (LWE) Problem</h3>
@@ -645,14 +856,14 @@
   </div>
 </section>
 
-<hr class="divider">
+<hr class="divider" id="div7">
 
 <!-- ── Kyber protocol ── -->
 <section class="section">
   <div class="section-label">Protocol Design</div>
   <h2 class="section-title reveal word-reveal">Kyber KEM: key exchange step by step</h2>
   <p class="section-body reveal d1">Kyber is a Key Encapsulation Mechanism. Alice generates a key pair and shares her public key. Bob uses it to encapsulate a shared secret and sends back only the ciphertext. Alice decapsulates with her private key. Neither party ever transmits the secret directly.</p>
-  <div class="kyber-flow reveal">
+  <div class="kyber-flow" id="kyber-flow">
     <div class="kyber-party">
       <div class="kyber-party-name">Alice (Recipient)</div>
       <div class="kyber-box">
@@ -693,7 +904,7 @@
   </div>
 </section>
 
-<hr class="divider">
+<hr class="divider" id="div8">
 
 <!-- ── Tools ── -->
 <section class="section">
@@ -770,35 +981,35 @@ signing_key.verify_key.<span class="fn">verify</span>(<span class="vn">signed_ms
   </div>
 </section>
 
-<hr class="divider">
+<hr class="divider" id="div9">
 
 <!-- ── Takeaways ── -->
 <section class="section">
   <div class="section-label">Key Findings</div>
   <h2 class="section-title reveal word-reveal">What this research revealed</h2>
-  <div class="takeaway-grid">
-    <div class="takeaway-item reveal">
+  <div class="takeaway-grid stagger-parent" id="takeaway-grid">
+    <div class="takeaway-item">
       <div class="takeaway-icon">🔐</div>
       <div>
         <h4>Lattice hardness holds against classical and quantum adversaries</h4>
         <p>Unlike RSA and ECC, lattice-based schemes resist both classical and quantum attacks. The SVP and LWE problems have no known efficient algorithms on either hardware class - a uniquely strong security foundation.</p>
       </div>
     </div>
-    <div class="takeaway-item reveal d1">
+    <div class="takeaway-item">
       <div class="takeaway-icon">⏱</div>
       <div>
         <h4>Standardization rigor takes years for a reason</h4>
         <p>The NIST PQC process ran from 2016 to 2022 with rounds of public cryptanalysis. Multiple candidate algorithms were broken or weakened during review. That scrutiny is exactly what makes a standard trustworthy.</p>
       </div>
     </div>
-    <div class="takeaway-item reveal d2">
+    <div class="takeaway-item">
       <div class="takeaway-icon">⚡</div>
       <div>
         <h4>Kyber achieves competitive performance</h4>
         <p>Despite larger key sizes than RSA, Kyber uses NTT-based polynomial multiplication over module lattices, enabling fast key generation and encapsulation. In benchmarks, Kyber outperforms RSA on both key-gen and decapsulation speed.</p>
       </div>
     </div>
-    <div class="takeaway-item reveal d3">
+    <div class="takeaway-item">
       <div class="takeaway-icon">🌐</div>
       <div>
         <h4>"Harvest now, decrypt later" is a present threat</h4>
@@ -808,9 +1019,9 @@ signing_key.verify_key.<span class="fn">verify</span>(<span class="vn">signed_ms
   </div>
 </section>
 
-<hr class="divider">
+<hr class="divider" id="div10">
 
-<footer class="page-footer">
+<footer class="page-footer" id="page-footer">
   <div class="footer-links">
     <a href="https://drive.google.com/file/d/1NOyVyaduviVALRvGwEAmc7xIMiMfBltP/view?usp=sharing" target="_blank" rel="noopener" class="footer-link footer-link--primary">
       Read the Paper
@@ -1029,6 +1240,7 @@ signing_key.verify_key.<span class="fn">verify</span>(<span class="vn">signed_ms
   rounds.forEach((round,i)=>{
     const div=document.createElement('div');
     div.className='aes-round';
+    div.style.setProperty('--ri',i);
     div.innerHTML=`<div class="aes-round-num">${round.label}</div><div class="aes-round-ops">${
       round.ops.map(op=>`<div class="aes-op ${opMeta[op].cls}">${opMeta[op].short}</div>`).join('')
     }</div>`;
@@ -1054,113 +1266,167 @@ document.querySelectorAll('.tool-tab').forEach(tab=>{
   });
 });
 
-// ── Smooth scroll — matches main site (Lenis-style, 0.045 factor) ──
-(() => {
-  const maxScroll = () => document.documentElement.scrollHeight - window.innerHeight;
-  let target = window.scrollY, current = window.scrollY, ticking = false;
-  const clamp = v => Math.min(Math.max(v, 0), maxScroll());
 
-  const step = () => {
-    current += (target - current) * 0.045;
-    if (Math.abs(target - current) < 0.05) current = target;
-    window.scrollTo(0, current);
-    if (current !== target) requestAnimationFrame(step);
-    else ticking = false;
-  };
 
-  window.addEventListener('wheel', e => {
-    e.preventDefault();
-    let delta = e.deltaY;
-    if (e.deltaMode === 1) delta *= 18;
-    else if (e.deltaMode === 2) delta *= window.innerHeight;
-    delta = Math.max(Math.min(delta, 220), -220);
-    target = clamp(target + delta);
-    if (!ticking) { ticking = true; requestAnimationFrame(step); }
-  }, { passive: false });
+// ──────────────────────────────────────────────────────────────
+//  SCROLL ENGINE + ANIMATIONS
+// ──────────────────────────────────────────────────────────────
 
-  window.addEventListener('resize', () => { target = clamp(target); });
+var EASE = 'cubic-bezier(0.23,1,0.32,1)';
 
-  window.addEventListener('scroll', () => {
-    if (!ticking) { target = window.scrollY; current = window.scrollY; }
-  }, { passive: true });
+// ── Activate animation class immediately ─────────────────────
+document.documentElement.classList.add('js-animate');
+
+// ── Scroll progress + topbar ─────────────────────────────────
+var progressBar = document.getElementById('scroll-progress');
+var topbarEl    = document.getElementById('topbar');
+
+function updateScroll() {
+  var max = document.documentElement.scrollHeight - window.innerHeight;
+  if (progressBar) progressBar.style.width = (max > 0 ? (window.scrollY / max * 100) : 0) + '%';
+  if (topbarEl) topbarEl.classList.toggle('scrolled', window.scrollY > 10);
+}
+window.addEventListener('scroll', updateScroll, { passive: true });
+updateScroll();
+
+// ── Lenis smooth scroll ───────────────────────────────────────
+(function() {
+  try {
+    if (typeof Lenis !== 'function') return;
+    var lenis = new Lenis({
+      duration: 1.15,
+      easing: function(t) { return 1 - Math.pow(1 - t, 4); },
+      smoothWheel: true
+    });
+    lenis.on('scroll', updateScroll);
+    function raf(time) { lenis.raf(time); requestAnimationFrame(raf); }
+    requestAnimationFrame(raf);
+  } catch(e) {}
 })();
 
-// ── Scroll reveal — mirrors main site checkReveals pattern ────
-const revealEls = Array.from(document.querySelectorAll('.reveal, .reveal-zoom'));
-let pendingReveal = revealEls.slice();
-
-function checkReveals() {
-  const vh = window.innerHeight;
-  pendingReveal = pendingReveal.filter(el => {
-    const rect = el.getBoundingClientRect();
-    if (rect.top < vh * 0.92 && rect.bottom > 0) {
-      el.classList.add('is-visible');
-      return false;
-    }
-    return true;
-  });
-  if (pendingReveal.length === 0) {
-    window.removeEventListener('scroll', checkReveals);
-    window.removeEventListener('resize', checkReveals);
-  }
+// ── Helper: fire once on first intersection ───────────────────
+function onceVisible(el, fn, opts) {
+  if (!el) return;
+  var obs = new IntersectionObserver(function(entries) {
+    if (entries[0].isIntersecting) { fn(); obs.disconnect(); }
+  }, opts || { threshold: 0.12 });
+  obs.observe(el);
 }
 
-window.addEventListener('scroll', checkReveals, { passive: true });
-window.addEventListener('resize', checkReveals);
-requestAnimationFrame(() => requestAnimationFrame(checkReveals));
+// ── Helper: add class when element enters viewport ────────────
+function revealClass(el, cls, threshold, delay) {
+  if (!el) return;
+  setTimeout(function() {
+    onceVisible(el, function() { el.classList.add(cls); }, { threshold: threshold || 0.12, rootMargin: '0px 0px -4% 0px' });
+  }, delay || 0);
+}
 
-// ── Word-reveal — exact match to main site ────────────────────
-(() => {
-  const splitIntoWords = el => {
-    let i = 0;
-    const frag = document.createDocumentFragment();
-    Array.from(el.childNodes).forEach(node => {
+// ── Generic .reveal / .reveal-zoom (IO-based) ────────────────
+Array.from(document.querySelectorAll('.reveal, .reveal-zoom')).forEach(function(el) {
+  var obs = new IntersectionObserver(function(entries) {
+    if (entries[0].isIntersecting) { el.classList.add('is-visible'); obs.disconnect(); }
+  }, { threshold: 0.12, rootMargin: '0px 0px -3% 0px' });
+  obs.observe(el);
+});
+
+// ── Section labels (fade-right) ───────────────────────────────
+Array.from(document.querySelectorAll('.section-label')).forEach(function(el) {
+  revealClass(el, 'lbl-in', 0.5);
+});
+
+// ── Word-reveal headings ─────────────────────────────────────
+(function() {
+  function splitWords(el) {
+    var i = 0, frag = document.createDocumentFragment();
+    Array.from(el.childNodes).forEach(function(node) {
       if (node.nodeType === Node.TEXT_NODE) {
-        node.textContent.split(/(\s+)/).forEach(chunk => {
-          if (chunk.trim() === '') {
-            if (chunk !== '') frag.appendChild(document.createTextNode(' '));
-          } else {
-            const sp = document.createElement('span');
-            sp.className = 'word';
-            sp.style.setProperty('--i', i++);
-            sp.textContent = chunk;
+        node.textContent.split(/(\s+)/).forEach(function(chunk) {
+          if (!chunk.trim()) { if (chunk) frag.appendChild(document.createTextNode(' ')); }
+          else {
+            var sp = document.createElement('span');
+            sp.className = 'word'; sp.style.setProperty('--i', i++); sp.textContent = chunk;
             frag.appendChild(sp);
           }
         });
       } else if (node.nodeType === Node.ELEMENT_NODE) {
-        const w = document.createElement(node.tagName);
-        w.className = 'word';
-        w.style.setProperty('--i', i++);
-        w.textContent = node.textContent;
+        var w = document.createElement(node.tagName);
+        w.className = 'word'; w.style.setProperty('--i', i++); w.textContent = node.textContent;
         frag.appendChild(w);
       }
     });
     el.replaceChildren(frag);
-  };
-
-  document.querySelectorAll('.word-reveal').forEach(el => {
-    splitIntoWords(el);
-    const obs = new IntersectionObserver(entries => {
-      entries.forEach(e => el.classList.toggle('is-visible', e.isIntersecting));
-    }, { threshold: 0.4 });
-    obs.observe(el);
+  }
+  Array.from(document.querySelectorAll('.word-reveal')).forEach(function(el) {
+    splitWords(el);
+    new IntersectionObserver(function(entries) {
+      el.classList.toggle('is-visible', entries[0].isIntersecting);
+    }, { threshold: 0.3 }).observe(el);
   });
 })();
 
-// ── Security bar animation ────────────────────────────────────
-const barsIO = new IntersectionObserver(entries => {
-  entries.forEach(e => {
-    if (e.isIntersecting) {
-      e.target.querySelectorAll('.sec-bar-fill').forEach(bar => {
-        bar.style.width = bar.dataset.target + '%';
-      });
-      barsIO.unobserve(e.target);
-    }
+// ── Stagger groups (algo cards + stats) ──────────────────────
+Array.from(document.querySelectorAll('.stagger-parent')).forEach(function(parent) {
+  onceVisible(parent, function() { parent.classList.add('group-visible'); }, { threshold: 0.08 });
+});
+
+// ── Threat cards: slide from sides ───────────────────────────
+revealClass(document.getElementById('threat-left'),  'slide-in', 0.15);
+revealClass(document.getElementById('threat-right'), 'slide-in', 0.15);
+
+// ── Lattice split: slide from sides ──────────────────────────
+revealClass(document.getElementById('lattice-split'), 'lat-in', 0.12);
+
+// ── Kyber flow boxes ─────────────────────────────────────────
+revealClass(document.getElementById('kyber-flow'), 'kf-in', 0.10);
+
+// ── AES diagram ──────────────────────────────────────────────
+revealClass(document.getElementById('aes-diagram'), 'aes-in', 0.12);
+
+// ── Demo box inner stagger ────────────────────────────────────
+revealClass(document.getElementById('demo-box'), 'demo-in', 0.12);
+
+// ── Security chart rows ───────────────────────────────────────
+revealClass(document.getElementById('sec-chart'), 'sc-in', 0.12);
+
+// ── Takeaway grid ─────────────────────────────────────────────
+revealClass(document.getElementById('takeaway-grid'), 'tg-in', 0.08);
+
+// ── Footer ────────────────────────────────────────────────────
+revealClass(document.getElementById('page-footer'), 'ft-in', 0.1);
+
+// ── Divider scan ──────────────────────────────────────────────
+Array.from(document.querySelectorAll('hr.divider')).forEach(function(hr) {
+  onceVisible(hr, function() {
+    hr.classList.add('div-in');
+    setTimeout(function() { hr.classList.remove('div-in'); }, 800);
+  }, { threshold: 0.5 });
+});
+
+// ── Stat count-up ─────────────────────────────────────────────
+function countUp(el, target, suffix) {
+  var start = performance.now(), dur = 1100;
+  (function loop(now) {
+    var p = Math.min((now - start) / dur, 1);
+    var v = Math.round(target * (1 - Math.pow(1 - p, 3)));
+    el.innerHTML = v + '<span>' + suffix + '</span>';
+    if (p < 1) requestAnimationFrame(loop);
+  })(performance.now());
+}
+onceVisible(document.getElementById('stats-row'), function() {
+  var defs = [{ v: 5, s: '+' }, { v: 3, s: '' }, { v: 256, s: '-bit' }];
+  Array.from(document.querySelectorAll('#stats-row .stat-num')).forEach(function(el, i) {
+    if (defs[i]) setTimeout(function() { countUp(el, defs[i].v, defs[i].s); }, i * 130);
+  });
+}, { threshold: 0.5 });
+
+// ── Security bar grow ─────────────────────────────────────────
+onceVisible(document.getElementById('sec-bars'), function() {
+  Array.from(document.querySelectorAll('.sec-bar-fill')).forEach(function(bar, i) {
+    setTimeout(function() { bar.style.width = bar.dataset.target + '%'; }, i * 60);
   });
 }, { threshold: 0.25 });
 
-const sb = document.getElementById('sec-bars');
-if (sb) barsIO.observe(sb);
+
 </script>
 </body>
 </html>

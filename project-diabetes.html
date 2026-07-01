@@ -10,48 +10,48 @@
 <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.14/dist/lenis.min.js" onerror="window.__lenisOk=false"></script>
 <style>
   :root {
-    --fg: #111111;
-    --muted: #6b6b6b;
-    --bg: #ffffff;
-    --border: #e8e8e8;
-    --surface: #f7f7f7;
-    --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
-    --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+    --bg:         #0a0e1a;
+    --bg-hero:    #0d1220;
+    --surface:    #141926;
+    --surface-hi: #1c2338;
+    --fg:         #e8eef8;
+    --fg-sec:     rgba(200,214,240,0.70);
+    --fg-ter:     rgba(200,214,240,0.35);
+    --muted:      #6b7fa8;
+    --border:     rgba(80,110,180,0.16);
+    --accent:     #f59e0b;
+    --accent-mid: #fbbf24;
+    --accent-dim: rgba(245,158,11,0.10);
+    --ease-out:   cubic-bezier(0.23, 1, 0.32, 1);
+    --ease-in-out:cubic-bezier(0.77, 0, 0.175, 1);
   }
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  html { scroll-padding-top: 80px; scroll-behavior: smooth; }
+  html { scroll-padding-top: 80px; }
 
-  /* ─── Scroll progress bar ─── */
   #scroll-progress {
-    position: fixed; top: 0; left: 0; height: 3px; width: 0%;
-    background: #111; z-index: 200;
-    transition: width 0.06s linear;
-    box-shadow: 0 0 6px rgba(0,0,0,0.25);
-  }
-  body {
-    background: var(--bg);
-    color: var(--fg);
-    font-family: 'Plus Jakarta Sans', -apple-system, 'Helvetica Neue', Arial, sans-serif;
-    font-size: 15px;
-    line-height: 1.6;
-    -webkit-font-smoothing: antialiased;
+    position: fixed; top: 0; left: 0; height: 2px; width: 0%;
+    background: linear-gradient(90deg, var(--accent), var(--accent-mid));
+    z-index: 200; transition: width 0.06s linear;
+    box-shadow: 0 0 8px rgba(245,158,11,0.45);
   }
 
-  /* ─── Topbar ─── */
+  body {
+    background: var(--bg); color: var(--fg);
+    font-family: 'Plus Jakarta Sans', -apple-system, 'Helvetica Neue', Arial, sans-serif;
+    font-size: 15px; line-height: 1.6;
+    -webkit-font-smoothing: antialiased; overflow-x: hidden;
+  }
+
   .topbar {
     position: fixed; top: 0; left: 0; right: 0; z-index: 100;
     display: flex; justify-content: space-between; align-items: center;
     padding: 20px 40px;
-    background: rgba(255,255,255,0.88);
-    backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+    background: rgba(10,14,26,0.78);
+    backdrop-filter: blur(20px) saturate(180%); -webkit-backdrop-filter: blur(20px) saturate(180%);
     border-bottom: 1px solid transparent;
-    transition: border-color 0.3s var(--ease-out), background 0.3s var(--ease-out),
-                box-shadow 0.3s var(--ease-out);
+    transition: border-color 0.3s var(--ease-out), box-shadow 0.3s var(--ease-out);
   }
-  .topbar.scrolled {
-    border-color: var(--border);
-    box-shadow: 0 1px 12px rgba(0,0,0,0.06);
-  }
+  .topbar.scrolled { border-color: var(--border); box-shadow: 0 1px 24px rgba(0,0,0,0.5); }
   .back-link {
     display: inline-flex; align-items: center; gap: 8px;
     font-size: 13px; font-weight: 600; color: var(--fg);
@@ -59,103 +59,95 @@
     transition: gap 0.22s var(--ease-out), opacity 0.22s var(--ease-out);
   }
   .back-link:hover { gap: 13px; opacity: 0.5; }
-  .back-link:active { opacity: 0.35; transform: scale(0.97); }
   .back-link svg { width: 14px; height: 14px; flex-shrink: 0; }
   .topbar-name {
     font-size: 13px; font-weight: 700; color: var(--fg);
-    text-decoration: none; opacity: 0.5;
-    transition: opacity 0.22s var(--ease-out);
+    text-decoration: none; opacity: 0.45; transition: opacity 0.22s var(--ease-out);
   }
   .topbar-name:hover { opacity: 1; }
 
-  /* ─── Hero ─── */
+  .hero-shell {
+    background: var(--bg-hero); border-bottom: 1px solid var(--border);
+    position: relative; overflow: hidden;
+  }
+  .hero-shell::after {
+    content: ''; position: absolute; inset: 0; pointer-events: none;
+    background:
+      radial-gradient(ellipse 80% 60% at 50% 110%, rgba(245,158,11,0.10) 0%, transparent 65%),
+      radial-gradient(ellipse 40% 30% at 15% 50%, rgba(245,158,11,0.04) 0%, transparent 60%);
+  }
+
   .hero {
-    padding: 130px 40px 52px;
-    max-width: 800px; margin: 0 auto;
-    border-bottom: 1px solid var(--border);
+    padding: 130px 40px 60px; max-width: 800px; margin: 0 auto; position: relative; z-index: 1;
+  }
+  .js-animate .hero {
     opacity: 0; transform: translateY(20px);
-    animation: fade-up 0.6s var(--ease-out) 0.05s forwards;
+    animation: fade-up 0.65s var(--ease-out) 0.05s forwards;
   }
   .tag {
     font-size: 10px; font-weight: 700; letter-spacing: 0.14em;
-    text-transform: uppercase; color: var(--muted); margin-bottom: 18px;
+    text-transform: uppercase; color: var(--accent); margin-bottom: 18px; display: inline-block;
   }
   .title {
     font-family: Georgia, "Times New Roman", serif;
     font-weight: normal; font-size: clamp(28px, 4.5vw, 48px);
-    line-height: 1.14; letter-spacing: -0.025em; margin-bottom: 16px;
+    line-height: 1.14; letter-spacing: -0.02em; margin-bottom: 18px;
+    color: var(--fg); text-wrap: balance;
   }
-  .hero-meta {
-    display: flex; align-items: center; gap: 14px;
-  }
+  .hero-meta { display: flex; align-items: center; gap: 14px; }
   .date { font-size: 12px; color: var(--muted); letter-spacing: 0.04em; }
   .hero-dot { width: 3px; height: 3px; border-radius: 50%; background: var(--border); }
 
-  /* ─── Body ─── */
-  .body {
-    max-width: 800px; margin: 0 auto; padding: 56px 40px 120px;
-  }
+  .body { max-width: 800px; margin: 0 auto; padding: 56px 40px 120px; }
 
-  /* ─── Scroll reveal ───────────────────────────────────────────
-     opacity: 0 lives ONLY on .ready (JS-added class).
-     If JS fails for any reason, content stays visible.
-  ─────────────────────────────────────────────────────────── */
   .reveal { transition: opacity 0.7s var(--ease-out), transform 0.8s var(--ease-out); }
-  .reveal.ready          { opacity: 0; transform: translateY(48px); }
-  .reveal.ready.in-view  { opacity: 1; transform: translateY(0); }
-  .reveal.ready.in-view.reveal-d1 { transition-delay: 0.1s; }
-  .reveal.ready.in-view.reveal-d2 { transition-delay: 0.2s; }
-  .reveal.ready.in-view.reveal-d3 { transition-delay: 0.3s; }
-  /* Fade out upward when element leaves viewport from the top */
-  .reveal.ready.above-view {
-    opacity: 0; transform: translateY(-20px);
+  .js-animate .reveal.ready         { opacity: 0; transform: translateY(44px); }
+  .js-animate .reveal.ready.in-view { opacity: 1; transform: translateY(0); }
+  .js-animate .reveal.ready.in-view.reveal-d1 { transition-delay: 0.10s; }
+  .js-animate .reveal.ready.in-view.reveal-d2 { transition-delay: 0.20s; }
+  .js-animate .reveal.ready.in-view.reveal-d3 { transition-delay: 0.30s; }
+  .js-animate .reveal.ready.above-view {
+    opacity: 0; transform: translateY(-18px);
     transition: opacity 0.35s var(--ease-out), transform 0.4s var(--ease-out);
     transition-delay: 0s !important;
   }
 
-  /* ─── Stat counter ─── */
   .stat-num { font-variant-numeric: tabular-nums; }
-
   .section { margin-bottom: 64px; }
-
   .section-label {
-    font-size: 10px; font-weight: 700; letter-spacing: 0.14em;
-    text-transform: uppercase; color: var(--muted); margin-bottom: 20px;
+    font-size: 10px; font-weight: 700; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--accent); margin-bottom: 20px; opacity: 0.85;
   }
   .prose {
-    font-size: 15px; line-height: 1.78; color: #3d3d3d;
+    font-size: 15px; line-height: 1.78; color: var(--fg-sec);
     max-width: 62ch; margin-bottom: 13px;
   }
   .prose a {
     color: var(--fg); text-decoration: underline;
-    text-decoration-color: rgba(17,17,17,0.25);
-    text-underline-offset: 3px;
+    text-decoration-color: rgba(232,238,248,0.25); text-underline-offset: 3px;
     transition: text-decoration-color 0.18s;
   }
   .prose a:hover { text-decoration-color: var(--fg); }
 
-  /* ─── Stat row ─── */
   .stat-row {
     display: grid; grid-template-columns: repeat(4, 1fr);
-    gap: 1px; background: var(--border);
-    border: 1px solid var(--border); border-radius: 14px;
-    overflow: hidden; margin-bottom: 64px;
+    gap: 1px; background: var(--border); border: 1px solid var(--border);
+    border-radius: 14px; overflow: hidden; margin-bottom: 64px;
   }
   .stat {
-    background: var(--bg); padding: 24px 20px;
+    background: var(--surface); padding: 28px 22px;
     display: flex; flex-direction: column; gap: 6px;
     transition: background 0.2s var(--ease-out);
   }
-  .stat:hover { background: var(--surface); }
+  .stat:hover { background: var(--surface-hi); }
   .stat-num {
     font-size: clamp(20px, 2.8vw, 30px); font-weight: 800;
-    letter-spacing: -0.035em; line-height: 1;
+    letter-spacing: -0.035em; line-height: 1; color: var(--accent);
     transition: transform 0.2s var(--ease-out);
   }
-  .stat:hover .stat-num { transform: translateY(-1px); }
+  .stat:hover .stat-num { transform: translateY(-2px); }
   .stat-label { font-size: 11px; color: var(--muted); letter-spacing: 0.02em; }
 
-  /* ─── Feature pills ─── */
   .pill-group { margin-bottom: 12px; }
   .pill-heading {
     font-size: 10px; font-weight: 700; letter-spacing: 0.1em;
@@ -163,217 +155,193 @@
   }
   .pills { display: flex; flex-wrap: wrap; gap: 7px; }
   .pill {
-    padding: 5px 12px; font-size: 12px; font-weight: 600;
-    border-radius: 999px; background: var(--surface); color: var(--fg);
-    border: 1px solid var(--border);
-    transition: border-color 0.18s var(--ease-out), background 0.18s var(--ease-out),
-                transform 0.18s var(--ease-out);
+    padding: 5px 13px; font-size: 12px; font-weight: 600; border-radius: 999px;
+    background: var(--surface); color: var(--fg-sec); border: 1px solid var(--border);
+    transition: border-color 0.18s var(--ease-out), background 0.18s var(--ease-out), transform 0.18s var(--ease-out);
     cursor: default;
   }
-  .pill:hover { border-color: #bbb; transform: translateY(-1px); }
-  .pill--kept {
-    background: var(--fg); color: #fff; border-color: var(--fg);
-  }
-  .pill--kept:hover { background: #333; border-color: #333; transform: translateY(-1px); }
+  .pill:hover { border-color: rgba(80,110,180,0.4); transform: translateY(-1px); }
+  .pill--kept { background: rgba(245,158,11,0.12); color: var(--accent-mid); border-color: rgba(245,158,11,0.30); }
+  .pill--kept:hover { background: rgba(245,158,11,0.18); border-color: rgba(245,158,11,0.5); }
 
-  /* ─── Animated pills (stagger) ─── */
-  .pills.animate-pills .pill {
+  .js-animate .pills.animate-pills .pill {
     opacity: 0; transform: translateY(8px) scale(0.96);
     transition: opacity 0.35s var(--ease-out), transform 0.4s var(--ease-out),
                 border-color 0.18s var(--ease-out), background 0.18s var(--ease-out);
   }
-  .pills.animate-pills.pills-visible .pill { opacity: 1; transform: translateY(0) scale(1); }
-  .pills.animate-pills.pills-visible .pill:nth-child(1) { transition-delay: 0.00s; }
-  .pills.animate-pills.pills-visible .pill:nth-child(2) { transition-delay: 0.04s; }
-  .pills.animate-pills.pills-visible .pill:nth-child(3) { transition-delay: 0.08s; }
-  .pills.animate-pills.pills-visible .pill:nth-child(4) { transition-delay: 0.12s; }
-  .pills.animate-pills.pills-visible .pill:nth-child(5) { transition-delay: 0.16s; }
-  .pills.animate-pills.pills-visible .pill:nth-child(6) { transition-delay: 0.20s; }
-  .pills.animate-pills.pills-visible .pill:nth-child(7) { transition-delay: 0.24s; }
-  .pills.animate-pills.pills-visible .pill:nth-child(8) { transition-delay: 0.28s; }
-  .pills.animate-pills.pills-visible .pill:nth-child(9) { transition-delay: 0.32s; }
-  .pills.animate-pills.pills-visible .pill:nth-child(n+10) { transition-delay: 0.36s; }
+  .js-animate .pills.animate-pills.pills-visible .pill { opacity: 1; transform: translateY(0) scale(1); }
+  .js-animate .pills.animate-pills.pills-visible .pill:nth-child(1) { transition-delay: 0.00s; }
+  .js-animate .pills.animate-pills.pills-visible .pill:nth-child(2) { transition-delay: 0.04s; }
+  .js-animate .pills.animate-pills.pills-visible .pill:nth-child(3) { transition-delay: 0.08s; }
+  .js-animate .pills.animate-pills.pills-visible .pill:nth-child(4) { transition-delay: 0.12s; }
+  .js-animate .pills.animate-pills.pills-visible .pill:nth-child(5) { transition-delay: 0.16s; }
+  .js-animate .pills.animate-pills.pills-visible .pill:nth-child(6) { transition-delay: 0.20s; }
+  .js-animate .pills.animate-pills.pills-visible .pill:nth-child(7) { transition-delay: 0.24s; }
+  .js-animate .pills.animate-pills.pills-visible .pill:nth-child(8) { transition-delay: 0.28s; }
+  .js-animate .pills.animate-pills.pills-visible .pill:nth-child(9) { transition-delay: 0.32s; }
+  .js-animate .pills.animate-pills.pills-visible .pill:nth-child(n+10) { transition-delay: 0.36s; }
 
-  /* ─── Chart containers ─── */
   .chart-wrap {
-    width: 100%; overflow-x: auto;
-    border: 1px solid var(--border); border-radius: 14px;
-    background: var(--surface); padding: 24px 22px 20px;
-    margin-top: 6px;
+    width: 100%; overflow-x: auto; border: 1px solid var(--border); border-radius: 14px;
+    background: var(--surface); padding: 24px 22px 20px; margin-top: 6px;
   }
   .chart-wrap svg { display: block; width: 100%; max-width: 680px; }
-
-  /* ─── Animated bar chart ─── */
   .bar-animate { transform-origin: left center; }
 
-  /* ─── Viz grid ─── */
-  .viz-grid {
-    display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;
-  }
+  .viz-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
   .viz-card {
-    border: 1px solid var(--border); border-radius: 12px;
-    background: var(--surface); padding: 0; overflow: hidden;
-    transition: border-color 0.22s var(--ease-out), transform 0.22s var(--ease-out),
-                box-shadow 0.22s var(--ease-out);
+    border: 1px solid var(--border); border-radius: 12px; background: var(--surface);
+    padding: 0; overflow: hidden; transition: border-color 0.22s var(--ease-out), transform 0.22s var(--ease-out);
   }
-  .viz-card:hover {
-    border-color: #d0d0d0;
-    transform: translateY(-2px);
-    box-shadow: 0 6px 24px rgba(0,0,0,0.07);
-  }
+  .viz-card:hover { border-color: rgba(245,158,11,0.25); transform: translateY(-2px); }
   .viz-card svg { display: block; width: 100%; }
   .viz-card-label {
-    padding: 10px 14px;
-    font-size: 10.5px; font-weight: 700; color: var(--muted);
-    letter-spacing: 0.05em; text-transform: uppercase;
-    border-top: 1px solid var(--border);
+    padding: 10px 14px; font-size: 10.5px; font-weight: 700; color: var(--muted);
+    letter-spacing: 0.05em; text-transform: uppercase; border-top: 1px solid var(--border);
   }
 
-  /* ─── Split bar ─── */
-  .split-bar {
-    display: flex; height: 42px; border-radius: 10px; overflow: hidden;
-    gap: 2px; margin-top: 6px;
-  }
+  .split-bar { display: flex; height: 42px; border-radius: 10px; overflow: hidden; gap: 2px; margin-top: 6px; }
   .split-seg {
     display: flex; align-items: center; justify-content: center;
-    font-size: 11px; font-weight: 700; letter-spacing: 0.04em; color: #fff;
+    font-size: 11px; font-weight: 700; letter-spacing: 0.04em;
     transition: filter 0.2s var(--ease-out);
   }
-  .split-seg:hover { filter: brightness(1.15); }
-  .split-seg--train { background: #111; flex: 6; }
-  .split-seg--val   { background: #555; flex: 2; }
-  .split-seg--test  { background: #aaa; flex: 2; }
-  .split-legend {
-    display: flex; gap: 22px; margin-top: 12px;
-    font-size: 12px; color: var(--muted);
-  }
+  .split-seg:hover { filter: brightness(1.18); }
+  .split-seg--train { background: var(--accent); color: #0a0e1a; flex: 6; }
+  .split-seg--val   { background: #5c7aaa; color: #0a0e1a; flex: 2; }
+  .split-seg--test  { background: var(--surface-hi); color: var(--muted); flex: 2; border: 1px solid var(--border); }
+  .split-legend { display: flex; gap: 22px; margin-top: 12px; font-size: 12px; color: var(--muted); }
   .split-legend span { display: flex; align-items: center; gap: 6px; }
   .split-legend .dot { width: 8px; height: 8px; border-radius: 2px; flex-shrink: 0; }
 
-  /* ─── Takeaways ─── */
   .takeaways { display: flex; flex-direction: column; gap: 10px; margin-top: 6px; }
   .takeaway {
     display: flex; gap: 16px; align-items: flex-start;
-    padding: 18px 20px; border: 1px solid var(--border);
-    border-radius: 12px; background: var(--surface);
-    transition: border-color 0.22s var(--ease-out), transform 0.22s var(--ease-out),
-                box-shadow 0.22s var(--ease-out), background 0.22s var(--ease-out);
+    padding: 20px 22px; border: 1px solid var(--border); border-radius: 12px;
+    background: var(--surface);
+    transition: border-color 0.22s var(--ease-out), transform 0.22s var(--ease-out), background 0.22s var(--ease-out);
   }
-  .takeaway:hover {
-    border-color: #d0d0d0; transform: translateX(3px);
-    box-shadow: 0 4px 16px rgba(0,0,0,0.05);
-    background: #fafafa;
-  }
+  .takeaway:hover { border-color: rgba(245,158,11,0.22); transform: translateX(4px); background: var(--surface-hi); }
   .takeaway-num {
-    font-size: 11px; font-weight: 800; color: var(--muted);
-    letter-spacing: 0.08em; flex-shrink: 0; padding-top: 2px;
-    font-variant-numeric: tabular-nums;
+    font-size: 11px; font-weight: 800; color: var(--accent); opacity: 0.8;
+    letter-spacing: 0.08em; flex-shrink: 0; padding-top: 2px; font-variant-numeric: tabular-nums;
   }
-  .takeaway-text { font-size: 13.5px; line-height: 1.65; color: #333; }
+  .takeaway-text { font-size: 13.5px; line-height: 1.65; color: var(--fg-sec); }
   .takeaway-text strong { color: var(--fg); }
 
-  /* ─── Presentation card ─── */
   .presentation-card {
     border: 1px solid var(--border); border-radius: 14px;
-    padding: 28px 28px 24px; background: var(--surface);
-    margin-top: 6px;
-    transition: border-color 0.22s var(--ease-out), box-shadow 0.22s var(--ease-out);
+    padding: 28px 28px 24px; background: var(--surface); margin-top: 6px;
+    transition: border-color 0.22s var(--ease-out);
   }
-  .presentation-card:hover {
-    border-color: #d0d0d0;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.05);
-  }
-  .presentation-card .audience {
-    display: flex; align-items: center; gap: 10px; margin-bottom: 16px;
-  }
+  .presentation-card:hover { border-color: rgba(245,158,11,0.22); }
+  .presentation-card .audience { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
   .audience-badge {
-    font-size: 10px; font-weight: 700; letter-spacing: 0.1em;
-    text-transform: uppercase; background: #111; color: #fff;
-    padding: 4px 11px; border-radius: 999px;
+    font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+    background: var(--accent); color: #0a0e1a; padding: 4px 12px; border-radius: 999px;
   }
   .audience-sub { font-size: 12px; color: var(--muted); }
-  .feedback-grid {
-    display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
-    margin-top: 18px;
-  }
+  .feedback-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 18px; }
   .feedback-item {
-    padding: 14px 16px; border: 1px solid var(--border);
-    border-radius: 10px; background: var(--bg);
-    transition: border-color 0.2s var(--ease-out), transform 0.2s var(--ease-out),
-                box-shadow 0.2s var(--ease-out);
+    padding: 14px 16px; border: 1px solid var(--border); border-radius: 10px; background: var(--bg);
+    transition: border-color 0.2s var(--ease-out), transform 0.2s var(--ease-out);
   }
-  .feedback-item:hover {
-    border-color: #ccc; transform: translateY(-2px);
-    box-shadow: 0 4px 16px rgba(0,0,0,0.06);
-  }
+  .feedback-item:hover { border-color: rgba(245,158,11,0.20); transform: translateY(-2px); }
   .fi-label {
-    font-size: 10px; font-weight: 700; letter-spacing: 0.08em;
-    text-transform: uppercase; color: var(--muted); margin-bottom: 7px;
+    font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--accent); margin-bottom: 7px; opacity: 0.8;
   }
-  .fi-text { font-size: 12.5px; line-height: 1.58; color: #3a3a3a; }
+  .fi-text { font-size: 12.5px; line-height: 1.58; color: var(--fg-sec); }
 
-  /* ─── Links ─── */
   .links { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 52px; }
   .link-btn {
     display: inline-flex; align-items: center; gap: 7px;
     padding: 10px 20px; font-size: 12px; font-weight: 700;
     letter-spacing: 0.05em; text-transform: uppercase; text-decoration: none;
-    border-radius: 999px; border: 1.5px solid var(--fg);
-    color: var(--fg); background: transparent;
-    transition: background 0.22s var(--ease-out), color 0.22s var(--ease-out),
-                gap 0.22s var(--ease-out), transform 0.15s var(--ease-out),
-                box-shadow 0.22s var(--ease-out);
+    border-radius: 999px; border: 1.5px solid var(--accent); color: var(--accent); background: transparent;
+    transition: background 0.22s var(--ease-out), color 0.22s var(--ease-out), gap 0.22s var(--ease-out), transform 0.15s var(--ease-out);
   }
-  .link-btn:hover { background: var(--fg); color: #fff; gap: 12px;
-                    box-shadow: 0 4px 16px rgba(0,0,0,0.18); }
+  .link-btn:hover { background: var(--accent); color: #0a0e1a; gap: 12px; }
   .link-btn:active { transform: scale(0.97); }
-  .link-btn svg { width: 11px; height: 11px; flex-shrink: 0;
-                  transition: transform 0.22s var(--ease-out); }
+  .link-btn svg { width: 11px; height: 11px; flex-shrink: 0; transition: transform 0.22s var(--ease-out); }
   .link-btn:hover svg { transform: translate(2px,-2px); }
   .link-btn--sec { border-color: var(--border); color: var(--muted); }
-  .link-btn--sec:hover { background: var(--fg); color: #fff; border-color: var(--fg); }
+  .link-btn--sec:hover { background: var(--surface-hi); color: var(--fg); border-color: rgba(80,110,180,0.35); }
 
-  /* ─── Footer ─── */
   .footer {
     border-top: 1px solid var(--border); padding: 28px 40px;
     max-width: 800px; margin: 0 auto 60px;
     display: flex; justify-content: space-between; align-items: center;
     font-size: 12px; color: var(--muted);
   }
-  .footer a { color: var(--fg); text-decoration: none; font-weight: 600;
-              transition: opacity 0.18s; }
+  .footer a { color: var(--fg); text-decoration: none; font-weight: 600; transition: opacity 0.18s; }
   .footer a:hover { opacity: 0.6; }
 
-  /* ─── Keyframes ─── */
   @keyframes fade-up {
     from { opacity: 0; transform: translateY(20px); }
     to   { opacity: 1; transform: translateY(0); }
   }
-  @keyframes bar-in {
-    from { transform: scaleX(0); }
-    to   { transform: scaleX(1); }
-  }
-  @keyframes count-up {
-    from { opacity: 0; transform: translateY(6px); }
+
+  /* ── New stagger animations ── */
+
+  @keyframes fade-up-sm {
+    from { opacity: 0; transform: translateY(20px); }
     to   { opacity: 1; transform: translateY(0); }
   }
 
-  /* ─── Responsive ─── */
+  /* Section labels slide in from left */
+  .js-animate .section-label {
+    opacity: 0; transform: translateX(-14px);
+    transition: opacity 0.45s var(--ease-out), transform 0.5s var(--ease-out);
+  }
+  .js-animate .section-label.lbl-in { opacity: 1; transform: none; }
+
+  /* Stat card stagger — animation avoids clobbering hover transitions */
+  .js-animate .stat { opacity: 0; }
+  .js-animate .stat-row.row-in .stat { animation: fade-up-sm 0.6s var(--ease-out) both; }
+  .js-animate .stat-row.row-in .stat:nth-child(1) { animation-delay: 0.00s; }
+  .js-animate .stat-row.row-in .stat:nth-child(2) { animation-delay: 0.08s; }
+  .js-animate .stat-row.row-in .stat:nth-child(3) { animation-delay: 0.16s; }
+  .js-animate .stat-row.row-in .stat:nth-child(4) { animation-delay: 0.24s; }
+
+  /* Viz-card stagger */
+  .js-animate .viz-card { opacity: 0; }
+  .js-animate .viz-grid.vg-in .viz-card { animation: fade-up-sm 0.6s var(--ease-out) both; }
+  .js-animate .viz-grid.vg-in .viz-card:nth-child(1) { animation-delay: 0.00s; }
+  .js-animate .viz-grid.vg-in .viz-card:nth-child(2) { animation-delay: 0.09s; }
+  .js-animate .viz-grid.vg-in .viz-card:nth-child(3) { animation-delay: 0.18s; }
+  .js-animate .viz-grid.vg-in .viz-card:nth-child(4) { animation-delay: 0.27s; }
+
+  /* Feedback item stagger — delays give parent card time to appear */
+  .js-animate .feedback-item { opacity: 0; }
+  .js-animate .feedback-grid.fg-in .feedback-item { animation: fade-up-sm 0.5s var(--ease-out) both; }
+  .js-animate .feedback-grid.fg-in .feedback-item:nth-child(1) { animation-delay: 0.28s; }
+  .js-animate .feedback-grid.fg-in .feedback-item:nth-child(2) { animation-delay: 0.38s; }
+  .js-animate .feedback-grid.fg-in .feedback-item:nth-child(3) { animation-delay: 0.48s; }
+
+  /* Link button stagger */
+  .js-animate .link-btn { opacity: 0; }
+  .js-animate .links.links-in .link-btn { animation: fade-up-sm 0.5s var(--ease-out) both; }
+  .js-animate .links.links-in .link-btn:nth-child(1) { animation-delay: 0.00s; }
+  .js-animate .links.links-in .link-btn:nth-child(2) { animation-delay: 0.10s; }
+  .js-animate .links.links-in .link-btn:nth-child(3) { animation-delay: 0.20s; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .js-animate .section-label { opacity: 1 !important; transform: none !important; transition: none !important; }
+    .js-animate .stat,
+    .js-animate .viz-card,
+    .js-animate .feedback-item,
+    .js-animate .link-btn { opacity: 1 !important; animation: none !important; }
+  }
+
   @media (max-width: 600px) {
-    .topbar, .hero, .body, .footer { padding-left: 20px; padding-right: 20px; }
+    .topbar { padding: 16px 20px; }
+    .hero { padding: 100px 20px 48px; }
+    .body { padding: 40px 20px 80px; }
+    .footer { padding: 24px 20px; flex-direction: column; gap: 10px; align-items: flex-start; }
     .stat-row { grid-template-columns: repeat(2, 1fr); }
     .viz-grid { grid-template-columns: 1fr; }
     .feedback-grid { grid-template-columns: 1fr; }
-    .footer { flex-direction: column; gap: 10px; align-items: flex-start; }
-  }
-
-  /* ─── Reduced motion ─── */
-  @media (prefers-reduced-motion: reduce) {
-    .hero { animation: none; opacity: 1; transform: none; }
-    .reveal { opacity: 1 !important; transform: none !important; animation: none !important; }
-    .viz-card:hover, .takeaway:hover, .feedback-item:hover { transform: none; }
-    .pill:hover { transform: none; }
-    .stat:hover .stat-num { transform: none; }
   }
 </style>
 </head>
@@ -381,7 +349,7 @@
 
 <div id="scroll-progress"></div>
 <header class="topbar" id="topbar">
-  <a href="index.html#activities" class="back-link">
+  <a href="index.html" class="back-link">
     <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8"
          stroke-linecap="round" stroke-linejoin="round">
       <path d="M10 7H4M4 7l3-3M4 7l3 3"/>
@@ -392,6 +360,7 @@
 </header>
 
 <main>
+<div class="hero-shell">
 <div class="hero">
   <div class="tag">01 &middot; Delta Institute &middot; AWS Work Experience Program</div>
   <h1 class="title">Diabetes Risk<br>Prediction with ML</h1>
@@ -401,11 +370,12 @@
     <span class="date">Python &middot; scikit-learn &middot; CDC BRFSS</span>
   </div>
 </div>
+</div><!-- /hero-shell -->
 
 <div class="body">
 
   <!-- Stats -->
-  <div class="stat-row reveal" id="stat-row">
+  <div class="stat-row" id="stat-row">
     <div class="stat">
       <span class="stat-num" data-target="70692" data-format="comma">70,692</span>
       <span class="stat-label">Dataset rows</span>
@@ -465,36 +435,36 @@
     <div class="section-label">Exploratory Data Analysis</div>
     <p class="prose">Before building any models I ran a full EDA pass to understand distributions, class separation, and inter-feature correlations. The BMI boxplot immediately showed diabetic respondents had a noticeably higher median BMI (~31) compared to non-diabetic (~27), with wider spread &mdash; making it the clearest single visual separator in the dataset.</p>
     <p class="prose">The BMI histogram confirmed the distribution is right-skewed (mean &asymp; 29.9) with the peak around 28&ndash;30. The pairplot revealed BMI and Age together provide the cleanest cluster separation. The correlation heatmap (darker = stronger correlation) showed GenHlth had the second-highest correlation with diabetes at 0.41, much stronger than most other binary indicators.</p>
-    <div class="viz-grid reveal reveal-d1" style="margin-top:18px;">
+    <div class="viz-grid" style="margin-top:18px;">
 
       <!-- BMI Boxplot -->
       <div class="viz-card">
         <svg viewBox="0 0 280 174" xmlns="http://www.w3.org/2000/svg">
-          <rect width="280" height="174" fill="#f7f7f7"/>
-          <line x1="52" y1="20" x2="52" y2="132" stroke="#e0e0e0" stroke-width="1"/>
-          <line x1="52" y1="132" x2="255" y2="132" stroke="#e0e0e0" stroke-width="1"/>
-          <line x1="52" y1="76" x2="255" y2="76" stroke="#ebebeb" stroke-dasharray="3,3" stroke-width="1"/>
-          <line x1="52" y1="48" x2="255" y2="48" stroke="#ebebeb" stroke-dasharray="3,3" stroke-width="1"/>
-          <line x1="52" y1="104" x2="255" y2="104" stroke="#ebebeb" stroke-dasharray="3,3" stroke-width="1"/>
-          <text x="46" y="24" text-anchor="end" font-size="9" fill="#bbb" font-family="monospace">40</text>
-          <text x="46" y="52" text-anchor="end" font-size="9" fill="#bbb" font-family="monospace">35</text>
-          <text x="46" y="80" text-anchor="end" font-size="9" fill="#bbb" font-family="monospace">30</text>
-          <text x="46" y="108" text-anchor="end" font-size="9" fill="#bbb" font-family="monospace">25</text>
-          <text x="46" y="135" text-anchor="end" font-size="9" fill="#bbb" font-family="monospace">20</text>
-          <text x="105" y="150" text-anchor="middle" font-size="9" fill="#aaa" font-family="sans-serif">No Diabetes</text>
-          <text x="200" y="150" text-anchor="middle" font-size="9" fill="#aaa" font-family="sans-serif">Diabetes</text>
-          <rect x="75" y="70" width="60" height="45" fill="#e0e0e0" stroke="#ccc" stroke-width="1.2" rx="2"/>
-          <line x1="75" y1="92" x2="135" y2="92" stroke="#555" stroke-width="2"/>
-          <line x1="105" y1="26" x2="105" y2="70" stroke="#ccc" stroke-width="1" stroke-dasharray="3,2"/>
-          <line x1="105" y1="115" x2="105" y2="126" stroke="#ccc" stroke-width="1" stroke-dasharray="3,2"/>
-          <line x1="90" y1="26" x2="120" y2="26" stroke="#ccc" stroke-width="1"/>
-          <line x1="90" y1="126" x2="120" y2="126" stroke="#ccc" stroke-width="1"/>
-          <rect x="170" y="37" width="60" height="62" fill="#111" rx="2" opacity="0.88"/>
-          <line x1="170" y1="70" x2="230" y2="70" stroke="#fff" stroke-width="2"/>
-          <line x1="200" y1="26" x2="200" y2="37" stroke="#666" stroke-width="1" stroke-dasharray="3,2"/>
-          <line x1="200" y1="99" x2="200" y2="120" stroke="#666" stroke-width="1" stroke-dasharray="3,2"/>
-          <line x1="185" y1="26" x2="215" y2="26" stroke="#666" stroke-width="1"/>
-          <line x1="185" y1="120" x2="215" y2="120" stroke="#666" stroke-width="1"/>
+          <rect width="280" height="174" fill="#141926"/>
+          <line x1="52" y1="20" x2="52" y2="132" stroke="rgba(80,110,180,0.18)" stroke-width="1"/>
+          <line x1="52" y1="132" x2="255" y2="132" stroke="rgba(80,110,180,0.18)" stroke-width="1"/>
+          <line x1="52" y1="76" x2="255" y2="76" stroke="rgba(80,110,180,0.10)" stroke-dasharray="3,3" stroke-width="1"/>
+          <line x1="52" y1="48" x2="255" y2="48" stroke="rgba(80,110,180,0.10)" stroke-dasharray="3,3" stroke-width="1"/>
+          <line x1="52" y1="104" x2="255" y2="104" stroke="rgba(80,110,180,0.10)" stroke-dasharray="3,3" stroke-width="1"/>
+          <text x="46" y="24" text-anchor="end" font-size="9" fill="#3a4e75" font-family="monospace">40</text>
+          <text x="46" y="52" text-anchor="end" font-size="9" fill="#3a4e75" font-family="monospace">35</text>
+          <text x="46" y="80" text-anchor="end" font-size="9" fill="#3a4e75" font-family="monospace">30</text>
+          <text x="46" y="108" text-anchor="end" font-size="9" fill="#3a4e75" font-family="monospace">25</text>
+          <text x="46" y="135" text-anchor="end" font-size="9" fill="#3a4e75" font-family="monospace">20</text>
+          <text x="105" y="150" text-anchor="middle" font-size="9" fill="#6b7fa8" font-family="sans-serif">No Diabetes</text>
+          <text x="200" y="150" text-anchor="middle" font-size="9" fill="#f59e0b" font-family="sans-serif">Diabetes</text>
+          <rect x="75" y="70" width="60" height="45" fill="#1c2338" stroke="rgba(80,110,180,0.3)" stroke-width="1.2" rx="2"/>
+          <line x1="75" y1="92" x2="135" y2="92" stroke="#6b7fa8" stroke-width="2"/>
+          <line x1="105" y1="26" x2="105" y2="70" stroke="rgba(80,110,180,0.25)" stroke-width="1" stroke-dasharray="3,2"/>
+          <line x1="105" y1="115" x2="105" y2="126" stroke="rgba(80,110,180,0.25)" stroke-width="1" stroke-dasharray="3,2"/>
+          <line x1="90" y1="26" x2="120" y2="26" stroke="rgba(80,110,180,0.25)" stroke-width="1"/>
+          <line x1="90" y1="126" x2="120" y2="126" stroke="rgba(80,110,180,0.25)" stroke-width="1"/>
+          <rect x="170" y="37" width="60" height="62" fill="#c47d08" rx="2" opacity="0.90"/>
+          <line x1="170" y1="70" x2="230" y2="70" stroke="#0a0e1a" stroke-width="2"/>
+          <line x1="200" y1="26" x2="200" y2="37" stroke="rgba(245,158,11,0.35)" stroke-width="1" stroke-dasharray="3,2"/>
+          <line x1="200" y1="99" x2="200" y2="120" stroke="rgba(245,158,11,0.35)" stroke-width="1" stroke-dasharray="3,2"/>
+          <line x1="185" y1="26" x2="215" y2="26" stroke="rgba(245,158,11,0.35)" stroke-width="1"/>
+          <line x1="185" y1="120" x2="215" y2="120" stroke="rgba(245,158,11,0.35)" stroke-width="1"/>
         </svg>
         <div class="viz-card-label">BMI by Diabetes Status</div>
       </div>
@@ -502,25 +472,25 @@
       <!-- BMI Histogram -->
       <div class="viz-card">
         <svg viewBox="0 0 280 174" xmlns="http://www.w3.org/2000/svg">
-          <rect width="280" height="174" fill="#f7f7f7"/>
-          <line x1="30" y1="20" x2="30" y2="132" stroke="#e0e0e0" stroke-width="1"/>
-          <line x1="30" y1="132" x2="265" y2="132" stroke="#e0e0e0" stroke-width="1"/>
-          <rect x="32" y="130" width="18" height="2"  fill="#d0d0d0" rx="1"/>
-          <rect x="52" y="127" width="18" height="5"  fill="#ccc" rx="1"/>
-          <rect x="72" y="110" width="18" height="22" fill="#bbb" rx="1"/>
-          <rect x="92" y="70"  width="18" height="62" fill="#888" rx="1"/>
-          <rect x="112" y="38" width="18" height="94" fill="#333" rx="1"/>
-          <rect x="132" y="44" width="18" height="88" fill="#444" rx="1"/>
-          <rect x="152" y="74" width="18" height="58" fill="#666" rx="1"/>
-          <rect x="172" y="100" width="18" height="32" fill="#999" rx="1"/>
-          <rect x="192" y="116" width="18" height="16" fill="#bbb" rx="1"/>
-          <rect x="212" y="124" width="18" height="8"  fill="#ccc" rx="1"/>
-          <rect x="232" y="128" width="18" height="4"  fill="#d8d8d8" rx="1"/>
+          <rect width="280" height="174" fill="#141926"/>
+          <line x1="30" y1="20" x2="30" y2="132" stroke="rgba(80,110,180,0.18)" stroke-width="1"/>
+          <line x1="30" y1="132" x2="265" y2="132" stroke="rgba(80,110,180,0.18)" stroke-width="1"/>
+          <rect x="32" y="130" width="18" height="2"  fill="#1e2c47" rx="1"/>
+          <rect x="52" y="127" width="18" height="5"  fill="#243558" rx="1"/>
+          <rect x="72" y="110" width="18" height="22" fill="#2e4270" rx="1"/>
+          <rect x="92" y="70"  width="18" height="62" fill="#4a6090" rx="1"/>
+          <rect x="112" y="38" width="18" height="94" fill="#d97706" rx="1"/>
+          <rect x="132" y="44" width="18" height="88" fill="#f59e0b" rx="1"/>
+          <rect x="152" y="74" width="18" height="58" fill="#fbbf24" rx="1"/>
+          <rect x="172" y="100" width="18" height="32" fill="#3a5580" rx="1"/>
+          <rect x="192" y="116" width="18" height="16" fill="#2e4270" rx="1"/>
+          <rect x="212" y="124" width="18" height="8"  fill="#243558" rx="1"/>
+          <rect x="232" y="128" width="18" height="4"  fill="#1a2540" rx="1"/>
           <path d="M41 130 C60 122 75 87 100 52 C120 24 140 22 155 37 C170 57 185 97 210 120 C225 128 245 131 265 132"
-                fill="none" stroke="#111" stroke-width="1.5" stroke-dasharray="4,3"/>
-          <text x="41"  y="147" text-anchor="middle" font-size="8" fill="#aaa" font-family="monospace">15</text>
-          <text x="121" y="147" text-anchor="middle" font-size="8" fill="#aaa" font-family="monospace">28</text>
-          <text x="201" y="147" text-anchor="middle" font-size="8" fill="#aaa" font-family="monospace">43</text>
+                fill="none" stroke="rgba(245,158,11,0.4)" stroke-width="1.5" stroke-dasharray="4,3"/>
+          <text x="41"  y="147" text-anchor="middle" font-size="8" fill="#3a4e75" font-family="monospace">15</text>
+          <text x="121" y="147" text-anchor="middle" font-size="8" fill="#3a4e75" font-family="monospace">28</text>
+          <text x="201" y="147" text-anchor="middle" font-size="8" fill="#3a4e75" font-family="monospace">43</text>
         </svg>
         <div class="viz-card-label">BMI Distribution (right-skewed, mean &asymp; 29.9)</div>
       </div>
@@ -528,48 +498,48 @@
       <!-- Pairplot -->
       <div class="viz-card">
         <svg viewBox="0 0 280 174" xmlns="http://www.w3.org/2000/svg">
-          <rect width="280" height="174" fill="#f7f7f7"/>
-          <line x1="24" y1="20" x2="24" y2="152" stroke="#ddd" stroke-width="0.5"/>
-          <line x1="90" y1="20" x2="90" y2="152" stroke="#ddd" stroke-width="0.5"/>
-          <line x1="156" y1="20" x2="156" y2="152" stroke="#ddd" stroke-width="0.5"/>
-          <line x1="222" y1="20" x2="222" y2="152" stroke="#ddd" stroke-width="0.5"/>
-          <line x1="24" y1="20" x2="258" y2="20" stroke="#ddd" stroke-width="0.5"/>
-          <line x1="24" y1="86" x2="258" y2="86" stroke="#ddd" stroke-width="0.5"/>
-          <line x1="24" y1="152" x2="258" y2="152" stroke="#ddd" stroke-width="0.5"/>
-          <text x="57" y="33" text-anchor="middle" font-size="8" fill="#aaa" font-family="sans-serif">BMI</text>
-          <text x="123" y="33" text-anchor="middle" font-size="8" fill="#aaa" font-family="sans-serif">Age</text>
-          <text x="189" y="33" text-anchor="middle" font-size="8" fill="#aaa" font-family="sans-serif">HighBP</text>
-          <text x="18" y="60" text-anchor="end" font-size="7.5" fill="#aaa" font-family="sans-serif" transform="rotate(-90,18,60)">BMI</text>
-          <rect x="26" y="37" width="62" height="47" fill="#eee" rx="2"/>
-          <rect x="92" y="37" width="62" height="47" fill="#eee" rx="2"/>
-          <rect x="158" y="37" width="62" height="47" fill="#eee" rx="2"/>
-          <rect x="26" y="90" width="62" height="60" fill="#eee" rx="2"/>
-          <rect x="92" y="90" width="62" height="60" fill="#eee" rx="2"/>
-          <rect x="158" y="90" width="62" height="60" fill="#eee" rx="2"/>
+          <rect width="280" height="174" fill="#141926"/>
+          <line x1="24" y1="20" x2="24" y2="152" stroke="rgba(80,110,180,0.15)" stroke-width="0.5"/>
+          <line x1="90" y1="20" x2="90" y2="152" stroke="rgba(80,110,180,0.15)" stroke-width="0.5"/>
+          <line x1="156" y1="20" x2="156" y2="152" stroke="rgba(80,110,180,0.15)" stroke-width="0.5"/>
+          <line x1="222" y1="20" x2="222" y2="152" stroke="rgba(80,110,180,0.15)" stroke-width="0.5"/>
+          <line x1="24" y1="20" x2="258" y2="20" stroke="rgba(80,110,180,0.15)" stroke-width="0.5"/>
+          <line x1="24" y1="86" x2="258" y2="86" stroke="rgba(80,110,180,0.15)" stroke-width="0.5"/>
+          <line x1="24" y1="152" x2="258" y2="152" stroke="rgba(80,110,180,0.15)" stroke-width="0.5"/>
+          <text x="57" y="33" text-anchor="middle" font-size="8" fill="#6b7fa8" font-family="sans-serif">BMI</text>
+          <text x="123" y="33" text-anchor="middle" font-size="8" fill="#6b7fa8" font-family="sans-serif">Age</text>
+          <text x="189" y="33" text-anchor="middle" font-size="8" fill="#6b7fa8" font-family="sans-serif">HighBP</text>
+          <text x="18" y="60" text-anchor="end" font-size="7.5" fill="#6b7fa8" font-family="sans-serif" transform="rotate(-90,18,60)">BMI</text>
+          <rect x="26" y="37" width="62" height="47" fill="#1c2338" rx="2"/>
+          <rect x="92" y="37" width="62" height="47" fill="#1c2338" rx="2"/>
+          <rect x="158" y="37" width="62" height="47" fill="#1c2338" rx="2"/>
+          <rect x="26" y="90" width="62" height="60" fill="#1c2338" rx="2"/>
+          <rect x="92" y="90" width="62" height="60" fill="#1c2338" rx="2"/>
+          <rect x="158" y="90" width="62" height="60" fill="#1c2338" rx="2"/>
           <g opacity="0.65">
-            <circle cx="45" cy="68" r="2.5" fill="#bbb"/>
-            <circle cx="52" cy="55" r="2.5" fill="#bbb"/>
-            <circle cx="60" cy="48" r="2.5" fill="#bbb"/>
-            <circle cx="38" cy="72" r="2.5" fill="#bbb"/>
-            <circle cx="70" cy="60" r="2.5" fill="#bbb"/>
-            <circle cx="80" cy="50" r="2.5" fill="#111"/>
-            <circle cx="74" cy="44" r="2.5" fill="#111"/>
-            <circle cx="82" cy="38" r="2.5" fill="#111"/>
-            <circle cx="68" cy="42" r="2.5" fill="#111"/>
+            <circle cx="45" cy="68" r="2.5" fill="#3a4e75"/>
+            <circle cx="52" cy="55" r="2.5" fill="#3a4e75"/>
+            <circle cx="60" cy="48" r="2.5" fill="#3a4e75"/>
+            <circle cx="38" cy="72" r="2.5" fill="#3a4e75"/>
+            <circle cx="70" cy="60" r="2.5" fill="#3a4e75"/>
+            <circle cx="80" cy="50" r="2.5" fill="#f59e0b"/>
+            <circle cx="74" cy="44" r="2.5" fill="#f59e0b"/>
+            <circle cx="82" cy="38" r="2.5" fill="#f59e0b"/>
+            <circle cx="68" cy="42" r="2.5" fill="#f59e0b"/>
           </g>
           <g opacity="0.65">
-            <circle cx="112" cy="65" r="2.5" fill="#bbb"/>
-            <circle cx="120" cy="70" r="2.5" fill="#bbb"/>
-            <circle cx="104" cy="60" r="2.5" fill="#bbb"/>
-            <circle cx="130" cy="55" r="2.5" fill="#111"/>
-            <circle cx="142" cy="45" r="2.5" fill="#111"/>
-            <circle cx="148" cy="50" r="2.5" fill="#111"/>
-            <circle cx="138" cy="40" r="2.5" fill="#111"/>
+            <circle cx="112" cy="65" r="2.5" fill="#3a4e75"/>
+            <circle cx="120" cy="70" r="2.5" fill="#3a4e75"/>
+            <circle cx="104" cy="60" r="2.5" fill="#3a4e75"/>
+            <circle cx="130" cy="55" r="2.5" fill="#f59e0b"/>
+            <circle cx="142" cy="45" r="2.5" fill="#f59e0b"/>
+            <circle cx="148" cy="50" r="2.5" fill="#f59e0b"/>
+            <circle cx="138" cy="40" r="2.5" fill="#f59e0b"/>
           </g>
-          <circle cx="30" cy="162" r="3" fill="#bbb"/>
-          <text x="36" y="166" font-size="8" fill="#aaa" font-family="sans-serif">No diabetes</text>
-          <circle cx="105" cy="162" r="3" fill="#111"/>
-          <text x="111" y="166" font-size="8" fill="#aaa" font-family="sans-serif">Diabetes</text>
+          <circle cx="30" cy="162" r="3" fill="#3a4e75"/>
+          <text x="36" y="166" font-size="8" fill="#6b7fa8" font-family="sans-serif">No diabetes</text>
+          <circle cx="105" cy="162" r="3" fill="#f59e0b"/>
+          <text x="111" y="166" font-size="8" fill="#6b7fa8" font-family="sans-serif">Diabetes</text>
         </svg>
         <div class="viz-card-label">Pairplot &mdash; BMI &amp; Age separate cleanest</div>
       </div>
@@ -577,71 +547,71 @@
       <!-- Correlation Heatmap (grayscale) -->
       <div class="viz-card">
         <svg viewBox="0 0 280 174" xmlns="http://www.w3.org/2000/svg">
-          <rect width="280" height="174" fill="#f7f7f7"/>
+          <rect width="280" height="174" fill="#141926"/>
           <defs>
             <linearGradient id="gsGrad" x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" stop-color="#191919"/>
               <stop offset="100%" stop-color="#d8d8d8"/>
             </linearGradient>
           </defs>
-          <text x="71"  y="18" text-anchor="middle" font-size="7.5" fill="#888" font-family="sans-serif">Diab.</text>
-          <text x="109" y="18" text-anchor="middle" font-size="7.5" fill="#888" font-family="sans-serif">BMI</text>
-          <text x="147" y="18" text-anchor="middle" font-size="7.5" fill="#888" font-family="sans-serif">Age</text>
-          <text x="185" y="18" text-anchor="middle" font-size="7.5" fill="#888" font-family="sans-serif">GenHlth</text>
-          <text x="223" y="18" text-anchor="middle" font-size="7.5" fill="#888" font-family="sans-serif">HighBP</text>
-          <text x="48" y="46"  text-anchor="end" font-size="7.5" fill="#888" font-family="sans-serif">Diab.</text>
-          <text x="48" y="72"  text-anchor="end" font-size="7.5" fill="#888" font-family="sans-serif">BMI</text>
-          <text x="48" y="98"  text-anchor="end" font-size="7.5" fill="#888" font-family="sans-serif">Age</text>
-          <text x="48" y="124" text-anchor="end" font-size="7.5" fill="#888" font-family="sans-serif">GenHlth</text>
+          <text x="71"  y="18" text-anchor="middle" font-size="7.5" fill="#6b7fa8" font-family="sans-serif">Diab.</text>
+          <text x="109" y="18" text-anchor="middle" font-size="7.5" fill="#6b7fa8" font-family="sans-serif">BMI</text>
+          <text x="147" y="18" text-anchor="middle" font-size="7.5" fill="#6b7fa8" font-family="sans-serif">Age</text>
+          <text x="185" y="18" text-anchor="middle" font-size="7.5" fill="#6b7fa8" font-family="sans-serif">GenHlth</text>
+          <text x="223" y="18" text-anchor="middle" font-size="7.5" fill="#6b7fa8" font-family="sans-serif">HighBP</text>
+          <text x="48" y="46"  text-anchor="end" font-size="7.5" fill="#6b7fa8" font-family="sans-serif">Diab.</text>
+          <text x="48" y="72"  text-anchor="end" font-size="7.5" fill="#6b7fa8" font-family="sans-serif">BMI</text>
+          <text x="48" y="98"  text-anchor="end" font-size="7.5" fill="#6b7fa8" font-family="sans-serif">Age</text>
+          <text x="48" y="124" text-anchor="end" font-size="7.5" fill="#6b7fa8" font-family="sans-serif">GenHlth</text>
           <!-- Row 1 -->
-          <rect x="52" y="26" width="36" height="26" fill="#191919" rx="2"/>
-          <text x="70"  y="43" text-anchor="middle" font-size="8" fill="#fff" font-family="monospace">1.0</text>
-          <rect x="90" y="26" width="36" height="26" fill="#c5c5c5" rx="2"/>
-          <text x="108" y="43" text-anchor="middle" font-size="8" fill="#555" font-family="monospace">.22</text>
-          <rect x="128" y="26" width="36" height="26" fill="#c5c5c5" rx="2"/>
-          <text x="146" y="43" text-anchor="middle" font-size="8" fill="#555" font-family="monospace">.22</text>
-          <rect x="166" y="26" width="36" height="26" fill="#9b9b9b" rx="2"/>
-          <text x="184" y="43" text-anchor="middle" font-size="8" fill="#fff" font-family="monospace">.41</text>
-          <rect x="204" y="26" width="36" height="26" fill="#b7b7b7" rx="2"/>
-          <text x="222" y="43" text-anchor="middle" font-size="8" fill="#555" font-family="monospace">.28</text>
+          <rect x="52" y="26" width="36" height="26" fill="#c47d08" rx="2"/>
+          <text x="70"  y="43" text-anchor="middle" font-size="8" fill="#0a0e1a" font-family="monospace">1.0</text>
+          <rect x="90" y="26" width="36" height="26" fill="#232f4a" rx="2"/>
+          <text x="108" y="43" text-anchor="middle" font-size="8" fill="#e8eef8" font-family="monospace">.22</text>
+          <rect x="128" y="26" width="36" height="26" fill="#232f4a" rx="2"/>
+          <text x="146" y="43" text-anchor="middle" font-size="8" fill="#e8eef8" font-family="monospace">.22</text>
+          <rect x="166" y="26" width="36" height="26" fill="#6b5020" rx="2"/>
+          <text x="184" y="43" text-anchor="middle" font-size="8" fill="#0a0e1a" font-family="monospace">.41</text>
+          <rect x="204" y="26" width="36" height="26" fill="#2e3d5e" rx="2"/>
+          <text x="222" y="43" text-anchor="middle" font-size="8" fill="#e8eef8" font-family="monospace">.28</text>
           <!-- Row 2 -->
-          <rect x="52" y="56" width="36" height="26" fill="#c5c5c5" rx="2"/>
-          <text x="70"  y="73" text-anchor="middle" font-size="8" fill="#555" font-family="monospace">.22</text>
-          <rect x="90" y="56" width="36" height="26" fill="#191919" rx="2"/>
-          <text x="108" y="73" text-anchor="middle" font-size="8" fill="#fff" font-family="monospace">1.0</text>
-          <rect x="128" y="56" width="36" height="26" fill="#dbdbdb" rx="2"/>
-          <text x="146" y="73" text-anchor="middle" font-size="8" fill="#555" font-family="monospace">.12</text>
-          <rect x="166" y="56" width="36" height="26" fill="#c5c5c5" rx="2"/>
-          <text x="184" y="73" text-anchor="middle" font-size="8" fill="#555" font-family="monospace">.22</text>
-          <rect x="204" y="56" width="36" height="26" fill="#cecece" rx="2"/>
-          <text x="222" y="73" text-anchor="middle" font-size="8" fill="#555" font-family="monospace">.17</text>
+          <rect x="52" y="56" width="36" height="26" fill="#232f4a" rx="2"/>
+          <text x="70"  y="73" text-anchor="middle" font-size="8" fill="#e8eef8" font-family="monospace">.22</text>
+          <rect x="90" y="56" width="36" height="26" fill="#c47d08" rx="2"/>
+          <text x="108" y="73" text-anchor="middle" font-size="8" fill="#0a0e1a" font-family="monospace">1.0</text>
+          <rect x="128" y="56" width="36" height="26" fill="#1c2741" rx="2"/>
+          <text x="146" y="73" text-anchor="middle" font-size="8" fill="#e8eef8" font-family="monospace">.12</text>
+          <rect x="166" y="56" width="36" height="26" fill="#232f4a" rx="2"/>
+          <text x="184" y="73" text-anchor="middle" font-size="8" fill="#e8eef8" font-family="monospace">.22</text>
+          <rect x="204" y="56" width="36" height="26" fill="#1e2a46" rx="2"/>
+          <text x="222" y="73" text-anchor="middle" font-size="8" fill="#e8eef8" font-family="monospace">.17</text>
           <!-- Row 3 -->
-          <rect x="52" y="86" width="36" height="26" fill="#c5c5c5" rx="2"/>
-          <text x="70"  y="103" text-anchor="middle" font-size="8" fill="#555" font-family="monospace">.22</text>
-          <rect x="90" y="86" width="36" height="26" fill="#dbdbdb" rx="2"/>
-          <text x="108" y="103" text-anchor="middle" font-size="8" fill="#555" font-family="monospace">.12</text>
-          <rect x="128" y="86" width="36" height="26" fill="#191919" rx="2"/>
-          <text x="146" y="103" text-anchor="middle" font-size="8" fill="#fff" font-family="monospace">1.0</text>
-          <rect x="166" y="86" width="36" height="26" fill="#c0c0c0" rx="2"/>
-          <text x="184" y="103" text-anchor="middle" font-size="8" fill="#555" font-family="monospace">.24</text>
-          <rect x="204" y="86" width="36" height="26" fill="#bebebe" rx="2"/>
-          <text x="222" y="103" text-anchor="middle" font-size="8" fill="#555" font-family="monospace">.25</text>
+          <rect x="52" y="86" width="36" height="26" fill="#232f4a" rx="2"/>
+          <text x="70"  y="103" text-anchor="middle" font-size="8" fill="#e8eef8" font-family="monospace">.22</text>
+          <rect x="90" y="86" width="36" height="26" fill="#1c2741" rx="2"/>
+          <text x="108" y="103" text-anchor="middle" font-size="8" fill="#e8eef8" font-family="monospace">.12</text>
+          <rect x="128" y="86" width="36" height="26" fill="#c47d08" rx="2"/>
+          <text x="146" y="103" text-anchor="middle" font-size="8" fill="#0a0e1a" font-family="monospace">1.0</text>
+          <rect x="166" y="86" width="36" height="26" fill="#243050" rx="2"/>
+          <text x="184" y="103" text-anchor="middle" font-size="8" fill="#e8eef8" font-family="monospace">.24</text>
+          <rect x="204" y="86" width="36" height="26" fill="#243050" rx="2"/>
+          <text x="222" y="103" text-anchor="middle" font-size="8" fill="#e8eef8" font-family="monospace">.25</text>
           <!-- Row 4 -->
-          <rect x="52" y="116" width="36" height="26" fill="#9b9b9b" rx="2"/>
-          <text x="70"  y="133" text-anchor="middle" font-size="8" fill="#fff" font-family="monospace">.41</text>
-          <rect x="90" y="116" width="36" height="26" fill="#c5c5c5" rx="2"/>
-          <text x="108" y="133" text-anchor="middle" font-size="8" fill="#555" font-family="monospace">.22</text>
-          <rect x="128" y="116" width="36" height="26" fill="#c0c0c0" rx="2"/>
-          <text x="146" y="133" text-anchor="middle" font-size="8" fill="#555" font-family="monospace">.24</text>
-          <rect x="166" y="116" width="36" height="26" fill="#191919" rx="2"/>
-          <text x="184" y="133" text-anchor="middle" font-size="8" fill="#fff" font-family="monospace">1.0</text>
-          <rect x="204" y="116" width="36" height="26" fill="#bbbbbb" rx="2"/>
-          <text x="222" y="133" text-anchor="middle" font-size="8" fill="#555" font-family="monospace">.27</text>
+          <rect x="52" y="116" width="36" height="26" fill="#6b5020" rx="2"/>
+          <text x="70"  y="133" text-anchor="middle" font-size="8" fill="#0a0e1a" font-family="monospace">.41</text>
+          <rect x="90" y="116" width="36" height="26" fill="#232f4a" rx="2"/>
+          <text x="108" y="133" text-anchor="middle" font-size="8" fill="#e8eef8" font-family="monospace">.22</text>
+          <rect x="128" y="116" width="36" height="26" fill="#243050" rx="2"/>
+          <text x="146" y="133" text-anchor="middle" font-size="8" fill="#e8eef8" font-family="monospace">.24</text>
+          <rect x="166" y="116" width="36" height="26" fill="#c47d08" rx="2"/>
+          <text x="184" y="133" text-anchor="middle" font-size="8" fill="#0a0e1a" font-family="monospace">1.0</text>
+          <rect x="204" y="116" width="36" height="26" fill="#26334e" rx="2"/>
+          <text x="222" y="133" text-anchor="middle" font-size="8" fill="#e8eef8" font-family="monospace">.27</text>
           <!-- Scale -->
           <rect x="250" y="26" width="9" height="116" fill="url(#gsGrad)" rx="2"/>
-          <text x="262" y="30" font-size="7" fill="#aaa" font-family="monospace">1.0</text>
-          <text x="262" y="84" font-size="7" fill="#aaa" font-family="monospace">0.5</text>
-          <text x="262" y="144" font-size="7" fill="#aaa" font-family="monospace">0.0</text>
+          <text x="262" y="30" font-size="7" fill="#3a4e75" font-family="monospace">1.0</text>
+          <text x="262" y="84" font-size="7" fill="#3a4e75" font-family="monospace">0.5</text>
+          <text x="262" y="144" font-size="7" fill="#3a4e75" font-family="monospace">0.0</text>
         </svg>
         <div class="viz-card-label">Correlation Heatmap (top 5 features)</div>
       </div>
@@ -658,34 +628,34 @@
       <svg viewBox="0 0 640 244" xmlns="http://www.w3.org/2000/svg">
         <defs>
           <linearGradient id="barGrad" x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0%" stop-color="#111"/>
-            <stop offset="100%" stop-color="#555"/>
+            <stop offset="0%" stop-color="#f59e0b"/>
+            <stop offset="100%" stop-color="#d97706"/>
           </linearGradient>
         </defs>
         <!-- Labels -->
-        <text x="130" y="30"  text-anchor="end" font-size="12" font-weight="600" fill="#111" font-family="sans-serif">BMI</text>
-        <text x="130" y="62"  text-anchor="end" font-size="12" font-weight="600" fill="#111" font-family="sans-serif">Age</text>
-        <text x="130" y="94"  text-anchor="end" font-size="12" font-weight="600" fill="#111" font-family="sans-serif">GenHlth</text>
-        <text x="130" y="126" text-anchor="end" font-size="12" font-weight="600" fill="#111" font-family="sans-serif">Income</text>
-        <text x="130" y="158" text-anchor="end" font-size="12" font-weight="600" fill="#111" font-family="sans-serif">HighBP</text>
-        <text x="130" y="190" text-anchor="end" font-size="12" font-weight="600" fill="#111" font-family="sans-serif">PhysHlth</text>
-        <text x="130" y="222" text-anchor="end" font-size="12" font-weight="600" fill="#111" font-family="sans-serif">HighChol</text>
+        <text x="130" y="30"  text-anchor="end" font-size="12" font-weight="600" fill="#e8eef8" font-family="sans-serif">BMI</text>
+        <text x="130" y="62"  text-anchor="end" font-size="12" font-weight="600" fill="#e8eef8" font-family="sans-serif">Age</text>
+        <text x="130" y="94"  text-anchor="end" font-size="12" font-weight="600" fill="#e8eef8" font-family="sans-serif">GenHlth</text>
+        <text x="130" y="126" text-anchor="end" font-size="12" font-weight="600" fill="#e8eef8" font-family="sans-serif">Income</text>
+        <text x="130" y="158" text-anchor="end" font-size="12" font-weight="600" fill="#e8eef8" font-family="sans-serif">HighBP</text>
+        <text x="130" y="190" text-anchor="end" font-size="12" font-weight="600" fill="#e8eef8" font-family="sans-serif">PhysHlth</text>
+        <text x="130" y="222" text-anchor="end" font-size="12" font-weight="600" fill="#e8eef8" font-family="sans-serif">HighChol</text>
         <!-- Bars (animated via JS) -->
         <rect class="bar-animate" id="bar0" x="138" y="16"  width="460" height="20" fill="url(#barGrad)" rx="3"/>
-        <rect class="bar-animate" id="bar1" x="138" y="48"  width="344" height="20" fill="#333" rx="3"/>
-        <rect class="bar-animate" id="bar2" x="138" y="80"  width="290" height="20" fill="#444" rx="3"/>
-        <rect class="bar-animate" id="bar3" x="138" y="112" width="228" height="20" fill="#555" rx="3"/>
-        <rect class="bar-animate" id="bar4" x="138" y="144" width="203" height="20" fill="#666" rx="3"/>
-        <rect class="bar-animate" id="bar5" x="138" y="176" width="184" height="20" fill="#777" rx="3"/>
-        <rect class="bar-animate" id="bar6" x="138" y="208" width="111" height="20" fill="#999" rx="3"/>
+        <rect class="bar-animate" id="bar1" x="138" y="48"  width="344" height="20" fill="#8b5e04" rx="3"/>
+        <rect class="bar-animate" id="bar2" x="138" y="80"  width="290" height="20" fill="#6b4803" rx="3"/>
+        <rect class="bar-animate" id="bar3" x="138" y="112" width="228" height="20" fill="#4d3602" rx="3"/>
+        <rect class="bar-animate" id="bar4" x="138" y="144" width="203" height="20" fill="#3a2a02" rx="3"/>
+        <rect class="bar-animate" id="bar5" x="138" y="176" width="184" height="20" fill="#2c2002" rx="3"/>
+        <rect class="bar-animate" id="bar6" x="138" y="208" width="111" height="20" fill="#1e1601" rx="3"/>
         <!-- Values -->
-        <text x="604" y="30"  font-size="11" fill="#888" font-family="monospace">0.170</text>
-        <text x="488" y="62"  font-size="11" fill="#888" font-family="monospace">0.127</text>
-        <text x="434" y="94"  font-size="11" fill="#888" font-family="monospace">0.107</text>
-        <text x="372" y="126" font-size="11" fill="#888" font-family="monospace">0.084</text>
-        <text x="347" y="158" font-size="11" fill="#888" font-family="monospace">0.075</text>
-        <text x="328" y="190" font-size="11" fill="#888" font-family="monospace">0.068</text>
-        <text x="255" y="222" font-size="11" fill="#888" font-family="monospace">0.041</text>
+        <text x="604" y="30"  font-size="11" fill="#6b7fa8" font-family="monospace">0.170</text>
+        <text x="488" y="62"  font-size="11" fill="#6b7fa8" font-family="monospace">0.127</text>
+        <text x="434" y="94"  font-size="11" fill="#6b7fa8" font-family="monospace">0.107</text>
+        <text x="372" y="126" font-size="11" fill="#6b7fa8" font-family="monospace">0.084</text>
+        <text x="347" y="158" font-size="11" fill="#6b7fa8" font-family="monospace">0.075</text>
+        <text x="328" y="190" font-size="11" fill="#6b7fa8" font-family="monospace">0.068</text>
+        <text x="255" y="222" font-size="11" fill="#6b7fa8" font-family="monospace">0.041</text>
       </svg>
     </div>
   </div>
@@ -697,56 +667,56 @@
     <p class="prose">Test 2 (L2 + interaction terms) was best for both models: LR 75.10%, RF 75.06%. Across all configs the two models stayed within 1.6 percentage points, suggesting the dataset ceiling is around 75% for linear approaches without deeper engineering.</p>
     <div class="chart-wrap reveal reveal-d1" style="margin-top:16px; padding:22px 20px 18px;">
       <svg viewBox="0 0 620 252" xmlns="http://www.w3.org/2000/svg">
-        <line x1="140" y1="20"  x2="140" y2="200" stroke="#e8e8e8" stroke-width="1"/>
-        <line x1="140" y1="200" x2="580" y2="200" stroke="#e8e8e8" stroke-width="1"/>
-        <line x1="280" y1="20"  x2="280" y2="200" stroke="#f0f0f0" stroke-dasharray="3,3" stroke-width="1"/>
-        <line x1="420" y1="20"  x2="420" y2="200" stroke="#f0f0f0" stroke-dasharray="3,3" stroke-width="1"/>
-        <line x1="560" y1="20"  x2="560" y2="200" stroke="#f0f0f0" stroke-dasharray="3,3" stroke-width="1"/>
-        <text x="140" y="213" text-anchor="middle" font-size="9" fill="#bbb" font-family="monospace">73%</text>
-        <text x="280" y="213" text-anchor="middle" font-size="9" fill="#bbb" font-family="monospace">74%</text>
-        <text x="420" y="213" text-anchor="middle" font-size="9" fill="#bbb" font-family="monospace">75%</text>
-        <text x="560" y="213" text-anchor="middle" font-size="9" fill="#bbb" font-family="monospace">76%</text>
-        <rect x="140" y="226" width="12" height="9" fill="#111" rx="1"/>
-        <text x="156" y="235" font-size="9.5" fill="#666" font-family="sans-serif">Logistic Regression</text>
-        <rect x="310" y="226" width="12" height="9" fill="#ccc" rx="1"/>
-        <text x="326" y="235" font-size="9.5" fill="#666" font-family="sans-serif">Random Forest</text>
+        <line x1="140" y1="20"  x2="140" y2="200" stroke="rgba(80,110,180,0.18)" stroke-width="1"/>
+        <line x1="140" y1="200" x2="580" y2="200" stroke="rgba(80,110,180,0.18)" stroke-width="1"/>
+        <line x1="280" y1="20"  x2="280" y2="200" stroke="rgba(80,110,180,0.10)" stroke-dasharray="3,3" stroke-width="1"/>
+        <line x1="420" y1="20"  x2="420" y2="200" stroke="rgba(80,110,180,0.10)" stroke-dasharray="3,3" stroke-width="1"/>
+        <line x1="560" y1="20"  x2="560" y2="200" stroke="rgba(80,110,180,0.10)" stroke-dasharray="3,3" stroke-width="1"/>
+        <text x="140" y="213" text-anchor="middle" font-size="9" fill="#3a4e75" font-family="monospace">73%</text>
+        <text x="280" y="213" text-anchor="middle" font-size="9" fill="#3a4e75" font-family="monospace">74%</text>
+        <text x="420" y="213" text-anchor="middle" font-size="9" fill="#3a4e75" font-family="monospace">75%</text>
+        <text x="560" y="213" text-anchor="middle" font-size="9" fill="#3a4e75" font-family="monospace">76%</text>
+        <rect x="140" y="226" width="12" height="9" fill="#f59e0b" rx="1"/>
+        <text x="156" y="235" font-size="9.5" fill="#6b7fa8" font-family="sans-serif">Logistic Regression</text>
+        <rect x="310" y="226" width="12" height="9" fill="#3a5580" rx="1"/>
+        <text x="326" y="235" font-size="9.5" fill="#6b7fa8" font-family="sans-serif">Random Forest</text>
         <!-- Test 0 -->
-        <text x="132" y="33" text-anchor="end" font-size="10" font-weight="700" fill="#666" font-family="sans-serif">Test 0</text>
-        <text x="132" y="45" text-anchor="end" font-size="8.5" fill="#bbb" font-family="sans-serif">Baseline</text>
-        <rect x="141" y="22" width="245" height="12" fill="#111" rx="2"/>
-        <text x="390" y="33" font-size="9" fill="#aaa" font-family="monospace">74.75</text>
-        <rect x="141" y="37" width="66" height="12" fill="#ccc" rx="2"/>
-        <text x="211" y="48" font-size="9" fill="#aaa" font-family="monospace">73.47</text>
+        <text x="132" y="33" text-anchor="end" font-size="10" font-weight="700" fill="#6b7fa8" font-family="sans-serif">Test 0</text>
+        <text x="132" y="45" text-anchor="end" font-size="8.5" fill="#3a4e75" font-family="sans-serif">Baseline</text>
+        <rect x="141" y="22" width="245" height="12" fill="#f59e0b" rx="2"/>
+        <text x="390" y="33" font-size="9" fill="#3a4e75" font-family="monospace">74.75</text>
+        <rect x="141" y="37" width="66" height="12" fill="#3a5580" rx="2"/>
+        <text x="211" y="48" font-size="9" fill="#3a4e75" font-family="monospace">73.47</text>
         <!-- Test 1 -->
-        <text x="132" y="73" text-anchor="end" font-size="10" font-weight="700" fill="#666" font-family="sans-serif">Test 1</text>
-        <text x="132" y="85" text-anchor="end" font-size="8.5" fill="#bbb" font-family="sans-serif">L1 + feat. eng.</text>
-        <rect x="141" y="58" width="293" height="12" fill="#111" rx="2"/>
-        <text x="438" y="69" font-size="9" fill="#aaa" font-family="monospace">75.09</text>
-        <rect x="141" y="73" width="263" height="12" fill="#ccc" rx="2"/>
-        <text x="408" y="84" font-size="9" fill="#aaa" font-family="monospace">74.88</text>
+        <text x="132" y="73" text-anchor="end" font-size="10" font-weight="700" fill="#6b7fa8" font-family="sans-serif">Test 1</text>
+        <text x="132" y="85" text-anchor="end" font-size="8.5" fill="#3a4e75" font-family="sans-serif">L1 + feat. eng.</text>
+        <rect x="141" y="58" width="293" height="12" fill="#f59e0b" rx="2"/>
+        <text x="438" y="69" font-size="9" fill="#3a4e75" font-family="monospace">75.09</text>
+        <rect x="141" y="73" width="263" height="12" fill="#3a5580" rx="2"/>
+        <text x="408" y="84" font-size="9" fill="#3a4e75" font-family="monospace">74.88</text>
         <!-- Test 2 BEST -->
-        <rect x="136" y="92" width="440" height="38" fill="#f2f2f2" rx="5"/>
-        <text x="576" y="104" font-size="9" font-weight="700" fill="#111" font-family="sans-serif">&#9670; best</text>
-        <text x="132" y="108" text-anchor="end" font-size="10" font-weight="700" fill="#111" font-family="sans-serif">Test 2</text>
-        <text x="132" y="120" text-anchor="end" font-size="8.5" fill="#bbb" font-family="sans-serif">L2 + interactions</text>
-        <rect x="141" y="94"  width="294" height="12" fill="#111" rx="2"/>
-        <text x="439" y="105" font-size="9" font-weight="700" fill="#333" font-family="monospace">75.10</text>
-        <rect x="141" y="109" width="288" height="12" fill="#555" rx="2"/>
-        <text x="433" y="120" font-size="9" font-weight="700" fill="#333" font-family="monospace">75.06</text>
+        <rect x="136" y="92" width="440" height="38" fill="rgba(245,158,11,0.08)" rx="5" stroke="rgba(245,158,11,0.2)" stroke-width="1"/>
+        <text x="576" y="104" font-size="9" font-weight="700" fill="#f59e0b" font-family="sans-serif">&#9670; best</text>
+        <text x="132" y="108" text-anchor="end" font-size="10" font-weight="700" fill="#e8eef8" font-family="sans-serif">Test 2</text>
+        <text x="132" y="120" text-anchor="end" font-size="8.5" fill="#3a4e75" font-family="sans-serif">L2 + interactions</text>
+        <rect x="141" y="94"  width="294" height="12" fill="#f59e0b" rx="2"/>
+        <text x="439" y="105" font-size="9" font-weight="700" fill="#fbbf24" font-family="monospace">75.10</text>
+        <rect x="141" y="109" width="288" height="12" fill="#5c8abf" rx="2"/>
+        <text x="433" y="120" font-size="9" font-weight="700" fill="#93b8e0" font-family="monospace">75.06</text>
         <!-- Test 3 -->
-        <text x="132" y="145" text-anchor="end" font-size="10" font-weight="700" fill="#666" font-family="sans-serif">Test 3</text>
-        <text x="132" y="157" text-anchor="end" font-size="8.5" fill="#bbb" font-family="sans-serif">L2, minimal eng.</text>
-        <rect x="141" y="130" width="263" height="12" fill="#111" rx="2"/>
-        <text x="408" y="141" font-size="9" fill="#aaa" font-family="monospace">74.88</text>
-        <rect x="141" y="145" width="284" height="12" fill="#ccc" rx="2"/>
-        <text x="429" y="156" font-size="9" fill="#aaa" font-family="monospace">75.03</text>
+        <text x="132" y="145" text-anchor="end" font-size="10" font-weight="700" fill="#6b7fa8" font-family="sans-serif">Test 3</text>
+        <text x="132" y="157" text-anchor="end" font-size="8.5" fill="#3a4e75" font-family="sans-serif">L2, minimal eng.</text>
+        <rect x="141" y="130" width="263" height="12" fill="#f59e0b" rx="2"/>
+        <text x="408" y="141" font-size="9" fill="#3a4e75" font-family="monospace">74.88</text>
+        <rect x="141" y="145" width="284" height="12" fill="#3a5580" rx="2"/>
+        <text x="429" y="156" font-size="9" fill="#3a4e75" font-family="monospace">75.03</text>
         <!-- Test 4 -->
-        <text x="132" y="176" text-anchor="end" font-size="10" font-weight="700" fill="#666" font-family="sans-serif">Test 4</text>
-        <text x="132" y="188" text-anchor="end" font-size="8.5" fill="#bbb" font-family="sans-serif">ElasticNet</text>
-        <rect x="141" y="163" width="270" height="12" fill="#111" rx="2"/>
-        <text x="415" y="174" font-size="9" fill="#aaa" font-family="monospace">74.93</text>
-        <rect x="141" y="178" width="264" height="12" fill="#ccc" rx="2"/>
-        <text x="409" y="189" font-size="9" fill="#aaa" font-family="monospace">74.89</text>
+        <text x="132" y="176" text-anchor="end" font-size="10" font-weight="700" fill="#6b7fa8" font-family="sans-serif">Test 4</text>
+        <text x="132" y="188" text-anchor="end" font-size="8.5" fill="#3a4e75" font-family="sans-serif">ElasticNet</text>
+        <rect x="141" y="163" width="270" height="12" fill="#f59e0b" rx="2"/>
+        <text x="415" y="174" font-size="9" fill="#3a4e75" font-family="monospace">74.93</text>
+        <rect x="141" y="178" width="264" height="12" fill="#3a5580" rx="2"/>
+        <text x="409" y="189" font-size="9" fill="#3a4e75" font-family="monospace">74.89</text>
       </svg>
     </div>
   </div>
@@ -761,9 +731,9 @@
       <div class="split-seg split-seg--test">20% Test</div>
     </div>
     <div class="split-legend">
-      <span><span class="dot" style="background:#111;"></span>~42,415 rows (train)</span>
-      <span><span class="dot" style="background:#555;"></span>~14,138 rows (val)</span>
-      <span><span class="dot" style="background:#aaa;"></span>~14,139 rows (test)</span>
+      <span><span class="dot" style="background:#f59e0b;"></span>~42,415 rows (train)</span>
+      <span><span class="dot" style="background:#5c7aaa;"></span>~14,138 rows (val)</span>
+      <span><span class="dot" style="background:#1c2338; border:1px solid rgba(80,110,180,0.3);"></span>~14,139 rows (test)</span>
     </div>
   </div>
 
@@ -814,7 +784,7 @@
   </div>
 
   <!-- Links -->
-  <div class="links reveal">
+  <div class="links">
     <a href="https://docs.google.com/presentation/d/1tI6ml5IZQJJBOtfhI1bnKTCKools1B7RRO4EOrmtxZA/edit?usp=sharing"
        target="_blank" rel="noopener" class="link-btn">
       Final Presentation
@@ -845,143 +815,132 @@
 (function () {
   'use strict';
 
+  /* Activate animation mode */
+  document.documentElement.classList.add('js-animate');
+
   var EASE = 'cubic-bezier(0.23,1,0.32,1)';
 
-  /* ── Smooth scroll (Lenis when served over HTTP) ── */
+  /* Lenis */
   var lenis = null;
   try {
     if (typeof Lenis === 'function') {
-      lenis = new Lenis({ duration: 1.2, easing: function(t){ return 1-Math.pow(1-t,4); } });
-      (function raf(t){ lenis.raf(t); requestAnimationFrame(raf); })(0);
+      lenis = new Lenis({ duration: 1.2, easing: function(t){ return 1-Math.pow(1-t,4); }, smoothWheel: true });
+      function raf(t){ lenis.raf(t); requestAnimationFrame(raf); }
+      requestAnimationFrame(raf);
     }
   } catch(e) { lenis = null; }
 
-  /* ── Progress bar ── */
+  /* Scroll progress */
   var progressBar = document.getElementById('scroll-progress');
-  function updateProgress() {
-    if (!progressBar) return;
-    var max = document.documentElement.scrollHeight - window.innerHeight;
-    progressBar.style.width = (max > 0 ? (window.scrollY / max * 100) : 0) + '%';
-  }
-
-  /* ── Topbar ── */
   var topbar = document.getElementById('topbar');
-  function updateTopbar() {
+  function tick() {
+    if (progressBar) {
+      var max = document.documentElement.scrollHeight - window.innerHeight;
+      progressBar.style.width = (max > 0 ? (window.scrollY / max * 100) : 0) + '%';
+    }
     if (topbar) topbar.classList.toggle('scrolled', window.scrollY > 8);
   }
+  window.addEventListener('scroll', tick, { passive: true });
+  window.addEventListener('resize', tick, { passive: true });
+  if (lenis) lenis.on('scroll', tick);
+  tick();
 
-  /* ── Reduced motion: skip all animations ── */
-  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    document.querySelectorAll('.reveal').forEach(function(el){ el.classList.add('in-view'); });
-    document.querySelectorAll('.pills.animate-pills').forEach(function(g){ g.classList.add('pills-visible'); });
-    window.addEventListener('scroll', function(){ updateProgress(); updateTopbar(); }, { passive: true });
-    return;
-  }
-
-  /* ── Collect elements ── */
-  var reveals       = Array.prototype.slice.call(document.querySelectorAll('.reveal'));
-  var pills         = Array.prototype.slice.call(document.querySelectorAll('.pills.animate-pills'));
-  var bars          = Array.prototype.slice.call(document.querySelectorAll('.bar-animate'));
-  var barsTriggered = false;
-  var statsTriggered = false;
-
-  /* Initialise bars at scaleX(0) now, before first paint */
-  bars.forEach(function(b){
-    b.style.transformOrigin = 'left center';
-    b.style.transform = 'scaleX(0)';
-  });
-
-  /* Double-rAF pattern:
-     Frame 1 – add .ready (hides everything that will animate).
-     Frame 2 – check() runs immediately after, fading in whatever
-               is already in the viewport with a smooth transition.
-     The "flash" is just one browser frame (~16ms), barely perceptible. */
-  requestAnimationFrame(function(){
-    reveals.forEach(function(el){ el.classList.add('ready'); });
-    requestAnimationFrame(check); /* reveal in-viewport elements right away */
-  });
-
-  /* ── Count-up animation ── */
-  function countUp(el, target, useComma) {
+  /* Helper: fire once when element enters viewport */
+  function onceVisible(el, fn, opts) {
     if (!el) return;
-    var start = performance.now(), dur = 1400;
-    (function tick(now){
-      var p  = Math.min((now - start) / dur, 1);
-      var v  = Math.round(target * (1 - Math.pow(1 - p, 3)));
-      el.textContent = useComma ? v.toLocaleString() : String(v);
-      if (p < 1) requestAnimationFrame(tick);
-    })(start);
+    var obs = new IntersectionObserver(function(entries) {
+      if (entries[0].isIntersecting) { fn(); obs.disconnect(); }
+    }, opts || {});
+    obs.observe(el);
   }
 
-  /* ── Main scroll check ── */
-  function check() {
-    var vh = window.innerHeight;
-    updateProgress();
-    updateTopbar();
-
-    /* Scroll reveals: in-view ↔ above-view ↔ below (hidden) */
-    reveals.forEach(function(el){
-      if (!el.classList.contains('ready')) return;
-      var r = el.getBoundingClientRect();
-      if (r.bottom < vh * 0.08) {
-        /* Element is mostly above viewport — fade it out */
-        el.classList.remove('in-view');
-        el.classList.add('above-view');
-      } else if (r.top < vh * 0.9) {
-        el.classList.remove('above-view');
-        el.classList.add('in-view');
+  /* Generic reveals via IntersectionObserver */
+  var reveals = Array.prototype.slice.call(document.querySelectorAll('.reveal'));
+  requestAnimationFrame(function() {
+    reveals.forEach(function(el) { el.classList.add('ready'); });
+    requestAnimationFrame(function() {
+      reveals.forEach(function(el) {
+        if (el.getBoundingClientRect().top < window.innerHeight * 0.98) el.classList.add('in-view');
+      });
+    });
+  });
+  var revealObs = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      var el = entry.target;
+      if (entry.isIntersecting) {
+        el.classList.add('in-view'); el.classList.remove('above-view');
+      } else if (el.getBoundingClientRect().bottom < 0) {
+        el.classList.add('above-view'); el.classList.remove('in-view');
       } else {
         el.classList.remove('in-view', 'above-view');
       }
     });
+  }, { threshold: 0.10, rootMargin: '0px 0px -5% 0px' });
+  reveals.forEach(function(el) { revealObs.observe(el); });
 
-    /* Pills stagger */
-    pills.forEach(function(g){
-      if (!g.classList.contains('pills-visible') && g.getBoundingClientRect().top < vh * 0.93)
-        g.classList.add('pills-visible');
+  /* Pills stagger */
+  var pillObs = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) { entry.target.classList.add('pills-visible'); pillObs.unobserve(entry.target); }
     });
+  }, { threshold: 0.15, rootMargin: '0px 0px -3% 0px' });
+  document.querySelectorAll('.pills.animate-pills').forEach(function(g) { pillObs.observe(g); });
 
-    /* Stat counters — query stat-nums by position, not nth-child */
-    if (!statsTriggered) {
-      var statRow = document.getElementById('stat-row') || document.querySelector('.stat-row');
-      if (statRow && statRow.getBoundingClientRect().top < vh * 0.95) {
-        statsTriggered = true;
-        var statNums = Array.prototype.slice.call(statRow.querySelectorAll('.stat-num'));
-        /* targets: [70692 comma, 22 plain, skip 75.1%, 5 plain] */
-        var targets    = [{ v: 70692, comma: true }, { v: 22, comma: false }, null, { v: 5, comma: false }];
-        statNums.forEach(function(el, i){
-          if (targets[i]) countUp(el, targets[i].v, targets[i].comma);
-        });
-      }
-    }
-
-    /* Feature importance bar chart */
-    if (!barsTriggered) {
-      var chart = document.getElementById('feat-chart');
-      if (chart && chart.getBoundingClientRect().top < vh * 0.9) {
-        barsTriggered = true;
-        bars.forEach(function(b, i){
-          setTimeout(function(){
-            b.style.transition = 'transform 0.72s ' + EASE;
-            b.style.transform  = 'scaleX(1)';
-          }, i * 65);
-        });
-      }
-    }
+  /* Count-up */
+  function countUp(el, target, useComma) {
+    if (!el) return;
+    var start = performance.now(), dur = 1400;
+    (function loop(now){
+      var p = Math.min((now - start) / dur, 1);
+      var v = Math.round(target * (1 - Math.pow(1-p, 3)));
+      el.textContent = useComma ? v.toLocaleString() : String(v);
+      if (p < 1) requestAnimationFrame(loop);
+    })(start);
   }
+  onceVisible(document.querySelector('.stat-row'), function() {
+    var nums = Array.prototype.slice.call(document.querySelectorAll('.stat-num'));
+    var targets = [{ v: 70692, comma: true }, { v: 22, comma: false }, null, { v: 5, comma: false }];
+    nums.forEach(function(el, i) { if (targets[i]) countUp(el, targets[i].v, targets[i].comma); });
+  }, { threshold: 0.5 });
 
-  /* ── Attach listeners ── */
-  /* Always use native scroll — works with file://, http, and Lenis */
-  window.addEventListener('scroll', check, { passive: true });
-  window.addEventListener('resize', check, { passive: true });
-  /* Also hook Lenis tick if loaded (double-registers scroll but that's fine) */
-  if (lenis) lenis.on('scroll', check);
+  /* Section label slide-in */
+  document.querySelectorAll('.section-label').forEach(function(el) {
+    onceVisible(el, function() { el.classList.add('lbl-in'); }, { threshold: 0.5 });
+  });
 
-  /* Safety-net check in case rAF2 fired before DOM fully settled */
-  setTimeout(check, 200);
+  /* Stat card stagger */
+  onceVisible(document.querySelector('.stat-row'), function() {
+    document.querySelector('.stat-row').classList.add('row-in');
+  }, { threshold: 0.2 });
+
+  /* Viz-card stagger */
+  onceVisible(document.querySelector('.viz-grid'), function() {
+    document.querySelector('.viz-grid').classList.add('vg-in');
+  }, { threshold: 0.1 });
+
+  /* Feedback item stagger */
+  onceVisible(document.querySelector('.feedback-grid'), function() {
+    document.querySelector('.feedback-grid').classList.add('fg-in');
+  }, { threshold: 0.12 });
+
+  /* Link button stagger */
+  onceVisible(document.querySelector('.links'), function() {
+    document.querySelector('.links').classList.add('links-in');
+  }, { threshold: 0.3 });
+
+  /* Feature importance bars */
+  var bars = Array.prototype.slice.call(document.querySelectorAll('.bar-animate'));
+  bars.forEach(function(b) { b.style.transformOrigin = 'left center'; b.style.transform = 'scaleX(0)'; });
+  onceVisible(document.getElementById('feat-chart'), function() {
+    bars.forEach(function(b, i) {
+      setTimeout(function() {
+        b.style.transition = 'transform 0.72s ' + EASE;
+        b.style.transform = 'scaleX(1)';
+      }, i * 65);
+    });
+  }, { threshold: 0.15 });
 
 })();
-
 </script>
 </body>
 </html>

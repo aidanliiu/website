@@ -1193,30 +1193,30 @@ section {
   border-color: #00d4aa;
 }
 
-/* ── ElderlyAI card — iOS / Apple dark theme ── */
+/* ── ElderlyAI card — light blue clinical theme (matches page) ── */
 .stack-card--elderlyai {
-  background: #1c1c1e;
-  border-color: rgba(0, 122, 255, 0.22);
-  box-shadow: 0 2px 24px -4px rgba(0, 122, 255, 0.10), 0 1px 4px rgba(0, 0, 0, 0.35);
+  background: #f4f8ff;
+  border-color: rgba(0, 100, 230, 0.14);
+  box-shadow: 0 2px 20px -4px rgba(0, 80, 200, 0.10), 0 1px 4px rgba(0, 40, 130, 0.06);
   overflow: hidden;
 }
 
-/* iOS blue accent line along the top edge */
+/* Sky-blue accent line */
 .stack-card--elderlyai::before {
   content: '';
   position: absolute;
   top: 0; left: 0; right: 0; height: 1.5px;
-  background: linear-gradient(90deg, transparent, #007AFF 40%, #3395ff 60%, transparent);
+  background: linear-gradient(90deg, transparent, #0a7ff5 40%, #3395ff 60%, transparent);
   border-radius: 14px 14px 0 0;
   pointer-events: none;
 }
 
-/* Subtle dot-grid background in blue */
+/* Soft blue dot-grid */
 .stack-card--elderlyai::after {
   content: '';
   position: absolute;
   inset: 0;
-  background-image: radial-gradient(circle, rgba(0,122,255,0.07) 1px, transparent 1px);
+  background-image: radial-gradient(circle, rgba(0,100,230,0.05) 1px, transparent 1px);
   background-size: 20px 20px;
   pointer-events: none;
   z-index: 0;
@@ -1228,40 +1228,112 @@ section {
 }
 
 .stack-card--elderlyai .stack-tag {
-  color: #007AFF;
+  color: #0a7ff5;
 }
 
 .stack-card--elderlyai h3 {
-  color: #f2f2f7;
+  color: #0d1117;
   font-weight: 700;
 }
 
 .stack-card--elderlyai p {
-  color: #8e8e93;
+  color: #4a5c72;
 }
 
 .stack-card--elderlyai p a {
-  color: #a8c7f5;
-  text-decoration-color: rgba(168, 199, 245, 0.3);
+  color: #0a7ff5;
+  text-decoration-color: rgba(10, 127, 245, 0.3);
 }
 
 .stack-card--elderlyai p a:hover {
-  text-decoration-color: #a8c7f5;
+  text-decoration-color: #0a7ff5;
 }
 
 .stack-card--elderlyai .stack-date {
-  color: #8e8e93;
+  color: #7a90aa;
 }
 
 .stack-card--elderlyai .stack-read-more {
-  color: #007AFF;
-  border-color: rgba(0, 122, 255, 0.3);
+  color: #0a7ff5;
+  border-color: rgba(10, 127, 245, 0.25);
 }
 
 .stack-card--elderlyai .stack-read-more:hover {
-  background: #007AFF;
+  background: #0a7ff5;
   color: #fff;
-  border-color: #007AFF;
+  border-color: #0a7ff5;
+}
+
+/* ── Diabetes card — dark amber theme (matches page) ── */
+.stack-card--diabetes {
+  background: #0d1220;
+  border-color: rgba(245, 158, 11, 0.22);
+  box-shadow: 0 2px 24px -4px rgba(245, 158, 11, 0.09), 0 1px 4px rgba(0, 0, 0, 0.35);
+  overflow: hidden;
+}
+
+/* Amber accent line */
+.stack-card--diabetes::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; height: 1.5px;
+  background: linear-gradient(90deg, transparent, #f59e0b 40%, #fbbf24 60%, transparent);
+  border-radius: 14px 14px 0 0;
+  pointer-events: none;
+}
+
+/* Dark dot-grid with amber tint */
+.stack-card--diabetes::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(circle, rgba(245,158,11,0.07) 1px, transparent 1px);
+  background-size: 20px 20px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.stack-card--diabetes > * {
+  position: relative;
+  z-index: 1;
+}
+
+.stack-card--diabetes .stack-tag {
+  color: #f59e0b;
+}
+
+.stack-card--diabetes h3 {
+  color: #e8eef8;
+  font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+  font-weight: 700;
+}
+
+.stack-card--diabetes p {
+  color: #6b7fa8;
+}
+
+.stack-card--diabetes p a {
+  color: #fbbf24;
+  text-decoration-color: rgba(251, 191, 36, 0.3);
+}
+
+.stack-card--diabetes p a:hover {
+  text-decoration-color: #fbbf24;
+}
+
+.stack-card--diabetes .stack-date {
+  color: #4a5e80;
+}
+
+.stack-card--diabetes .stack-read-more {
+  color: #f59e0b;
+  border-color: rgba(245, 158, 11, 0.28);
+}
+
+.stack-card--diabetes .stack-read-more:hover {
+  background: #f59e0b;
+  color: #0a0e1a;
+  border-color: #f59e0b;
 }
 
 @media (max-width: 700px) {
