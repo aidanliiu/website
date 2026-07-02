@@ -106,11 +106,7 @@
   .js-animate .reveal.ready.in-view.reveal-d1 { transition-delay: 0.10s; }
   .js-animate .reveal.ready.in-view.reveal-d2 { transition-delay: 0.20s; }
   .js-animate .reveal.ready.in-view.reveal-d3 { transition-delay: 0.30s; }
-  .js-animate .reveal.ready.above-view {
-    opacity: 0; transform: translateY(-18px);
-    transition: opacity 0.35s var(--ease-out), transform 0.4s var(--ease-out);
-    transition-delay: 0s !important;
-  }
+  /* .reveal.ready.above-view — removed: now using fire-once reveals */
 
   .stat-num { font-variant-numeric: tabular-nums; }
   .section { margin-bottom: 64px; }
@@ -866,16 +862,12 @@
   });
   var revealObs = new IntersectionObserver(function(entries) {
     entries.forEach(function(entry) {
-      var el = entry.target;
       if (entry.isIntersecting) {
-        el.classList.add('in-view'); el.classList.remove('above-view');
-      } else if (el.getBoundingClientRect().bottom < 0) {
-        el.classList.add('above-view'); el.classList.remove('in-view');
-      } else {
-        el.classList.remove('in-view', 'above-view');
+        entry.target.classList.add('in-view');
+        revealObs.unobserve(entry.target);
       }
     });
-  }, { threshold: 0.10, rootMargin: '0px 0px -5% 0px' });
+  }, { threshold: 0.04, rootMargin: '0px 0px -40px 0px' });
   reveals.forEach(function(el) { revealObs.observe(el); });
 
   /* Pills stagger */

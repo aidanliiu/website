@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Gallery — Aidan Liu</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      width: 100%; height: 100%;
+      overflow: hidden;
+      background: #080808;
+      font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
+      color: #fff;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    .back-btn {
+      position: fixed; top: 28px; left: 28px; z-index: 200;
+      font-size: 11px; letter-spacing: 0.07em; text-transform: uppercase;
+      color: rgba(255,255,255,0.5); text-decoration: none; transition: color 0.2s;
+    }
+    .back-btn:hover { color: #fff; }
+
+    .gallery-description {
+      position: fixed; bottom: 34px; left: 30px; z-index: 200;
+      max-width: 300px; font-size: 11px; line-height: 1.75;
+      color: rgba(255,255,255,0.38); pointer-events: none;
+    }
+
+    .gallery-tooltip {
+      position: fixed; bottom: 28px; right: 28px; z-index: 200;
+      display: flex; flex-direction: column; align-items: center;
+      gap: 10px; pointer-events: none;
+    }
+    .tooltip-cursor-stage {
+      position: relative; width: 72px; height: 36px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .tooltip-line {
+      position: absolute; width: 56px; height: 1px;
+      background: linear-gradient(90deg, transparent 0%,
+        rgba(255,255,255,0.2) 30%, rgba(255,255,255,0.2) 70%, transparent 100%);
+    }
+    .tooltip-cursor {
+      position: relative; z-index: 1;
+      animation: cursorFloat 2.8s cubic-bezier(0.37,0,0.63,1) infinite;
+    }
+    @keyframes cursorFloat {
+      0%   { transform: translateX(20px); opacity: 0.3; }
+      20%  { opacity: 1; }
+      50%  { transform: translateX(-20px); }
+      80%  { opacity: 1; }
+      100% { transform: translateX(20px); opacity: 0.3; }
+    }
+    .tooltip-text {
+      font-size: 10px; letter-spacing: 0.09em; text-transform: uppercase;
+      color: rgba(255,255,255,0.35); white-space: nowrap;
+    }
+
+    #vp { position: fixed; inset: 0; overflow: hidden; cursor: grab; }
+    #vp.dragging { cursor: grabbing; }
+
+    /* 2D canvas — items scattered in all directions */
+    #cv {
+      position: absolute; top: 0; left: 0;
+      width: 295vw; height: 195vw;
+      will-change: transform;
+    }
+
+    .gi {
+      position: absolute; overflow: hidden; background: #080808;
+    }
+    .gi img, .gi video {
+      width: 100%; height: 100%;
+      object-fit: contain; object-position: center;
+      display: block; pointer-events: none;
+    }
+
+    /* Faint group label */
+    .gl {
+      position: absolute;
+      font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase;
+      color: rgba(255,255,255,0.14); pointer-events: none; white-space: nowrap;
+    }
+
+    /* ══════════════════════════════════════════════════════════
+       GROUPS — scattered in 2D, not a single horizontal line
+
+       ROBOTICS       ·····  top-left       (8–74vw,  6–68vw)
+       MUSIC          ·····  top-right      (205–246vw, 8–42vw)
+       ART            ·····  bottom-left    (14–50vw, 118–168vw)
+       COMMUNITY      ·····  center         (88–152vw, 95–162vw)
+       BASKETBALL     ·····  center-right   (158–218vw, 112–180vw)
+       WEIGHTLIFTING  ·····  far right      (238–288vw, 92–162vw)
+       ══════════════════════════════════════════════════════════ */
+
+    /* ── ROBOTICS (top-left) ── */
+    .g1 { width:36vw; aspect-ratio:4/3;  left:8vw;   top:6vw;  }
+    .g2 { width:22vw; aspect-ratio:4/3;  left:50vw;  top:4vw;  }
+    .g3 { width:34vw; aspect-ratio:4/3;  left:14vw;  top:44vw; }
+
+    /* ── MUSIC (top-right) ── */
+    .g8 { width:16vw; aspect-ratio:3/4;  left:205vw; top:8vw;  }
+    .g9 { width:14vw; aspect-ratio:9/16; left:226vw; top:10vw; }
+
+    /* ── ART (bottom-left) ── */
+    .g14 { width:14vw; aspect-ratio:9/16; left:16vw;  top:118vw; }
+    .g15 { width:28vw; aspect-ratio:4/3;  left:14vw;  top:150vw; }
+
+    /* ── COMMUNITY / SCHOOL (center) ── */
+    .g10 { width:34vw; aspect-ratio:16/9; left:88vw;  top:96vw;  }
+    .g11 { width:12vw; aspect-ratio:1/2;  left:130vw; top:94vw;  }
+    .g12 { width:26vw; aspect-ratio:4/3;  left:91vw;  top:134vw; }
+    .g13 { width:22vw; aspect-ratio:4/3;  left:123vw; top:137vw; }
+
+    /* ── BASKETBALL (center-right) ── */
+    .g4 { width:26vw; aspect-ratio:4/3;  left:158vw; top:114vw; }
+    .g5 { width:30vw; aspect-ratio:4/3;  left:190vw; top:110vw; }
+    .g6 { width:14vw; aspect-ratio:2/3;  left:161vw; top:154vw; }
+    .g7 { width:14vw; aspect-ratio:2/3;  left:182vw; top:150vw; }
+
+    /* ── WEIGHTLIFTING (far right) ── */
+    .g16 { width:18vw; aspect-ratio:9/16; left:240vw; top:94vw;  }
+    .g17 { width:18vw; aspect-ratio:9/16; left:263vw; top:90vw;  }
+    .g18 { width:28vw; aspect-ratio:4/3;  left:238vw; top:132vw; }
+
+  </style>
+</head>
+<body>
+
+<a href="index.html" class="back-btn">← Back to home</a>
+
+<div id="vp">
+  <div id="cv">
+
+    <!-- ROBOTICS — top-left -->
+    <div class="gi g1"><img src="images/gallery/vex-arena.jpg"       alt="VEX Worlds arena"   loading="eager"></div>
+    <div class="gi g2"><img src="images/gallery/robot-build.jpg"     alt="Building the robot" loading="eager"></div>
+    <div class="gi g3"><img src="images/gallery/robot-field.jpg"     alt="On the field"       loading="eager"></div>
+    <div class="gl" style="left:10vw; top:79vw">Robotics</div>
+
+    <!-- MUSIC — top-right -->
+    <div class="gi g8"><img src="images/gallery/violin-perf.jpg"     alt="Violin performance" loading="lazy"></div>
+    <div class="gi g9"><img src="images/gallery/violin-practice.jpg" alt="Violin practice"    loading="lazy"></div>
+    <div class="gl" style="left:207vw; top:48vw">Music</div>
+
+    <!-- ART — bottom-left -->
+    <div class="gi g14"><img src="images/gallery/art4hearts.jpg"     alt="Art4Hearts"         loading="lazy"></div>
+    <div class="gi g15"><img src="images/gallery/art-project.jpg"    alt="Art project"        loading="lazy"></div>
+    <div class="gl" style="left:16vw; top:173vw">Art</div>
+
+    <!-- COMMUNITY — center -->
+    <div class="gi g10"><img src="images/gallery/pep-rally.jpg"      alt="Pep rally"          loading="lazy"></div>
+    <div class="gi g11"><img src="images/gallery/certificates.jpg"   alt="Certificates"       loading="lazy"></div>
+    <div class="gi g12"><img src="images/gallery/spirit-week.jpg"    alt="Spirit week"        loading="lazy"></div>
+    <div class="gi g13"><img src="images/gallery/research.jpg"       alt="Research"           loading="lazy"></div>
+    <div class="gl" style="left:91vw; top:166vw">Community</div>
+
+    <!-- BASKETBALL — center-right -->
+    <div class="gi g4"><img src="images/gallery/young-bball.jpg"     alt="Young Aidan"        loading="lazy"></div>
+    <div class="gi g5"><img src="images/gallery/bball-team.jpg"      alt="Team celebration"   loading="lazy"></div>
+    <div class="gi g6"><img src="images/gallery/bball-shot.jpg"      alt="Jump shot"          loading="lazy"></div>
+    <div class="gi g7"><img src="images/gallery/bball-dribble.jpg"   alt="Dribbling"          loading="lazy"></div>
+    <div class="gl" style="left:162vw; top:180vw">Basketball</div>
+
+    <!-- WEIGHTLIFTING — far right -->
+    <div class="gi g16">
+      <video autoplay loop muted playsinline>
+        <source src="images/gallery/wl1.mp4" type="video/mp4">
+      </video>
+    </div>
+    <div class="gi g17">
+      <video autoplay loop muted playsinline>
+        <source src="images/gallery/weightlifting2.mp4" type="video/mp4">
+      </video>
+    </div>
+    <div class="gi g18"><img src="images/gallery/img-heic.jpg"       alt=""                   loading="lazy"></div>
+    <div class="gl" style="left:240vw; top:163vw">Weightlifting</div>
+
+  </div>
+</div>
+
+<div class="gallery-description">
+  A look at the moments that shaped who I am — robotics, basketball,
+  music, art, and everything in between.
+</div>
+
+<div class="gallery-tooltip">
+  <div class="tooltip-cursor-stage">
+    <div class="tooltip-line"></div>
+    <div class="tooltip-cursor">
+      <svg width="16" height="22" viewBox="0 0 16 22" fill="none">
+        <path d="M1 1.5L1 17L5 13.5L7.5 20.5L10 19.5L7.5 13L13 13L1 1.5Z"
+              fill="white" stroke="rgba(0,0,0,0.6)" stroke-width="0.8" stroke-linejoin="round"/>
+      </svg>
+    </div>
+  </div>
+  <span class="tooltip-text">Click + hold to drag</span>
+</div>
+
+<script>
+(function () {
+  var vp = document.getElementById('vp');
+  var cv = document.getElementById('cv');
+  var px = 0, py = 0, vx = 0, vy = 0;
+  var down = false, ox = 0, oy = 0;
+  var lx = 0, ly = 0, lt = 0, raf = 0;
+
+  function bounds() {
+    return {
+      x0: -(cv.offsetWidth  - window.innerWidth),
+      y0: -(cv.offsetHeight - window.innerHeight),
+      x1: 0, y1: 0
+    };
+  }
+  function clamp(v, a, b) { return v < a ? a : v > b ? b : v; }
+  function move() { cv.style.transform = 'translate(' + px + 'px,' + py + 'px)'; }
+
+  function coast() {
+    vx *= 0.934; vy *= 0.934;
+    if (Math.abs(vx) < 0.07 && Math.abs(vy) < 0.07) return;
+    var b = bounds();
+    px = clamp(px + vx, b.x0, b.x1);
+    py = clamp(py + vy, b.y0, b.y1);
+    if (px === b.x0 || px === b.x1) vx *= -0.1;
+    if (py === b.y0 || py === b.y1) vy *= -0.1;
+    move();
+    raf = requestAnimationFrame(coast);
+  }
+
+  vp.addEventListener('mousedown', function(e) {
+    if (e.button) return;
+    cancelAnimationFrame(raf);
+    down = true; vp.classList.add('dragging');
+    ox = e.clientX - px; oy = e.clientY - py;
+    lx = e.clientX; ly = e.clientY; lt = Date.now();
+    vx = 0; vy = 0; e.preventDefault();
+  });
+  window.addEventListener('mousemove', function(e) {
+    if (!down) return;
+    var now = Date.now(), dt = Math.max(1, now - lt);
+    vx = (e.clientX - lx) / dt * 16;
+    vy = (e.clientY - ly) / dt * 16;
+    lx = e.clientX; ly = e.clientY; lt = now;
+    var b = bounds();
+    px = clamp(e.clientX - ox, b.x0, b.x1);
+    py = clamp(e.clientY - oy, b.y0, b.y1);
+    move();
+  });
+  window.addEventListener('mouseup', function() {
+    if (!down) return;
+    down = false; vp.classList.remove('dragging');
+    raf = requestAnimationFrame(coast);
+  });
+
+  var tsx=0, tsy=0, tlx=0, tly=0, tlt=0;
+  vp.addEventListener('touchstart', function(e) {
+    cancelAnimationFrame(raf);
+    var t = e.touches[0];
+    tsx = t.clientX - px; tsy = t.clientY - py;
+    tlx = t.clientX; tly = t.clientY; tlt = Date.now();
+    vx = 0; vy = 0;
+  }, { passive: true });
+  vp.addEventListener('touchmove', function(e) {
+    var t = e.touches[0], now = Date.now(), dt = Math.max(1, now - tlt);
+    vx = (t.clientX - tlx) / dt * 16;
+    vy = (t.clientY - tly) / dt * 16;
+    tlx = t.clientX; tly = t.clientY; tlt = now;
+    var b = bounds();
+    px = clamp(t.clientX - tsx, b.x0, b.x1);
+    py = clamp(t.clientY - tsy, b.y0, b.y1);
+    move();
+  }, { passive: true });
+  vp.addEventListener('touchend', function() { raf = requestAnimationFrame(coast); });
+
+  document.querySelectorAll('img').forEach(function(i) {
+    i.addEventListener('dragstart', function(e) { e.preventDefault(); });
+  });
+})();
+</script>
+</body>
+</html>

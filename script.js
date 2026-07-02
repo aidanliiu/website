@@ -314,18 +314,78 @@ requestAnimationFrame(() => requestAnimationFrame(checkReveals));
 // Floating cards "drift toward viewer" as the intro section scrolls into view
 const floatCards = document.querySelectorAll('.float-card');
 
+// Fire-once per card: start the animation the first time any pixel is
+// visible, then stop observing — scroll-away can never pause a card
+// mid-cycle and leave it frozen at opacity 0.
 const floatObserver = new IntersectionObserver((entries) => {
   entries.forEach((entry) => {
     if (entry.isIntersecting) {
       entry.target.classList.add('is-visible');
-    } else if (entry.boundingClientRect.top > 0) {
-      // scrolled back above viewport — reset so it can replay
-      entry.target.classList.remove('is-visible');
+      floatObserver.unobserve(entry.target);
     }
   });
-}, { threshold: 0.2 });
+}, { threshold: 0.01 });
 
 floatCards.forEach((el) => floatObserver.observe(el));
+
+// Float card animation — center-out with a fresh random landing spot each cycle.
+//
+// The floatMove keyframe has two decoupled endpoints:
+//   0%   → --from-x/y: fixed vector card→center so every card bursts from
+//           the bio text area. Set once, never changes.
+//   100% → --to-x/y: full-circle random direction, updated every cycle so
+//           cards land in clearly different spots each time around.
+//
+// We drive updates with setInterval (synced to each card's cycle duration)
+// rather than animationiteration, because paused→resumed infinite animations
+// don't always fire that event reliably in all browsers.
+// Updates land at the 0%/100% boundary when opacity is 0 — invisible.
+(() => {
+  requestAnimationFrame(() => {
+    floatCards.forEach((el) => {
+      const parent = el.offsetParent || el.parentElement;
+      const fieldW = parent ? parent.offsetWidth  : window.innerWidth;
+      const fieldH = parent ? parent.offsetHeight : window.innerHeight;
+      const cardCx = el.offsetLeft + el.offsetWidth  / 2;
+      const cardCy = el.offsetTop  + el.offsetHeight / 2;
+
+      // Fixed: card rest pos → field center. Guarantees 0% keyframe = center.
+      const fromX = (fieldW / 2) - cardCx;
+      const fromY = (fieldH / 2) - cardCy;
+      el.style.setProperty('--from-x', `${fromX.toFixed(1)}px`);
+      el.style.setProperty('--from-y', `${fromY.toFixed(1)}px`);
+
+      // Full-circle random landing spot — any direction, varied distance.
+      const setTo = () => {
+        const angle = Math.random() * Math.PI * 2;
+        const dist  = 120 + Math.random() * 260; // 120–380 px
+        el.style.setProperty('--to-x', `${(Math.cos(angle) * dist).toFixed(1)}px`);
+        el.style.setProperty('--to-y', `${(Math.sin(angle) * dist).toFixed(1)}px`);
+        el.style.setProperty('--rot',  `${((Math.random() * 24) - 12).toFixed(1)}deg`);
+      };
+
+      setTo(); // first cycle destination (set before animation even starts)
+
+      // Parse cycle duration and delay from the CSS custom properties.
+      // getPropertyValue returns e.g. ' 16s' — parseFloat handles the unit.
+      const style    = getComputedStyle(el);
+      const duration = (parseFloat(style.getPropertyValue('--cycle-duration')) || 14) * 1000;
+      const delay    = (parseFloat(style.getPropertyValue('--cycle-delay'))    ||  0) * 1000;
+
+      // Wait for the first cycle to actually start (after its stagger delay),
+      // then refresh the destination at the top of every subsequent cycle.
+      setTimeout(() => {
+        setTo();
+        setInterval(setTo, duration);
+      }, delay);
+
+      // Also update via animationiteration as a belt-and-suspenders backup.
+      el.addEventListener('animationiteration', (e) => {
+        if (e.animationName === 'floatMove') setTo();
+      });
+    });
+  });
+})();
 
 // "Selected Works" divider: live mm:ss timer counting time on page.
 const pageTimer = document.getElementById('page-timer');

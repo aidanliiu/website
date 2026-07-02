@@ -11,18 +11,20 @@
 <style>
 /* ===== TOKENS ===== */
 :root {
-  --bg:         #f5f6fa;
-  --bg-hero:    #edeef8;
+  --bg:         #ffffff;
+  --bg-hero:    #b81c12;
   --surface:    #ffffff;
-  --surface-hi: #f8f9fd;
-  --fg:         #0c0d18;
-  --fg-sec:     rgba(12,13,24,0.66);
-  --fg-ter:     rgba(12,13,24,0.36);
-  --muted:      #5b6278;
-  --border:     rgba(12,13,24,0.09);
+  --surface-hi: #fff8f7;
+  --fg:         #0f0a09;
+  --fg-sec:     rgba(15,10,9,0.62);
+  --fg-ter:     rgba(15,10,9,0.34);
+  --muted:      #6b5c5a;
+  --border:     rgba(15,10,9,0.08);
   --accent:     #c42b20;
   --accent-mid: #e53529;
-  --accent-dim: rgba(196,43,32,0.08);
+  --accent-dim: rgba(196,43,32,0.10);
+  --hero-fg:    #ffffff;
+  --hero-fg-sec:rgba(255,255,255,0.72);
   --ease-out:   cubic-bezier(0.23,1,0.32,1);
   --ease-in-out:cubic-bezier(0.77,0,0.175,1);
 }
@@ -52,7 +54,7 @@ body{
   position:fixed;top:0;left:0;right:0;z-index:100;
   display:flex;justify-content:space-between;align-items:center;
   padding:20px 40px;
-  background:rgba(245,246,250,0.88);
+  background:rgba(255,255,255,0.88);
   backdrop-filter:blur(20px) saturate(180%);-webkit-backdrop-filter:blur(20px) saturate(180%);
   border-bottom:1px solid transparent;
   transition:border-color 0.3s var(--ease-out),box-shadow 0.3s var(--ease-out);
@@ -76,19 +78,19 @@ body{
 /* ===== HERO SHELL ===== */
 .hero-shell{
   background:var(--bg-hero);
-  border-bottom:1px solid var(--border);
+  border-bottom:none;
   position:relative;overflow:hidden;
 }
 .hero-shell::after{
   content:'';position:absolute;inset:0;pointer-events:none;
   background:
-    radial-gradient(ellipse 60% 55% at 100% 115%,rgba(196,43,32,0.08) 0%,transparent 65%),
-    radial-gradient(ellipse 30% 30% at 0% 60%,rgba(196,43,32,0.04) 0%,transparent 60%);
+    radial-gradient(ellipse 70% 80% at 100% 50%,rgba(0,0,0,0.18) 0%,transparent 70%),
+    radial-gradient(ellipse 40% 60% at 10% 0%,rgba(255,255,255,0.06) 0%,transparent 60%);
 }
 .hero-court{
-  position:absolute;right:-90px;top:50%;transform:translateY(-50%);
-  width:380px;height:380px;
-  opacity:0.045;pointer-events:none;z-index:0;color:var(--fg);
+  position:absolute;right:-70px;top:50%;transform:translateY(-50%);
+  width:520px;height:520px;
+  opacity:0.22;pointer-events:none;z-index:0;color:#ffffff;
   will-change:transform;
 }
 .hero{
@@ -97,13 +99,13 @@ body{
 }
 .tag{
   font-size:10px;font-weight:700;letter-spacing:0.14em;
-  text-transform:uppercase;color:var(--accent);
+  text-transform:uppercase;color:rgba(255,255,255,0.7);
   margin-bottom:18px;display:inline-block;
 }
 .title{
   font-size:clamp(28px,4.8vw,54px);font-weight:800;
   letter-spacing:-0.03em;line-height:1.08;
-  color:var(--fg);margin-bottom:22px;text-wrap:balance;
+  color:var(--hero-fg);margin-bottom:22px;text-wrap:balance;
 }
 /* word-split styles */
 .word-wrap{display:inline-block;overflow:hidden;vertical-align:bottom;line-height:1.15;}
@@ -116,9 +118,9 @@ body{
 
 .hero-meta{
   display:flex;align-items:center;gap:12px;flex-wrap:wrap;
-  font-size:13px;font-weight:500;color:var(--muted);
+  font-size:13px;font-weight:500;color:var(--hero-fg-sec);
 }
-.hero-dot{width:3px;height:3px;border-radius:50%;background:var(--border);flex-shrink:0;}
+.hero-dot{width:3px;height:3px;border-radius:50%;background:rgba(255,255,255,0.3);flex-shrink:0;}
 
 /* ===== BODY CONTAINER ===== */
 .body{max-width:800px;margin:0 auto;padding:56px 40px 100px;}
@@ -171,8 +173,9 @@ body{
 /* ===== SECTIONS ===== */
 .section{margin-bottom:72px;}
 .section-label{
-  font-size:10px;font-weight:700;letter-spacing:0.14em;
-  text-transform:uppercase;color:var(--accent);margin-bottom:10px;
+  font-size:10px;font-weight:800;letter-spacing:0.18em;
+  text-transform:uppercase;color:var(--accent);margin-bottom:12px;
+  display:inline-flex;align-items:center;gap:8px;
 }
 
 /* Section label - slide in from left */
@@ -420,8 +423,9 @@ hr.divider{
 }
 .feat-bar{
   height:100%;border-radius:3px;
-  background:linear-gradient(90deg,var(--accent),var(--accent-mid));
+  background:linear-gradient(90deg,var(--accent) 0%,var(--accent-mid) 60%,#ff6b5e 100%);
   transform-origin:left center;
+  box-shadow:0 1px 6px rgba(196,43,32,0.35);
 }
 .feat-pct{
   width:40px;text-align:right;
@@ -790,6 +794,169 @@ hr.divider{
   transition:opacity 0.4s var(--ease-out),transform 0.45s var(--ease-out);
 }
 .js-animate .pill-section.ps-in .pill-group-label:nth-of-type(2){transition-delay:0.35s;}
+
+
+/* ══ EXTRA ANIMATIONS ══════════════════════════════════════════ */
+
+/* Model panel props — stagger slide-up on tab switch */
+.mp-prop{
+  opacity:0;transform:translateY(14px);
+  transition:opacity 0.18s ease-in,transform 0.18s ease-in;
+}
+.model-panel.active .mp-prop{
+  opacity:1;transform:none;
+  transition:opacity 0.42s var(--ease-out),transform 0.46s var(--ease-out);
+}
+.model-panel.active .mp-prop:nth-child(1){transition-delay:0.06s;}
+.model-panel.active .mp-prop:nth-child(2){transition-delay:0.12s;}
+.model-panel.active .mp-prop:nth-child(3){transition-delay:0.18s;}
+.model-panel.active .mp-prop:nth-child(4){transition-delay:0.24s;}
+.model-panel.active .mp-prop:nth-child(5){transition-delay:0.30s;}
+
+/* Model panel type/name — slide in from left */
+.mp-type,.mp-name{
+  opacity:0;transform:translateX(-18px);
+  transition:opacity 0.15s ease-in,transform 0.15s ease-in;
+}
+.model-panel.active .mp-type{
+  opacity:1;transform:none;
+  transition:opacity 0.4s var(--ease-out),transform 0.44s var(--ease-out);
+  transition-delay:0.02s;
+}
+.model-panel.active .mp-name{
+  opacity:1;transform:none;
+  transition:opacity 0.44s var(--ease-out),transform 0.48s var(--ease-out);
+  transition-delay:0.05s;
+}
+.model-panel.active .mp-desc{
+  opacity:0;transform:translateY(10px);
+  animation:fade-up 0.48s var(--ease-out) 0.08s both;
+}
+
+/* Stat numbers — scale bounce in */
+@keyframes num-pop{
+  0%  {opacity:0;transform:scale(0.6) translateY(20px);}
+  65% {opacity:1;transform:scale(1.08) translateY(-3px);}
+  85% {transform:scale(0.96) translateY(1px);}
+  100%{opacity:1;transform:scale(1) translateY(0);}
+}
+.js-animate .stat-num{opacity:0;}
+.js-animate .stat-row.row-in .stat-num{animation:num-pop 0.65s var(--ease-out) both;}
+.js-animate .stat-row.row-in .stat:nth-child(1) .stat-num{animation-delay:0.00s;}
+.js-animate .stat-row.row-in .stat:nth-child(2) .stat-num{animation-delay:0.09s;}
+.js-animate .stat-row.row-in .stat:nth-child(3) .stat-num{animation-delay:0.18s;}
+.js-animate .stat-row.row-in .stat:nth-child(4) .stat-num{animation-delay:0.27s;}
+
+/* Stat labels — fade up after num */
+.js-animate .stat-label{opacity:0;transform:translateY(8px);}
+.js-animate .stat-row.row-in .stat-label{
+  opacity:1;transform:none;
+  transition:opacity 0.4s var(--ease-out),transform 0.44s var(--ease-out);
+}
+.js-animate .stat-row.row-in .stat:nth-child(1) .stat-label{transition-delay:0.20s;}
+.js-animate .stat-row.row-in .stat:nth-child(2) .stat-label{transition-delay:0.29s;}
+.js-animate .stat-row.row-in .stat:nth-child(3) .stat-label{transition-delay:0.38s;}
+.js-animate .stat-row.row-in .stat:nth-child(4) .stat-label{transition-delay:0.47s;}
+
+/* Section headings — clip reveal with accent underline sweep */
+@keyframes underline-grow{from{transform:scaleX(0);}to{transform:scaleX(1);}}
+.js-animate h2.reveal.ready.in-view::after{
+  content:'';display:block;height:2px;width:40px;
+  background:var(--accent);margin-top:10px;
+  transform:scaleX(0);transform-origin:left;
+  animation:underline-grow 0.5s var(--ease-out) 0.4s both;
+}
+
+/* DS card name slides up */
+.js-animate .ds-name{opacity:0;transform:translateY(12px);}
+.js-animate .dataset-cards.dc-in .ds-name{
+  opacity:1;transform:none;
+  transition:opacity 0.4s var(--ease-out),transform 0.44s var(--ease-out);
+}
+.js-animate .dataset-cards.dc-in .ds-card:nth-child(1) .ds-name{transition-delay:0.22s;}
+.js-animate .dataset-cards.dc-in .ds-card:nth-child(2) .ds-name{transition-delay:0.32s;}
+.js-animate .dataset-cards.dc-in .ds-card:nth-child(3) .ds-name{transition-delay:0.42s;}
+
+/* DS card desc fades in after name */
+.js-animate .ds-desc,.js-animate .ds-source{opacity:0;}
+.js-animate .dataset-cards.dc-in .ds-desc,.js-animate .dataset-cards.dc-in .ds-source{
+  opacity:1;transition:opacity 0.45s var(--ease-out);
+}
+.js-animate .dataset-cards.dc-in .ds-card:nth-child(1) .ds-desc{transition-delay:0.30s;}
+.js-animate .dataset-cards.dc-in .ds-card:nth-child(2) .ds-desc{transition-delay:0.40s;}
+.js-animate .dataset-cards.dc-in .ds-card:nth-child(3) .ds-desc{transition-delay:0.50s;}
+.js-animate .dataset-cards.dc-in .ds-card:nth-child(1) .ds-source{transition-delay:0.35s;}
+.js-animate .dataset-cards.dc-in .ds-card:nth-child(2) .ds-source{transition-delay:0.45s;}
+.js-animate .dataset-cards.dc-in .ds-card:nth-child(3) .ds-source{transition-delay:0.55s;}
+
+/* Pipe text fades in after number */
+.js-animate .pipe-text{opacity:0;}
+.js-animate .pipeline.pipe-in .pipe-text{
+  opacity:1;transition:opacity 0.38s var(--ease-out);
+}
+.js-animate .pipeline.pipe-in .pipeline-step:nth-child(1) .pipe-text{transition-delay:0.12s;}
+.js-animate .pipeline.pipe-in .pipeline-step:nth-child(2) .pipe-text{transition-delay:0.17s;}
+.js-animate .pipeline.pipe-in .pipeline-step:nth-child(3) .pipe-text{transition-delay:0.22s;}
+.js-animate .pipeline.pipe-in .pipeline-step:nth-child(4) .pipe-text{transition-delay:0.27s;}
+.js-animate .pipeline.pipe-in .pipeline-step:nth-child(5) .pipe-text{transition-delay:0.32s;}
+.js-animate .pipeline.pipe-in .pipeline-step:nth-child(6) .pipe-text{transition-delay:0.37s;}
+.js-animate .pipeline.pipe-in .pipeline-step:nth-child(7) .pipe-text{transition-delay:0.42s;}
+.js-animate .pipeline.pipe-in .pipeline-step:nth-child(8) .pipe-text{transition-delay:0.47s;}
+.js-animate .pipeline.pipe-in .pipeline-step:nth-child(9) .pipe-text{transition-delay:0.52s;}
+
+/* Feat pct counter effect — slide in from right */
+.js-animate .feat-pct{opacity:0;transform:translateX(12px);}
+.js-animate .feat-importance.fi-in .feat-pct{
+  opacity:1;transform:none;
+  transition:opacity 0.38s var(--ease-out),transform 0.42s var(--ease-out);
+}
+.js-animate .feat-importance.fi-in .feat-row:nth-child(n+2):nth-child(2) .feat-pct{transition-delay:0.22s;}
+.js-animate .feat-importance.fi-in .feat-row:nth-child(3) .feat-pct{transition-delay:0.27s;}
+.js-animate .feat-importance.fi-in .feat-row:nth-child(4) .feat-pct{transition-delay:0.32s;}
+.js-animate .feat-importance.fi-in .feat-row:nth-child(5) .feat-pct{transition-delay:0.37s;}
+.js-animate .feat-importance.fi-in .feat-row:nth-child(6) .feat-pct{transition-delay:0.42s;}
+.js-animate .feat-importance.fi-in .feat-row:nth-child(7) .feat-pct{transition-delay:0.47s;}
+.js-animate .feat-importance.fi-in .feat-row:nth-child(8) .feat-pct{transition-delay:0.52s;}
+.js-animate .feat-importance.fi-in .feat-row:nth-child(9) .feat-pct{transition-delay:0.57s;}
+
+/* Takeaway text — fade in after number */
+.js-animate .tw-text{opacity:0;transform:translateY(10px);}
+.js-animate .takeaways.tw-in .tw-text{
+  opacity:1;transform:none;
+  transition:opacity 0.42s var(--ease-out),transform 0.46s var(--ease-out);
+}
+.js-animate .takeaways.tw-in .takeaway:nth-child(1) .tw-text{transition-delay:0.18s;}
+.js-animate .takeaways.tw-in .takeaway:nth-child(2) .tw-text{transition-delay:0.28s;}
+.js-animate .takeaways.tw-in .takeaway:nth-child(3) .tw-text{transition-delay:0.38s;}
+.js-animate .takeaways.tw-in .takeaway:nth-child(4) .tw-text{transition-delay:0.48s;}
+
+/* Season table: row text fades in after lift */
+.js-animate .season-table tbody tr td{opacity:0;}
+.js-animate #season-wrap.tr-in .season-table tbody tr td{
+  opacity:1;transition:opacity 0.35s var(--ease-out);
+}
+.js-animate #season-wrap.tr-in .season-table tbody tr:nth-child(1) td{transition-delay:0.08s;}
+.js-animate #season-wrap.tr-in .season-table tbody tr:nth-child(2) td{transition-delay:0.14s;}
+.js-animate #season-wrap.tr-in .season-table tbody tr:nth-child(3) td{transition-delay:0.20s;}
+.js-animate #season-wrap.tr-in .season-table tbody tr:nth-child(4) td{transition-delay:0.26s;}
+.js-animate #season-wrap.tr-in .season-table tbody tr:nth-child(5) td{transition-delay:0.32s;}
+.js-animate #season-wrap.tr-in .season-table tbody tr:nth-child(6) td{transition-delay:0.38s;}
+.js-animate #season-wrap.tr-in .season-table tbody tr:nth-child(7) td{transition-delay:0.44s;}
+.js-animate #season-wrap.tr-in .season-table tbody tr:nth-child(8) td{transition-delay:0.50s;}
+
+/* Chart head — slide down */
+.js-animate .chart-head{opacity:0;transform:translateY(-16px);}
+.js-animate .results-chart.chart-in .chart-head{
+  opacity:1;transform:none;
+  transition:opacity 0.44s var(--ease-out),transform 0.48s var(--ease-out);
+}
+
+/* Bar player name highlight on entry */
+@keyframes name-flash{
+  0%  {color:var(--accent);font-weight:700;}
+  60% {color:var(--accent);font-weight:700;}
+  100%{color:inherit;font-weight:inherit;}
+}
 
 </style>
 </head>
