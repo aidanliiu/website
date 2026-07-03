@@ -2420,3 +2420,43 @@ footer.site-footer {
   /* Name scale is pure JS — the @media guard inside the IIFE handles this */
 }
 
+/* ============================================================
+   GALLERY CTA  (mobile-only button replacing float cards)
+   ============================================================ */
+
+/* Hidden on desktop — float cards do the job there */
+.gallery-cta-mobile {
+  display: none;
+}
+
+/* Hide "Click any card" hint on mobile (no cards visible) */
+@media (max-width: 900px) {
+  .intro-hint {
+    display: none;
+  }
+
+  /* Tighten intro height on mobile — no float cards to fill the space */
+  .intro { min-height: 48vh; }
+
+  .gallery-cta-mobile {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    margin-top: 22px;
+    padding: 12px 22px;
+    background: var(--dark);
+    color: #f4f4f2;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    border-radius: 999px;
+    text-decoration: none;
+    pointer-events: auto; /* parent section-inner has pointer-events:none */
+    transition: opacity 0.2s var(--ease-out), transform 0.18s var(--ease-out);
+  }
+  .gallery-cta-mobile:hover { opacity: 0.75; }
+  .gallery-cta-mobile:active { transform: scale(0.97); }
+  .gallery-cta-mobile svg { transition: transform 0.2s var(--ease-out); }
+  .gallery-cta-mobile:hover svg { transform: translateX(3px); }
+}
+

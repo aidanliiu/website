@@ -254,6 +254,81 @@
     .w1 { width:18vw; aspect-ratio:9/16; left:283vw; top:28vw; }
     .w2 { width:18vw; aspect-ratio:9/16; left:262vw; top:28vw; }
 
+  /* ── MOBILE: replace draggable canvas with a scrollable photo grid ── */
+  @media (max-width: 768px) {
+    /* restore scrolling */
+    html, body {
+      height: auto !important;
+      overflow: auto !important;
+      overflow-x: hidden !important;
+      cursor: auto !important;
+      user-select: auto !important;
+      -webkit-user-select: auto !important;
+    }
+
+    /* kill custom cursor, glow, vignette, drag tooltip */
+    #cur-ring, #cur-dot, #amb, #vig, .gallery-tooltip { display: none !important; }
+
+    /* back button: restore pointer cursor */
+    .back-btn { cursor: pointer !important; top: 16px; left: 16px; font-size: 11px; }
+
+    /* description says "drag to explore" — not relevant on mobile */
+    .gallery-description { display: none !important; }
+
+    /* release viewport from fixed/overflow-hidden */
+    #vp {
+      position: static !important;
+      overflow: visible !important;
+      cursor: auto !important;
+      width: 100% !important;
+      height: auto !important;
+    }
+
+    /* canvas becomes a plain flex grid */
+    #cv {
+      position: static !important;
+      width: 100% !important;
+      height: auto !important;
+      display: flex !important;
+      flex-wrap: wrap;
+      gap: 3px;
+      padding: 54px 8px 48px;
+      transform: none !important;
+      will-change: auto !important;
+      animation: none !important;
+    }
+
+    /* hide captions, cluster labels, "more to come", date text */
+    #cv > *:not(.gi) { display: none !important; }
+
+    /* all photos: 2-column with uniform aspect ratio */
+    .gi {
+      position: static !important;
+      width: calc(50% - 1.5px) !important;
+      aspect-ratio: 4/3 !important;
+      transform: none !important;
+      flex-shrink: 0;
+      border-radius: 3px;
+      overflow: hidden;
+    }
+    .gi img, .gi video {
+      height: 100%;
+      object-fit: cover !important;
+      filter: brightness(0.95) !important;
+    }
+
+    /* disable hover scale on touch */
+    #vp:not(.dragging) .gi:hover {
+      transform: none !important;
+      box-shadow: none !important;
+      z-index: auto !important;
+    }
+    #vp:not(.dragging) .gi:hover img,
+    #vp:not(.dragging) .gi:hover video {
+      filter: brightness(0.95) !important;
+    }
+  }
+
   </style>
 </head>
 <body>
@@ -388,6 +463,9 @@
   var mx = window.innerWidth / 2, my = window.innerHeight / 2;
   var crx = mx, cry = my;
   var cursorVisible = false;
+
+  /* ── On mobile CSS switches to a scrollable grid — skip the whole drag/cursor system ── */
+  if (window.innerWidth <= 768) return;
 
   /* ── Helpers ── */
   function bounds() {
