@@ -64,21 +64,21 @@
     #vp.dragging { cursor: grabbing; }
 
     /*
-      Canvas fits snugly around all 6 clusters.
-      No single row spans the full width — groups are scattered
-      so there's always something nearby in every direction.
+      Photos within each cluster: 2-4vw apart.
+      Clusters from each other: 30-50vw apart.
 
       CLUSTER MAP (approximate centers):
-        Robotics   →  ~38vw,  ~35vw   (top-left)
-        Music      →  ~93vw,  ~34vw   (top-center)
-        Art        →  ~22vw,  ~105vw  (bottom-left)
-        Basketball →  ~76vw,  ~108vw  (bottom-center)
-        Community  →  ~145vw, ~68vw   (center-right)
-        Weights    →  ~195vw, ~88vw   (far right)
+        Robotics   →  ~28vw,  ~27vw   (top-left)
+        Music      →  ~106vw, ~16vw   (top-center)
+        Art        →  ~183vw, ~15vw   (top-right)
+        Basketball →  ~28vw,  ~102vw  (bottom-left)
+        Spirit     →  ~123vw, ~91vw   (bottom-center-left)
+        SVCSI      →  ~204vw, ~94vw   (bottom-center-right)
+        Weights    →  ~271vw, ~54vw   (far right)
     */
     #cv {
       position: absolute; top: 0; left: 0;
-      width: 215vw; height: 148vw;
+      width: 305vw; height: 140vw;
       will-change: transform;
     }
 
@@ -97,34 +97,41 @@
       color: rgba(255,255,255,0.14); pointer-events: none; white-space: nowrap;
     }
 
-    /* ── ROBOTICS (top-left) ── */
-    .r1 { width:36vw; aspect-ratio:4/3;  left:8vw;  top:5vw;  }
-    .r2 { width:22vw; aspect-ratio:4/3;  left:50vw; top:8vw;  }
-    .r3 { width:38vw; aspect-ratio:4/3;  left:12vw; top:40vw; }
+    /* ── ROBOTICS (top-left): 2 on top row, 1 below ── */
+    .r1 { width:28vw; aspect-ratio:4/3;  left:5vw;   top:5vw;  }
+    .r2 { width:16vw; aspect-ratio:3/4;  left:36vw;  top:5vw;  }
+    .r3 { width:32vw; aspect-ratio:4/3;  left:5vw;   top:29vw; }
 
-    /* ── MUSIC (top-center) ── */
-    .m1 { width:16vw; aspect-ratio:3/4;  left:84vw; top:6vw;  }
-    .m2 { width:14vw; aspect-ratio:9/16; left:87vw; top:38vw; }
+    /* ── MUSIC (top-center): landscape + portrait, 3vw gap ── */
+    /* m1: violin-perf 1125×728 ≈ 3:2 landscape. m2: violin-practice 1050×1400 = 3:4 portrait */
+    .m1 { width:22vw; aspect-ratio:3/2;  left:88vw;  top:5vw; }
+    .m2 { width:17vw; aspect-ratio:3/4;  left:113vw; top:5vw; }
 
-    /* ── ART (bottom-left) ── */
-    .a1 { width:14vw; aspect-ratio:9/16; left:10vw; top:82vw;  }
-    .a2 { width:28vw; aspect-ratio:4/3;  left:8vw;  top:112vw; }
+    /* ── ART (top-right): both portrait, 3vw gap ── */
+    /* a1: 1050×1400 = 3:4. a2: 787×1400 ≈ 9:16. Both ~23vw tall */
+    .a1 { width:17vw; aspect-ratio:3/4;  left:172vw; top:5vw; }
+    .a2 { width:13vw; aspect-ratio:9/16; left:192vw; top:5vw; }
 
-    /* ── BASKETBALL (bottom-center) ── */
-    .b1 { width:30vw; aspect-ratio:4/3;  left:82vw; top:76vw;  }
-    .b2 { width:26vw; aspect-ratio:4/3;  left:50vw; top:88vw;  }
-    .b3 { width:14vw; aspect-ratio:2/3;  left:84vw; top:107vw; }
-    .b4 { width:14vw; aspect-ratio:2/3;  left:52vw; top:112vw; }
+    /* ── BASKETBALL (bottom-left): 2×2 grid, 3vw gaps everywhere ── */
+    /* Row 1: b1 portrait 3:4 (16vw→21vw tall) + b3 portrait 2:3 (14vw→21vw tall) */
+    /* Row 2: b2 landscape 4:3 (28vw→21vw tall) + b4 portrait 2:3 (14vw→21vw tall) */
+    /* All rows same height (21vw), all gaps 3vw */
+    .b1 { width:16vw; aspect-ratio:3/4;  left:5vw;   top:83vw; }
+    .b2 { width:28vw; aspect-ratio:4/3;  left:5vw;   top:107vw; }
+    .b3 { width:14vw; aspect-ratio:2/3;  left:24vw;  top:83vw; }
+    .b4 { width:14vw; aspect-ratio:2/3;  left:36vw;  top:107vw; }
 
-    /* ── COMMUNITY (center-right) ── */
-    .c1 { width:34vw; aspect-ratio:16/9; left:120vw; top:44vw; }
-    .c2 { width:12vw; aspect-ratio:1/2;  left:160vw; top:42vw; }
-    .c3 { width:26vw; aspect-ratio:4/3;  left:122vw; top:80vw; }
-    .c4 { width:22vw; aspect-ratio:4/3;  left:154vw; top:82vw; }
+    /* ── SPIRIT / RALLY (bottom-center-left): 3vw gap ── */
+    .c1 { width:26vw; aspect-ratio:4/3;  left:100vw; top:63vw; }
+    .c3 { width:17vw; aspect-ratio:3/4;  left:129vw; top:63vw; }
 
-    /* ── WEIGHTLIFTING (far right) ── */
-    .w1 { width:18vw; aspect-ratio:9/16; left:188vw; top:52vw; }
-    .w2 { width:18vw; aspect-ratio:9/16; left:188vw; top:94vw; }
+    /* ── SVCSI (bottom-center-right): 3vw gap ── */
+    .c2 { width:26vw; aspect-ratio:4/3;  left:182vw; top:63vw; }
+    .c4 { width:14vw; aspect-ratio:1/2;  left:211vw; top:63vw; }
+
+    /* ── WEIGHTLIFTING (far right): side by side, 3vw gap ── */
+    .w1 { width:18vw; aspect-ratio:9/16; left:283vw; top:28vw; }
+    .w2 { width:18vw; aspect-ratio:9/16; left:262vw; top:28vw; }
 
   </style>
 </head>
@@ -139,31 +146,34 @@
     <div class="gi r1"><img src="vex-arena.jpg"       alt="VEX Worlds arena"   loading="eager"></div>
     <div class="gi r2"><img src="robot-build.jpg"     alt="Building the robot" loading="eager"></div>
     <div class="gi r3"><img src="robot-field.jpg"     alt="On the field"       loading="eager"></div>
-    <div class="gl" style="left:12vw; top:73vw">Robotics</div>
+    <div class="gl" style="left:5vw; top:56vw">Robotics</div>
 
     <!-- MUSIC -->
     <div class="gi m1"><img src="violin-perf.jpg"     alt="Violin performance" loading="eager"></div>
     <div class="gi m2"><img src="violin-practice.jpg" alt="Violin practice"    loading="lazy"></div>
-    <div class="gl" style="left:86vw; top:68vw">Music</div>
+    <div class="gl" style="left:113vw; top:31vw">Music</div>
 
     <!-- ART -->
     <div class="gi a1"><img src="art4hearts.jpg"      alt="Art4Hearts"         loading="lazy"></div>
     <div class="gi a2"><img src="art-project.jpg"     alt="Art project"        loading="lazy"></div>
-    <div class="gl" style="left:10vw; top:137vw">Art</div>
+    <div class="gl" style="left:172vw; top:31vw">Art</div>
 
     <!-- BASKETBALL -->
     <div class="gi b1"><img src="bball-team.jpg"      alt="Team celebration"   loading="lazy"></div>
     <div class="gi b2"><img src="young-bball.jpg"     alt="Young Aidan"        loading="lazy"></div>
     <div class="gi b3"><img src="bball-dribble.jpg"   alt="Dribbling"          loading="lazy"></div>
     <div class="gi b4"><img src="bball-shot.jpg"      alt="Jump shot"          loading="lazy"></div>
-    <div class="gl" style="left:52vw; top:137vw">Basketball</div>
+    <div class="gl" style="left:5vw; top:131vw">Basketball</div>
 
-    <!-- COMMUNITY -->
+    <!-- SPIRIT / RALLY -->
     <div class="gi c1"><img src="pep-rally.jpg"       alt="Pep rally"          loading="lazy"></div>
-    <div class="gi c2"><img src="certificates.jpg"    alt="Certificates"       loading="lazy"></div>
     <div class="gi c3"><img src="spirit-week.jpg"     alt="Spirit week"        loading="lazy"></div>
-    <div class="gi c4"><img src="research.jpg"        alt="Research"           loading="lazy"></div>
-    <div class="gl" style="left:122vw; top:104vw">Community</div>
+    <div class="gl" style="left:129vw; top:89vw">Spirit</div>
+
+    <!-- SVCSI -->
+    <div class="gi c2"><img src="certificates.jpg"    alt="Certificates"       loading="lazy"></div>
+    <div class="gi c4"><img src="research.jpg"        alt="SVCSI"              loading="lazy"></div>
+    <div class="gl" style="left:211vw; top:94vw">SVCSI</div>
 
     <!-- WEIGHTLIFTING -->
     <div class="gi w1">
@@ -176,7 +186,7 @@
         <source src="weightlifting2.mp4" type="video/mp4">
       </video>
     </div>
-    <div class="gl" style="left:188vw; top:131vw">Weightlifting</div>
+    <div class="gl" style="left:262vw; top:63vw">Weightlifting</div>
 
   </div>
 </div>
