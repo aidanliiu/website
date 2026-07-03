@@ -63,10 +63,22 @@
     #vp { position: fixed; inset: 0; overflow: hidden; cursor: grab; }
     #vp.dragging { cursor: grabbing; }
 
-    /* 2D canvas — items scattered in all directions */
+    /*
+      Canvas fits snugly around all 6 clusters.
+      No single row spans the full width — groups are scattered
+      so there's always something nearby in every direction.
+
+      CLUSTER MAP (approximate centers):
+        Robotics   →  ~38vw,  ~35vw   (top-left)
+        Music      →  ~93vw,  ~34vw   (top-center)
+        Art        →  ~22vw,  ~105vw  (bottom-left)
+        Basketball →  ~76vw,  ~108vw  (bottom-center)
+        Community  →  ~145vw, ~68vw   (center-right)
+        Weights    →  ~195vw, ~88vw   (far right)
+    */
     #cv {
       position: absolute; top: 0; left: 0;
-      width: 295vw; height: 195vw;
+      width: 215vw; height: 148vw;
       will-change: transform;
     }
 
@@ -79,53 +91,40 @@
       display: block; pointer-events: none;
     }
 
-    /* Faint group label */
     .gl {
       position: absolute;
       font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase;
       color: rgba(255,255,255,0.14); pointer-events: none; white-space: nowrap;
     }
 
-    /* ══════════════════════════════════════════════════════════
-       GROUPS — scattered in 2D, not a single horizontal line
-
-       ROBOTICS       ·····  top-left       (8–74vw,  6–68vw)
-       MUSIC          ·····  top-right      (205–246vw, 8–42vw)
-       ART            ·····  bottom-left    (14–50vw, 118–168vw)
-       COMMUNITY      ·····  center         (88–152vw, 95–162vw)
-       BASKETBALL     ·····  center-right   (158–218vw, 112–180vw)
-       WEIGHTLIFTING  ·····  far right      (238–288vw, 92–162vw)
-       ══════════════════════════════════════════════════════════ */
-
     /* ── ROBOTICS (top-left) ── */
-    .g1 { width:36vw; aspect-ratio:4/3;  left:8vw;   top:6vw;  }
-    .g2 { width:22vw; aspect-ratio:4/3;  left:50vw;  top:4vw;  }
-    .g3 { width:34vw; aspect-ratio:4/3;  left:14vw;  top:44vw; }
+    .r1 { width:36vw; aspect-ratio:4/3;  left:8vw;  top:5vw;  }
+    .r2 { width:22vw; aspect-ratio:4/3;  left:50vw; top:8vw;  }
+    .r3 { width:38vw; aspect-ratio:4/3;  left:12vw; top:40vw; }
 
-    /* ── MUSIC (top-right) ── */
-    .g8 { width:16vw; aspect-ratio:3/4;  left:205vw; top:8vw;  }
-    .g9 { width:14vw; aspect-ratio:9/16; left:226vw; top:10vw; }
+    /* ── MUSIC (top-center) ── */
+    .m1 { width:16vw; aspect-ratio:3/4;  left:84vw; top:6vw;  }
+    .m2 { width:14vw; aspect-ratio:9/16; left:87vw; top:38vw; }
 
     /* ── ART (bottom-left) ── */
-    .g14 { width:14vw; aspect-ratio:9/16; left:16vw;  top:118vw; }
-    .g15 { width:28vw; aspect-ratio:4/3;  left:14vw;  top:150vw; }
+    .a1 { width:14vw; aspect-ratio:9/16; left:10vw; top:82vw;  }
+    .a2 { width:28vw; aspect-ratio:4/3;  left:8vw;  top:112vw; }
 
-    /* ── COMMUNITY / SCHOOL (center) ── */
-    .g10 { width:34vw; aspect-ratio:16/9; left:88vw;  top:96vw;  }
-    .g11 { width:12vw; aspect-ratio:1/2;  left:130vw; top:94vw;  }
-    .g12 { width:26vw; aspect-ratio:4/3;  left:91vw;  top:134vw; }
-    .g13 { width:22vw; aspect-ratio:4/3;  left:123vw; top:137vw; }
+    /* ── BASKETBALL (bottom-center) ── */
+    .b1 { width:30vw; aspect-ratio:4/3;  left:82vw; top:76vw;  }
+    .b2 { width:26vw; aspect-ratio:4/3;  left:50vw; top:88vw;  }
+    .b3 { width:14vw; aspect-ratio:2/3;  left:84vw; top:107vw; }
+    .b4 { width:14vw; aspect-ratio:2/3;  left:52vw; top:112vw; }
 
-    /* ── BASKETBALL (center-right) ── */
-    .g4 { width:26vw; aspect-ratio:4/3;  left:158vw; top:114vw; }
-    .g5 { width:30vw; aspect-ratio:4/3;  left:190vw; top:110vw; }
-    .g6 { width:14vw; aspect-ratio:2/3;  left:161vw; top:154vw; }
-    .g7 { width:14vw; aspect-ratio:2/3;  left:182vw; top:150vw; }
+    /* ── COMMUNITY (center-right) ── */
+    .c1 { width:34vw; aspect-ratio:16/9; left:120vw; top:44vw; }
+    .c2 { width:12vw; aspect-ratio:1/2;  left:160vw; top:42vw; }
+    .c3 { width:26vw; aspect-ratio:4/3;  left:122vw; top:80vw; }
+    .c4 { width:22vw; aspect-ratio:4/3;  left:154vw; top:82vw; }
 
     /* ── WEIGHTLIFTING (far right) ── */
-    .g16 { width:18vw; aspect-ratio:9/16; left:240vw; top:94vw;  }
-    .g17 { width:18vw; aspect-ratio:9/16; left:263vw; top:90vw;  }
-    .g18 { width:28vw; aspect-ratio:4/3;  left:238vw; top:132vw; }
+    .w1 { width:18vw; aspect-ratio:9/16; left:188vw; top:52vw; }
+    .w2 { width:18vw; aspect-ratio:9/16; left:188vw; top:94vw; }
 
   </style>
 </head>
@@ -136,49 +135,48 @@
 <div id="vp">
   <div id="cv">
 
-    <!-- ROBOTICS — top-left -->
-    <div class="gi g1"><img src="images/gallery/vex-arena.jpg"       alt="VEX Worlds arena"   loading="eager"></div>
-    <div class="gi g2"><img src="images/gallery/robot-build.jpg"     alt="Building the robot" loading="eager"></div>
-    <div class="gi g3"><img src="images/gallery/robot-field.jpg"     alt="On the field"       loading="eager"></div>
-    <div class="gl" style="left:10vw; top:79vw">Robotics</div>
+    <!-- ROBOTICS -->
+    <div class="gi r1"><img src="vex-arena.jpg"       alt="VEX Worlds arena"   loading="eager"></div>
+    <div class="gi r2"><img src="robot-build.jpg"     alt="Building the robot" loading="eager"></div>
+    <div class="gi r3"><img src="robot-field.jpg"     alt="On the field"       loading="eager"></div>
+    <div class="gl" style="left:12vw; top:73vw">Robotics</div>
 
-    <!-- MUSIC — top-right -->
-    <div class="gi g8"><img src="images/gallery/violin-perf.jpg"     alt="Violin performance" loading="lazy"></div>
-    <div class="gi g9"><img src="images/gallery/violin-practice.jpg" alt="Violin practice"    loading="lazy"></div>
-    <div class="gl" style="left:207vw; top:48vw">Music</div>
+    <!-- MUSIC -->
+    <div class="gi m1"><img src="violin-perf.jpg"     alt="Violin performance" loading="eager"></div>
+    <div class="gi m2"><img src="violin-practice.jpg" alt="Violin practice"    loading="lazy"></div>
+    <div class="gl" style="left:86vw; top:68vw">Music</div>
 
-    <!-- ART — bottom-left -->
-    <div class="gi g14"><img src="images/gallery/art4hearts.jpg"     alt="Art4Hearts"         loading="lazy"></div>
-    <div class="gi g15"><img src="images/gallery/art-project.jpg"    alt="Art project"        loading="lazy"></div>
-    <div class="gl" style="left:16vw; top:173vw">Art</div>
+    <!-- ART -->
+    <div class="gi a1"><img src="art4hearts.jpg"      alt="Art4Hearts"         loading="lazy"></div>
+    <div class="gi a2"><img src="art-project.jpg"     alt="Art project"        loading="lazy"></div>
+    <div class="gl" style="left:10vw; top:137vw">Art</div>
 
-    <!-- COMMUNITY — center -->
-    <div class="gi g10"><img src="images/gallery/pep-rally.jpg"      alt="Pep rally"          loading="lazy"></div>
-    <div class="gi g11"><img src="images/gallery/certificates.jpg"   alt="Certificates"       loading="lazy"></div>
-    <div class="gi g12"><img src="images/gallery/spirit-week.jpg"    alt="Spirit week"        loading="lazy"></div>
-    <div class="gi g13"><img src="images/gallery/research.jpg"       alt="Research"           loading="lazy"></div>
-    <div class="gl" style="left:91vw; top:166vw">Community</div>
+    <!-- BASKETBALL -->
+    <div class="gi b1"><img src="bball-team.jpg"      alt="Team celebration"   loading="lazy"></div>
+    <div class="gi b2"><img src="young-bball.jpg"     alt="Young Aidan"        loading="lazy"></div>
+    <div class="gi b3"><img src="bball-dribble.jpg"   alt="Dribbling"          loading="lazy"></div>
+    <div class="gi b4"><img src="bball-shot.jpg"      alt="Jump shot"          loading="lazy"></div>
+    <div class="gl" style="left:52vw; top:137vw">Basketball</div>
 
-    <!-- BASKETBALL — center-right -->
-    <div class="gi g4"><img src="images/gallery/young-bball.jpg"     alt="Young Aidan"        loading="lazy"></div>
-    <div class="gi g5"><img src="images/gallery/bball-team.jpg"      alt="Team celebration"   loading="lazy"></div>
-    <div class="gi g6"><img src="images/gallery/bball-shot.jpg"      alt="Jump shot"          loading="lazy"></div>
-    <div class="gi g7"><img src="images/gallery/bball-dribble.jpg"   alt="Dribbling"          loading="lazy"></div>
-    <div class="gl" style="left:162vw; top:180vw">Basketball</div>
+    <!-- COMMUNITY -->
+    <div class="gi c1"><img src="pep-rally.jpg"       alt="Pep rally"          loading="lazy"></div>
+    <div class="gi c2"><img src="certificates.jpg"    alt="Certificates"       loading="lazy"></div>
+    <div class="gi c3"><img src="spirit-week.jpg"     alt="Spirit week"        loading="lazy"></div>
+    <div class="gi c4"><img src="research.jpg"        alt="Research"           loading="lazy"></div>
+    <div class="gl" style="left:122vw; top:104vw">Community</div>
 
-    <!-- WEIGHTLIFTING — far right -->
-    <div class="gi g16">
+    <!-- WEIGHTLIFTING -->
+    <div class="gi w1">
       <video autoplay loop muted playsinline>
-        <source src="images/gallery/wl1.mp4" type="video/mp4">
+        <source src="wl1.mp4" type="video/mp4">
       </video>
     </div>
-    <div class="gi g17">
+    <div class="gi w2">
       <video autoplay loop muted playsinline>
-        <source src="images/gallery/weightlifting2.mp4" type="video/mp4">
+        <source src="weightlifting2.mp4" type="video/mp4">
       </video>
     </div>
-    <div class="gi g18"><img src="images/gallery/img-heic.jpg"       alt=""                   loading="lazy"></div>
-    <div class="gl" style="left:240vw; top:163vw">Weightlifting</div>
+    <div class="gl" style="left:188vw; top:131vw">Weightlifting</div>
 
   </div>
 </div>
