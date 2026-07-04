@@ -1,0 +1,15 @@
+{
+  "name": "aidanliu-website",
+  "version": "1.0.0",
+  "description": "Aidan Liu's personal website",
+  "scripts": {
+    "dev": "python3 -m http.server 8000",
+    "build": "echo 'Static site - no build step required'"
+  },
+  "keywords": ["personal", "portfolio", "website"],
+  "author": "Aidan Liu",
+  "license": "MIT",
+  "dependencies": {
+    "@vercel/speed-insights": "^1.1.0"
+  }
+}
