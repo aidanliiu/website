@@ -116,6 +116,17 @@ header.topbar.is-scrolled .name-short {
   filter: blur(0);
 }
 
+/* Awards name-zoom override: show full name while the name is growing */
+header.topbar.is-name-zooming .name-full-wrap {
+  opacity: 1 !important;
+  filter: blur(0) !important;
+}
+header.topbar.is-name-zooming .name-short {
+  opacity: 0 !important;
+  filter: blur(4px) !important;
+  pointer-events: none !important;
+}
+
 /* ---- Name zoom: render at high native resolution, then scale DOWN ---- */
 /* .name-full-wrap is invisible but keeps the original 13px footprint, so the
    link's clickable hit area and the topbar layout stay exactly as before.
@@ -691,6 +702,7 @@ section {
   margin: 0 0 18px;
   line-height: 1.22;
   letter-spacing: -0.03em;
+  text-wrap: balance;
 }
 
 .intro p {
@@ -1668,11 +1680,12 @@ footer.site-footer {
 .awards-sticky {
   position: sticky;
   top: 0;
-  height: 100vh;
+  height: 100dvh;
   display: flex;
   flex-direction: column;
-  justify-content: center; /* label + belt center together as one group */
-  overflow: hidden;
+  justify-content: flex-end; /* cards anchor to bottom; label is absolute */
+  overflow-x: clip;   /* prevent horizontal bleed from the scrolling track */
+  overflow-y: visible; /* allow card bottom to breathe past the panel edge */
   background: #fff;
 }
 
@@ -1691,8 +1704,8 @@ footer.site-footer {
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  padding: 0 48px 14px;
+  gap: 8px;
+  padding: 0 48px 16px;
 }
 
 .awards-label-row {
@@ -1731,10 +1744,7 @@ footer.site-footer {
 }
 
 @media (max-width: 700px) {
-  .awards-label-wrap {
-    padding: 0 22px 10px;
-    gap: 8px;
-  }
+  .awards-label-wrap { padding: 0 22px 12px; }
 }
 
 /* Belt: horizontal window, cards stretch edge-to-edge. No longer flex:1 —
@@ -1743,13 +1753,11 @@ footer.site-footer {
    cards far away from it. */
 .awards-belt {
   flex-shrink: 0;
-  /* clip horizontal so the scrolling track doesn't overflow,
-     but leave vertical breathing room for card hover lift + shadow */
   overflow-x: clip;
   overflow-y: visible;
   display: flex;
-  align-items: center;
-  padding: 20px 48px 36px;
+  align-items: stretch;
+  padding: 20px 48px 52px;
   box-sizing: border-box;
 }
 
@@ -1759,7 +1767,7 @@ footer.site-footer {
    scrollWidth return ~belt-width instead of the real content width. */
 .awards-track {
   display: flex;
-  align-items: center;
+  align-items: stretch;
   width: max-content;
   will-change: transform;
 }
@@ -1767,39 +1775,30 @@ footer.site-footer {
 /* One set of 13 cards. */
 .awards-set {
   display: flex;
-  gap: 18px;
+  gap: 28px;
   flex-shrink: 0;
   align-items: stretch;
 }
 
-/* Individual award card — taller, wider, with visual icon area.
-   Every visual element (label, year, border, icon tint, hover) reads off
-   one --cat custom property per category, so the color tokens live in one
-   place instead of being repeated per element — kept deliberately subtle
-   (thin border, plain-colored text, no fills) to stay minimalist. */
+/* Individual award card — Isa de Burgh timeline style.
+   No border/shadow. Large year, category label, full-bleed photo, inline desc.
+   JS drives 3D tilt on hover; CSS provides the spring-back. */
 .award-card {
   --cat: 17, 17, 17; /* neutral fallback */
-  width: 290px;
-  height: 380px;
+  width: 270px;
+  height: 420px;
   flex-shrink: 0;
   background: #fff;
-  border-radius: 12px;
-  border: 1.5px solid rgba(var(--cat), 0.28);
-  padding: 18px 16px 0;
+  border-radius: 0;
+  border: none;
+  padding: 0;
   display: flex;
   flex-direction: column;
   cursor: pointer;
-  /* JS sets transform directly for tilt — CSS handles spring-back + shadow/border */
-  transition: transform 0.5s var(--ease-spring),
-              box-shadow 0.35s var(--ease-out),
-              border-color 0.2s var(--ease-out);
+  transition: transform 0.5s var(--ease-spring);
 }
 
-.award-card:hover {
-  box-shadow: 0 16px 40px -10px rgba(var(--cat), 0.28),
-              0 4px 10px -4px rgba(var(--cat), 0.1);
-  border-color: rgba(var(--cat), 0.5);
-}
+.award-card:hover { /* tilt handled by JS */ }
 
 .award-card:active {
   transform: scale(0.97) !important;
@@ -1973,56 +1972,56 @@ footer.site-footer {
 
 .award-cat {
   font-size: 10px;
-  letter-spacing: 0.12em;
+  font-weight: 700;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: rgb(var(--cat)); /* solid, not faded — keeps small text ≥4.5:1 on white */
-  margin: 0 0 8px;
+  color: rgb(var(--cat));
+  margin: 0;
+  padding: 22px 22px 0;
   display: block;
 }
 
 .award-year {
-  font-size: clamp(28px, 3.8vw, 44px);
-  font-weight: 300;
-  color: var(--fg);
-  margin: 0 0 6px;
+  font-size: clamp(38px, 4.4vw, 54px);
+  font-weight: 700;
+  color: #111;
+  margin: 0;
+  padding: 6px 22px 0;
   line-height: 1;
-  letter-spacing: -0.04em;
+  letter-spacing: -0.03em;
+  white-space: nowrap; /* e.g. "2025–26" must stay on one line */
 }
 
 .award-name {
-  font-size: 12px;
+  font-size: 10.5px;
   font-weight: 700;
-  color: var(--fg);
+  color: #222;
   margin: 0;
-  line-height: 1.35;
-  letter-spacing: 0.06em;
+  padding: 6px 22px 0;
+  line-height: 1.4;
+  letter-spacing: 0.10em;
   text-transform: uppercase;
 }
 
-/* Icon / visual area — fills remaining card height */
+/* Full-bleed photo strip — fills remaining card height */
 .award-icon {
   flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(var(--cat), 0.05);
-  border-radius: 8px;
-  margin: 12px 0 12px;
-  min-height: 72px;
+  min-height: 200px;
   overflow: hidden;
-  color: rgba(var(--cat), 0.3);
+  margin: 14px 0 0;
+  display: block;
+  background: #f0f0f0;
 }
 
 .award-icon svg {
-  width: 60px;
-  height: 60px;
+  display: none;
 }
 
 .award-icon img {
   width: 100%;
   height: 100%;
   object-fit: contain;
-  border-radius: 8px;
+  object-position: center;
   display: block;
 }
 
@@ -2030,16 +2029,31 @@ footer.site-footer {
   object-fit: cover;
 }
 
+/* Hidden — description shown inline via .award-desc instead */
 .award-sub {
-  font-size: 12px;
-  color: rgba(17, 17, 17, 0.65);
-  margin: 0 0 16px;
-  line-height: 1.6;
+  display: none;
+}
+
+/* Inline description — injected from data-desc by JS */
+.award-desc {
+  font-size: 11.5px;
+  line-height: 1.65;
+  color: #666;
+  padding: 11px 22px 22px;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 @media (max-width: 700px) {
-  .awards-belt { padding: 8px 16px 20px; }
-  .award-card  { width: 220px; border-radius: 10px; padding: 16px 14px 0; }
+  .awards-belt { padding: 8px 16px 24px; }
+  .award-card  { width: 210px; height: 390px; }
+  .award-year  { font-size: clamp(36px, 9vw, 48px); padding-left: 16px; padding-right: 16px; }
+  .award-cat   { padding-left: 16px; padding-right: 16px; }
+  .award-name  { padding-left: 16px; padding-right: 16px; }
+  .award-desc  { padding: 10px 16px 18px; font-size: 11px; }
 }
 
 /* ============================================================
@@ -2421,42 +2435,67 @@ footer.site-footer {
 }
 
 /* ============================================================
-   GALLERY CTA  (mobile-only button replacing float cards)
+   GALLERY CTA  (visible on all screen sizes)
    ============================================================ */
 
-/* Hidden on desktop — float cards do the job there */
-.gallery-cta-mobile {
-  display: none;
+/* Hide "Click any card" hint — the button replaces it */
+.intro-hint { display: none !important; }
+
+/* Desktop: subtle bordered pill sitting below the intro copy */
+.gallery-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 26px;
+  padding: 9px 18px;
+  background: transparent;
+  color: var(--fg);
+  font-family: inherit;
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  border: 1px solid rgba(17, 17, 17, 0.18);
+  border-radius: 999px;
+  text-decoration: none;
+  pointer-events: auto; /* parent .section-inner has pointer-events: none */
+  transition: background 0.22s var(--ease-out),
+              border-color 0.22s var(--ease-out),
+              transform 0.16s var(--ease-out);
+}
+.gallery-cta:hover {
+  background: rgba(17, 17, 17, 0.05);
+  border-color: rgba(17, 17, 17, 0.32);
+}
+.gallery-cta:active { transform: scale(0.97); }
+.gallery-cta svg {
+  opacity: 0.5;
+  flex-shrink: 0;
+  transition: transform 0.22s var(--ease-out), opacity 0.18s var(--ease-out);
+}
+.gallery-cta:hover svg {
+  transform: translateX(3px);
+  opacity: 0.9;
 }
 
-/* Hide "Click any card" hint on mobile (no cards visible) */
+/* Mobile: float cards are gone — promote to a filled dark pill */
 @media (max-width: 900px) {
-  .intro-hint {
-    display: none;
-  }
-
-  /* Tighten intro height on mobile — no float cards to fill the space */
   .intro { min-height: 48vh; }
 
-  .gallery-cta-mobile {
-    display: inline-flex;
-    align-items: center;
-    gap: 9px;
+  .gallery-cta {
     margin-top: 22px;
     padding: 12px 22px;
+    font-size: 13px;
+    letter-spacing: 0.01em;
+    text-transform: none;
     background: var(--dark);
     color: #f4f4f2;
-    font-size: 13px;
-    font-weight: 600;
-    letter-spacing: 0.01em;
-    border-radius: 999px;
-    text-decoration: none;
-    pointer-events: auto; /* parent section-inner has pointer-events:none */
-    transition: opacity 0.2s var(--ease-out), transform 0.18s var(--ease-out);
+    border-color: var(--dark);
   }
-  .gallery-cta-mobile:hover { opacity: 0.75; }
-  .gallery-cta-mobile:active { transform: scale(0.97); }
-  .gallery-cta-mobile svg { transition: transform 0.2s var(--ease-out); }
-  .gallery-cta-mobile:hover svg { transform: translateX(3px); }
+  .gallery-cta:hover {
+    background: rgba(10, 10, 10, 0.88);
+    border-color: rgba(10, 10, 10, 0.88);
+  }
+  .gallery-cta svg { opacity: 1; }
 }
 

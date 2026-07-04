@@ -1245,9 +1245,11 @@ if (linksHeading) {
   const IDLE_FONT_SIZE = 13; // px — must match .name-full-wrap font-size in style.css
   const NATIVE_FONT_SIZE = 96; // px — must match .name-full font-size in style.css
 
-  const nameEl = document.querySelector('header.topbar .name'); // for pointer-events only
-  const nameFullEl = document.querySelector('header.topbar .name-full'); // the actual scaled text
+  const nameEl      = document.querySelector('header.topbar .name'); // for pointer-events only
+  const nameFullEl  = document.querySelector('header.topbar .name-full'); // the actual scaled text
+  const topbarEl    = document.querySelector('header.topbar'); // for is-name-zooming class toggle
   const heroSection = document.querySelector('.hero');
+  const awardsSection = document.querySelector('.awards-section'); // second zoom phase
   if (!nameEl || !nameFullEl || !heroSection) return;
 
   const clamp01 = (v) => Math.min(Math.max(v, 0), 1);
@@ -1289,7 +1291,40 @@ if (linksHeading) {
       growth = currentPeakGrowth * (1 - smoothstep(T2, 1, t));
     }
 
-    const scale = 1 + growth; // 1 = idle (13px-equivalent), up to 1+peakGrowth at peak
+    // Awards section: name grows continuously bigger as the horizontal timeline
+    // scrolls — no hold, no plateau — reaches peak at ~90% then quickly drops
+    // once the section is fully past.
+    let awardsGrowth = 0;
+    if (awardsSection) {
+      const aRect = awardsSection.getBoundingClientRect();
+      const aSectionH = awardsSection.offsetHeight;
+      const aRaw = -aRect.top; // px the section top has scrolled above the viewport
+      if (aRaw > 0 && aRaw < aSectionH) {
+        // Normalize against the actual scrollable range (section height minus
+        // the sticky 100dvh panel) so aT truly goes 0→1 over the scroll.
+        const aScrollRange = Math.max(aSectionH - window.innerHeight, 1);
+        const aT = clamp01(aRaw / aScrollRange);
+        // DWELL_END must match the conveyor IIFE constant (600px).
+        // fadeStart = exact moment the last card stops moving (exit-dwell begins).
+        const AWARDS_DWELL_END = 600;
+        const fadeStart = clamp01(1 - AWARDS_DWELL_END / aScrollRange);
+        const awardsPeak = currentPeakGrowth * 1.4;
+        if (aT <= fadeStart) {
+          awardsGrowth = smoothstep(0, Math.max(fadeStart, 0.01), aT) * awardsPeak;
+        } else {
+          // Shrink across exactly the 600px dwell-end window — fast, timed to cards
+          awardsGrowth = awardsPeak * (1 - smoothstep(fadeStart, 1.0, aT));
+        }
+      }
+    }
+
+    const scale = 1 + Math.max(growth, awardsGrowth); // hero or awards, whichever is larger
+
+    // While the name is zooming in the awards section, override is-scrolled
+    // so "Aidan Liu" shows instead of the abbreviated "A.L."
+    if (topbarEl) {
+      topbarEl.classList.toggle('is-name-zooming', awardsGrowth > 0.01);
+    }
 
     // Only write to DOM when the scale has actually changed
     if (Math.abs(scale - lastScale) > 0.001) {
@@ -1312,6 +1347,14 @@ if (linksHeading) {
   if (!section) return;
   section.querySelectorAll('.award-card').forEach((card, i) => {
     card.style.setProperty('--card-i', i);
+    // Inject teaser from data-teaser (short, catchy); fall back to data-desc
+    var descText = card.getAttribute('data-teaser') || card.getAttribute('data-desc');
+    if (descText && !card.querySelector('.award-desc')) {
+      var p = document.createElement('p');
+      p.className = 'award-desc';
+      p.textContent = descText;
+      card.appendChild(p);
+    }
   });
   const obs = new IntersectionObserver((entries) => {
     if (entries[0].isIntersecting) {

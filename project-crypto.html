@@ -8,6 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.14/dist/lenis.min.js"></script>
 <style>
   :root {
     --bg:          #08080e;
@@ -30,7 +31,7 @@
   }
 
   *{box-sizing:border-box;margin:0;padding:0}
-  html{scroll-padding-top:80px}
+  html{scroll-padding-top:80px;scroll-behavior:smooth}
 
   body{
     background:var(--bg);
@@ -435,15 +436,21 @@
   .topbar.scrolled { box-shadow: 0 1px 24px rgba(0,0,0,0.5); border-color: rgba(0,212,170,0.15); }
 
   /* ── js-animate guards (safe reveals) ── */
-  .js-animate .reveal       { opacity: 0; transform: translateY(28px); }
+  .js-animate .reveal {
+    opacity: 0; transform: translateY(52px);
+    transition: opacity 0.72s var(--ease), transform 0.78s var(--ease);
+  }
   .js-animate .reveal.is-visible { opacity: 1; transform: none; }
-  .js-animate .reveal-zoom  { opacity: 0; transform: translateY(18px) scale(0.97); }
+  .js-animate .reveal-zoom {
+    opacity: 0; transform: translateY(40px) scale(0.94);
+    transition: opacity 0.7s var(--ease), transform 0.75s var(--ease);
+  }
   .js-animate .reveal-zoom.is-visible { opacity: 1; transform: none; }
 
   /* ── Stagger classes for grouped elements ── */
   .js-animate .stagger-child {
-    opacity: 0; transform: translateY(36px) scale(0.97);
-    transition: opacity 0.65s var(--ease), transform 0.7s var(--ease);
+    opacity: 0; transform: translateY(56px) scale(0.94);
+    transition: opacity 0.68s var(--ease), transform 0.72s var(--ease);
   }
   .js-animate .stagger-parent.group-visible .stagger-child { opacity: 1; transform: none; }
 
@@ -635,6 +642,166 @@
     .js-animate .footer-link, .js-animate .footer-copy,
     .js-animate .takeaway-item { opacity:1; transform:none; animation:none; transition:none; }
     .tool-content.active { animation: none; }
+  }
+
+  /* ══════════════════════════════════════════════════════
+     SUB-ELEMENT MOVEMENT — everything inside every block
+     ══════════════════════════════════════════════════════ */
+
+  /* ── pre / code block individual reveal ── */
+  .js-animate pre {
+    opacity: 0; transform: translateY(38px) scale(0.97);
+    filter: blur(3px);
+    transition: opacity 0.68s var(--ease), transform 0.72s var(--ease), filter 0.68s var(--ease);
+  }
+  .js-animate pre.is-in { opacity: 1; transform: none; filter: blur(0); }
+
+  /* ── Algo card inner content (transform-only; parent handles opacity) ── */
+  .js-animate .algo-card .algo-badge {
+    transform: translateY(-12px) scale(0.78);
+    transition: transform 0.42s var(--ease);
+  }
+  .js-animate .algo-card h3 {
+    transform: translateY(18px);
+    transition: transform 0.48s var(--ease) 0.06s;
+  }
+  .js-animate .algo-card p {
+    transform: translateY(14px);
+    transition: transform 0.48s var(--ease) 0.13s;
+  }
+  .js-animate .stagger-parent.group-visible .algo-card .algo-badge { transform: none; }
+  .js-animate .stagger-parent.group-visible .algo-card h3            { transform: none; }
+  .js-animate .stagger-parent.group-visible .algo-card p             { transform: none; }
+  /* per-card delay offsets */
+  .algo-grid.group-visible .stagger-child:nth-child(1) .algo-badge  { transition-delay: 0.03s; }
+  .algo-grid.group-visible .stagger-child:nth-child(1) h3           { transition-delay: 0.09s; }
+  .algo-grid.group-visible .stagger-child:nth-child(1) p            { transition-delay: 0.15s; }
+  .algo-grid.group-visible .stagger-child:nth-child(2) .algo-badge  { transition-delay: 0.11s; }
+  .algo-grid.group-visible .stagger-child:nth-child(2) h3           { transition-delay: 0.17s; }
+  .algo-grid.group-visible .stagger-child:nth-child(2) p            { transition-delay: 0.23s; }
+  .algo-grid.group-visible .stagger-child:nth-child(3) .algo-badge  { transition-delay: 0.19s; }
+  .algo-grid.group-visible .stagger-child:nth-child(3) h3           { transition-delay: 0.25s; }
+  .algo-grid.group-visible .stagger-child:nth-child(3) p            { transition-delay: 0.31s; }
+  .algo-grid.group-visible .stagger-child:nth-child(4) .algo-badge  { transition-delay: 0.27s; }
+  .algo-grid.group-visible .stagger-child:nth-child(4) h3           { transition-delay: 0.33s; }
+  .algo-grid.group-visible .stagger-child:nth-child(4) p            { transition-delay: 0.39s; }
+  .algo-grid.group-visible .stagger-child:nth-child(5) .algo-badge  { transition-delay: 0.35s; }
+  .algo-grid.group-visible .stagger-child:nth-child(5) h3           { transition-delay: 0.41s; }
+  .algo-grid.group-visible .stagger-child:nth-child(5) p            { transition-delay: 0.47s; }
+  .algo-grid.group-visible .stagger-child:nth-child(6) .algo-badge  { transition-delay: 0.43s; }
+  .algo-grid.group-visible .stagger-child:nth-child(6) h3           { transition-delay: 0.49s; }
+  .algo-grid.group-visible .stagger-child:nth-child(6) p            { transition-delay: 0.55s; }
+
+  /* ── Threat card inner stagger (transform-only; parent slides in) ── */
+  .js-animate .threat-card .threat-icon {
+    transform: scale(0.45) rotate(-15deg);
+    transition: transform 0.52s cubic-bezier(0.34,1.56,0.64,1);
+  }
+  .js-animate .threat-card h3 {
+    transform: translateY(20px);
+    transition: transform 0.52s var(--ease) 0.12s;
+  }
+  .js-animate .threat-card p {
+    transform: translateY(16px);
+    transition: transform 0.52s var(--ease) 0.21s;
+  }
+  .js-animate .threat-card .threat-badge {
+    transform: translateY(14px) scale(0.85);
+    transition: transform 0.48s var(--ease) 0.32s;
+  }
+  .js-animate .threat-card.slide-in .threat-icon  { transform: none; }
+  .js-animate .threat-card.slide-in h3            { transform: none; }
+  .js-animate .threat-card.slide-in p             { transform: none; }
+  .js-animate .threat-card.slide-in .threat-badge { transform: none; }
+
+  /* ── Stat label fade-up (transform-only; stagger-child handles opacity) ── */
+  .js-animate .stat-label {
+    transform: translateY(12px);
+    transition: transform 0.45s var(--ease) 0.24s;
+  }
+  .js-animate .stagger-parent.group-visible .stat-label { transform: none; }
+  /* per-stat delays */
+  .stats-row.group-visible .stagger-child:nth-child(1) .stat-label { transition-delay: 0.22s; }
+  .stats-row.group-visible .stagger-child:nth-child(2) .stat-label { transition-delay: 0.30s; }
+  .stats-row.group-visible .stagger-child:nth-child(3) .stat-label { transition-delay: 0.38s; }
+
+  /* ── Lattice explain sub-elements (transform-only; parent fades in) ── */
+  .js-animate .lattice-explain h3 {
+    transform: translateY(24px);
+    transition: transform 0.62s var(--ease) 0.12s;
+  }
+  .js-animate .lattice-explain p {
+    transform: translateY(20px);
+    transition: transform 0.62s var(--ease);
+  }
+  .js-animate .lattice-explain p:nth-of-type(1) { transition-delay: 0.20s; }
+  .js-animate .lattice-explain p:nth-of-type(2) { transition-delay: 0.34s; }
+  .js-animate .lwe-formula {
+    transform: translateX(-32px) scale(0.96);
+    transition: transform 0.62s var(--ease) 0.26s;
+  }
+  .js-animate .lattice-split.lat-in .lattice-explain h3 { transform: none; }
+  .js-animate .lattice-split.lat-in .lattice-explain p  { transform: none; }
+  .js-animate .lattice-split.lat-in .lwe-formula        { transform: none; }
+
+  /* ── Kyber middle arrows scale in ── */
+  .js-animate .k-arrow {
+    transform: scaleX(0);
+    transform-origin: center;
+    transition: transform 0.52s var(--ease);
+  }
+  .js-animate .kyber-flow.kf-in .k-arrow                         { transform: scaleX(1); }
+  .js-animate .kyber-flow.kf-in .kyber-middle .k-arrow:nth-child(1) { transition-delay: 0.30s; }
+  .js-animate .kyber-flow.kf-in .kyber-middle .k-arrow:nth-child(2) { transition-delay: 0.52s; }
+
+  /* ── Takeaway icon pop + text slide ── */
+  .js-animate .takeaway-icon {
+    transform: scale(0.42) rotate(-16deg);
+    transition: transform 0.56s cubic-bezier(0.34,1.56,0.64,1);
+  }
+  .js-animate .takeaway-item h4 {
+    transform: translateY(16px);
+    transition: transform 0.52s var(--ease) 0.07s;
+  }
+  .js-animate .takeaway-item p {
+    transform: translateY(12px);
+    transition: transform 0.52s var(--ease) 0.14s;
+  }
+  .js-animate .takeaway-grid.tg-in .takeaway-icon { transform: none; }
+  .js-animate .takeaway-grid.tg-in .takeaway-item h4 { transform: none; }
+  .js-animate .takeaway-grid.tg-in .takeaway-item p  { transform: none; }
+  /* per-item delays */
+  .takeaway-grid.tg-in .takeaway-item:nth-child(1) .takeaway-icon { transition-delay: 0.02s; }
+  .takeaway-grid.tg-in .takeaway-item:nth-child(2) .takeaway-icon { transition-delay: 0.11s; }
+  .takeaway-grid.tg-in .takeaway-item:nth-child(3) .takeaway-icon { transition-delay: 0.20s; }
+  .takeaway-grid.tg-in .takeaway-item:nth-child(4) .takeaway-icon { transition-delay: 0.29s; }
+  .takeaway-grid.tg-in .takeaway-item:nth-child(1) h4 { transition-delay: 0.06s; }
+  .takeaway-grid.tg-in .takeaway-item:nth-child(2) h4 { transition-delay: 0.15s; }
+  .takeaway-grid.tg-in .takeaway-item:nth-child(3) h4 { transition-delay: 0.24s; }
+  .takeaway-grid.tg-in .takeaway-item:nth-child(4) h4 { transition-delay: 0.33s; }
+  .takeaway-grid.tg-in .takeaway-item:nth-child(1) p  { transition-delay: 0.13s; }
+  .takeaway-grid.tg-in .takeaway-item:nth-child(2) p  { transition-delay: 0.22s; }
+  .takeaway-grid.tg-in .takeaway-item:nth-child(3) p  { transition-delay: 0.31s; }
+  .takeaway-grid.tg-in .takeaway-item:nth-child(4) p  { transition-delay: 0.40s; }
+
+  /* ── Section title: add blur on top of word-reveal ── */
+  .js-animate .word-reveal .word {
+    filter: blur(6px);
+    transition: opacity 0.5s var(--ease), transform 0.5s var(--ease), filter 0.5s var(--ease);
+  }
+  .js-animate .word-reveal.is-visible .word { filter: blur(0); }
+
+  /* ── prefers-reduced-motion additions ── */
+  @media(prefers-reduced-motion:reduce){
+    .js-animate pre,
+    .js-animate .algo-card .algo-badge, .js-animate .algo-card h3, .js-animate .algo-card p,
+    .js-animate .threat-card .threat-icon, .js-animate .threat-card h3,
+    .js-animate .threat-card p, .js-animate .threat-card .threat-badge,
+    .js-animate .stat-label,
+    .js-animate .lattice-explain h3, .js-animate .lattice-explain p, .js-animate .lwe-formula,
+    .js-animate .k-arrow,
+    .js-animate .takeaway-icon, .js-animate .takeaway-item h4, .js-animate .takeaway-item p,
+    .js-animate .word-reveal .word { transform: none !important; filter: none !important; transition: none !important; }
   }
 
 </style>
@@ -1272,19 +1439,6 @@ document.querySelectorAll('.tool-tab').forEach(tab=>{
 //  SCROLL ENGINE + ANIMATIONS
 // ──────────────────────────────────────────────────────────────
 
-var EASE = 'cubic-bezier(0.23,1,0.32,1)';
-
-// ── Activate animation class immediately ─────────────────────
-// ── Lenis smooth scroll ─────────────────────────────────────────
-var lenis = null;
-try {
-  if (typeof Lenis === 'function') {
-    lenis = new Lenis({ duration: 1.2, easing: function(t){ return 1-Math.pow(1-t,4); }, smoothWheel: true });
-    function _lenisRaf(t){ lenis.raf(t); requestAnimationFrame(_lenisRaf); }
-    requestAnimationFrame(_lenisRaf);
-  }
-} catch(e) { lenis = null; }
-
 document.documentElement.classList.add('js-animate');
 
 // ── Scroll progress + topbar ─────────────────────────────────
@@ -1341,7 +1495,7 @@ Array.from(document.querySelectorAll('.reveal, .reveal-zoom')).forEach(function(
 
 // ── Section labels (fade-right) ───────────────────────────────
 Array.from(document.querySelectorAll('.section-label')).forEach(function(el) {
-  revealClass(el, 'lbl-in', 0.5);
+  revealClass(el, 'lbl-in', 0.1);
 });
 
 // ── Word-reveal headings ─────────────────────────────────────
@@ -1368,12 +1522,13 @@ Array.from(document.querySelectorAll('.section-label')).forEach(function(el) {
   }
   Array.from(document.querySelectorAll('.word-reveal')).forEach(function(el) {
     splitWords(el);
-    new IntersectionObserver(function(entries) {
+    var wordObs = new IntersectionObserver(function(entries) {
       if (entries[0].isIntersecting) {
         el.classList.add('is-visible');
         wordObs.disconnect();
       }
-    }, { threshold: 0.08 }).observe(el);
+    }, { threshold: 0.08 });
+    wordObs.observe(el);
   });
 })();
 
@@ -1438,6 +1593,35 @@ onceVisible(document.getElementById('sec-bars'), function() {
     setTimeout(function() { bar.style.width = bar.dataset.target + '%'; }, i * 60);
   });
 }, { threshold: 0.25 });
+
+// ── Pre / code block reveals ──────────────────────────────────
+Array.from(document.querySelectorAll('pre')).forEach(function(el) {
+  revealClass(el, 'is-in', 0.08);
+});
+
+// ── General h3/h4 sweep ───────────────────────────────────────
+// Catches standalone headings not already handled by another animation system
+(function() {
+  var SKIP = '.word-reveal, .stagger-child, .kyber-box, .demo-box, .sec-chart-head';
+  var ease = 'cubic-bezier(0.23,1,0.32,1)';
+  Array.from(document.querySelectorAll('h3, h4')).forEach(function(el) {
+    if (el.closest(SKIP) || el.classList.contains('reveal') || el.dataset.swept) return;
+    el.dataset.swept = '1';
+    el.style.opacity = '0';
+    el.style.transform = 'translateY(34px)';
+    el.style.filter = 'blur(4px)';
+    el.style.transition = 'opacity 0.6s ' + ease + ', transform 0.65s ' + ease + ', filter 0.6s ' + ease;
+    var obs = new IntersectionObserver(function(entries) {
+      if (entries[0].isIntersecting) {
+        el.style.opacity = '1';
+        el.style.transform = 'none';
+        el.style.filter = 'none';
+        obs.disconnect();
+      }
+    }, { threshold: 0.1, rootMargin: '0px 0px -4% 0px' });
+    obs.observe(el);
+  });
+})();
 
 
 </script>
