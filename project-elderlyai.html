@@ -158,19 +158,31 @@
   .section-label { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); margin-bottom: 12px; }
   .section-heading { font-size: clamp(22px, 3vw, 30px); font-weight: 800; letter-spacing: -0.03em; line-height: 1.2; text-wrap: balance; }
 
-  /* ── Word-reveal headings ── */
-  .word-reveal { overflow: hidden; }
-  .word-reveal .wr-word {
-    display: inline-block; overflow: hidden;
-    vertical-align: top; margin-right: 0.25em;
+  /* ── Word-reveal headings — whole-element blur-clear (smooth focus pull) ── */
+  /* Entire heading blurs into clarity. No word-by-word choppiness. Distinct from NBA's clip-wipe. */
+  .word-reveal { overflow: visible; }
+  .js-animate .word-reveal {
+    opacity: 0; filter: blur(6px); transform: translateY(8px);
+    transition: opacity 0.7s var(--ease-out), filter 0.75s var(--ease-out), transform 0.65s var(--ease-out);
+    will-change: opacity, filter, transform;
   }
-  .word-reveal .wr-inner {
-    display: inline-block;
-    transform: translateY(110%);
-    opacity: 0;
-    transition: transform 0.6s var(--ease-out), opacity 0.5s var(--ease-out);
+  .js-animate .word-reveal.wrev-in { opacity: 1; filter: blur(0px); transform: none; }
+  /* Scroll-driven version */
+  @supports (animation-timeline: view()) {
+    .js-animate .word-reveal {
+      animation: ea-blur-in linear both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 16%;
+      transition: none;
+    }
+    @keyframes ea-blur-in {
+      from { opacity: 0; filter: blur(6px); transform: translateY(8px); }
+      to   { opacity: 1; filter: blur(0px); transform: none; }
+    }
   }
-  .word-reveal.wrev-in .wr-inner { transform: translateY(0); opacity: 1; }
+  @media (prefers-reduced-motion: reduce) {
+    .js-animate .word-reveal { animation: none !important; opacity: 1 !important; filter: none !important; transform: none !important; transition: none !important; }
+  }
 
   /* ── Mockup strip ── */
   .mockup-section { border-bottom: 1px solid var(--border); padding-bottom: 72px; }
@@ -251,11 +263,11 @@
   .split-text p { font-size: 14px; line-height: 1.8; color: var(--fg-sec); margin-bottom: 14px; }
   .split-text p:last-child { margin-bottom: 0; }
 
-  /* Split block directional entrance */
-  .js-animate .split-from-left { opacity: 0; transform: translateX(-32px); transition: opacity 0.7s var(--ease-out), transform 0.75s var(--ease-out); }
-  .js-animate .split-from-right { opacity: 0; transform: translateX(32px); transition: opacity 0.7s var(--ease-out), transform 0.75s var(--ease-out); }
+  /* Split block directional entrance — softer (18px vs NBA-style large slides) */
+  .js-animate .split-from-left { opacity: 0; transform: translateX(-18px); transition: opacity 0.75s var(--ease-out), transform 0.8s var(--ease-out); }
+  .js-animate .split-from-right { opacity: 0; transform: translateX(18px); transition: opacity 0.75s var(--ease-out), transform 0.8s var(--ease-out); }
   .split-from-left.slide-in, .split-from-right.slide-in { opacity: 1; transform: translateX(0); }
-  .split-from-right.slide-in { transition-delay: 0.08s; }
+  .split-from-right.slide-in { transition-delay: 0.10s; }
 
   /* ── Visual panels ── */
   .visual-panel { background: var(--surface); border-radius: 14px; border: 1px solid var(--border); overflow: hidden; transition: border-color 0.3s var(--ease-out), box-shadow 0.3s var(--ease-out); }
@@ -381,62 +393,83 @@
      SCROLL REVEAL SYSTEM
   ════════════════════════════════ */
 
-  /* Generic fade + lift */
-  .reveal {
-    transition: opacity 0.75s var(--ease-out), transform 0.8s var(--ease-out);
-  }
-  .reveal.ready { opacity: 0; transform: translateY(52px) scale(0.97); }
-  .reveal.ready.in-view { opacity: 1; transform: translateY(0) scale(1); }
-  .reveal.ready.in-view.d1 { transition-delay: 0.08s; }
-  .reveal.ready.in-view.d2 { transition-delay: 0.16s; }
-  .reveal.ready.in-view.d3 { transition-delay: 0.24s; }
-  .reveal.ready.in-view.d4 { transition-delay: 0.32s; }
-  /* .reveal.ready.above-view — removed: now using fire-once reveals */
+  /* Generic fade + gentle lift — two-track: scroll-driven + IO fallback */
+  .reveal { transition: opacity 0.75s var(--ease-out), transform 0.8s var(--ease-out); }
 
-  /* Feature cards — stagger up */
+  /* IO fallback */
+  @supports not (animation-timeline: view()) {
+    .reveal.ready { opacity: 0; transform: translateY(22px) scale(0.98); }
+    .reveal.ready.in-view { opacity: 1; transform: translateY(0) scale(1); }
+    .reveal.ready.in-view.d1 { transition-delay: 0.08s; }
+    .reveal.ready.in-view.d2 { transition-delay: 0.16s; }
+    .reveal.ready.in-view.d3 { transition-delay: 0.24s; }
+    .reveal.ready.in-view.d4 { transition-delay: 0.32s; }
+  }
+  /* Scroll-driven (Chrome 115+, Safari 18+) */
+  @supports (animation-timeline: view()) {
+    .reveal {
+      animation: ea-reveal linear both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 18%;
+    }
+    @keyframes ea-reveal {
+      from { opacity: 0; transform: translateY(22px) scale(0.98); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .reveal { animation: none !important; opacity: 1 !important; transform: none !important; }
+    }
+  }
+
+  /* Feature cards — bloom: scale + gentle Y (scale is the signature, not just Y) */
   .js-animate .feature-card {
-    opacity: 0; transform: translateY(36px);
-    transition: background 0.2s var(--ease-out), opacity 0.65s var(--ease-out), transform 0.7s var(--ease-out);
+    opacity: 0; transform: translateY(28px) scale(0.94);
+    transition: background 0.2s var(--ease-out), opacity 0.7s var(--ease-out), transform 0.75s var(--ease-out);
   }
-  .js-animate .feature-grid.revealed .feature-card { opacity: 1; transform: translateY(0); }
+  .js-animate .feature-grid.revealed .feature-card { opacity: 1; transform: translateY(0) scale(1); }
   .feature-grid.revealed .feature-card:nth-child(1) { transition-delay: 0.00s; }
-  .feature-grid.revealed .feature-card:nth-child(2) { transition-delay: 0.10s; }
-  .feature-grid.revealed .feature-card:nth-child(3) { transition-delay: 0.20s; }
-  .feature-grid.revealed .feature-card:nth-child(4) { transition-delay: 0.30s; }
+  .feature-grid.revealed .feature-card:nth-child(2) { transition-delay: 0.12s; }
+  .feature-grid.revealed .feature-card:nth-child(3) { transition-delay: 0.24s; }
+  .feature-grid.revealed .feature-card:nth-child(4) { transition-delay: 0.36s; }
 
-  /* Process steps — stagger left */
+  /* Process steps — softer left slide (16px, more gentle than before) */
   .js-animate .process-step {
-    opacity: 0; transform: translateX(-32px);
-    transition: background 0.2s var(--ease-out), opacity 0.55s var(--ease-out), transform 0.6s var(--ease-out);
+    opacity: 0; transform: translateX(-16px);
+    transition: background 0.2s var(--ease-out), opacity 0.6s var(--ease-out), transform 0.65s var(--ease-out);
   }
   .js-animate .process-steps.revealed .process-step { opacity: 1; transform: translateX(0); }
   .process-steps.revealed .process-step:nth-child(1) { transition-delay: 0.00s; }
-  .process-steps.revealed .process-step:nth-child(2) { transition-delay: 0.08s; }
-  .process-steps.revealed .process-step:nth-child(3) { transition-delay: 0.16s; }
-  .process-steps.revealed .process-step:nth-child(4) { transition-delay: 0.24s; }
-  .process-steps.revealed .process-step:nth-child(5) { transition-delay: 0.32s; }
+  .process-steps.revealed .process-step:nth-child(2) { transition-delay: 0.09s; }
+  .process-steps.revealed .process-step:nth-child(3) { transition-delay: 0.18s; }
+  .process-steps.revealed .process-step:nth-child(4) { transition-delay: 0.27s; }
+  .process-steps.revealed .process-step:nth-child(5) { transition-delay: 0.36s; }
 
-  /* Timeline — stagger up */
+  /* Timeline — gentle cascade, small Y (14px fits the soft-bloom personality) */
   .js-animate .timeline-item {
-    opacity: 0; transform: translateY(32px);
-    transition: opacity 0.55s var(--ease-out), transform 0.6s var(--ease-out);
+    opacity: 0; transform: translateY(14px);
+    transition: opacity 0.65s var(--ease-out), transform 0.7s var(--ease-out);
   }
   .js-animate .timeline.revealed .timeline-item { opacity: 1; transform: translateY(0); }
   .timeline.revealed .timeline-item:nth-child(1) { transition-delay: 0.00s; }
-  .timeline.revealed .timeline-item:nth-child(2) { transition-delay: 0.10s; }
-  .timeline.revealed .timeline-item:nth-child(3) { transition-delay: 0.20s; }
-  .timeline.revealed .timeline-item:nth-child(4) { transition-delay: 0.30s; }
+  .timeline.revealed .timeline-item:nth-child(2) { transition-delay: 0.09s; }
+  .timeline.revealed .timeline-item:nth-child(3) { transition-delay: 0.18s; }
+  .timeline.revealed .timeline-item:nth-child(4) { transition-delay: 0.27s; }
 
-  /* Mockup phones — stagger up with larger lift */
+  /* Mockup phones — scale-bloom (center scales from 0.86, sides from 0.92) */
   .js-animate .mockup-item {
-    opacity: 0; transform: translateY(56px);
-    transition: opacity 0.75s var(--ease-out), transform 0.8s var(--ease-out), filter 0.4s var(--ease-out);
+    opacity: 0; transform: translateY(36px) scale(0.92);
+    transition: opacity 0.8s var(--ease-out), transform 0.85s var(--ease-out), filter 0.4s var(--ease-out);
   }
-  .js-animate .mockup-grid.revealed .mockup-item { opacity: 1; transform: translateY(0); }
-  .js-animate .mockup-grid.revealed .mockup-item--center { transform: translateY(0); }
-  .mockup-grid.revealed .mockup-item:nth-child(1) { transition-delay: 0.00s; }
-  .mockup-grid.revealed .mockup-item:nth-child(2) { transition-delay: 0.14s; }
-  .mockup-grid.revealed .mockup-item:nth-child(3) { transition-delay: 0.28s; }
+  .js-animate .mockup-item--center {
+    opacity: 0; transform: translateY(24px) scale(0.86);
+    transition: opacity 0.85s var(--ease-out), transform 0.9s var(--ease-out), filter 0.4s var(--ease-out);
+  }
+  .js-animate .mockup-grid.revealed .mockup-item,
+  .js-animate .mockup-grid.revealed .mockup-item--center { opacity: 1; transform: translateY(0) scale(1); }
+  /* center phone leads — side phones follow */
+  .mockup-grid.revealed .mockup-item:nth-child(1) { transition-delay: 0.14s; }
+  .mockup-grid.revealed .mockup-item:nth-child(2) { transition-delay: 0.00s; }
+  .mockup-grid.revealed .mockup-item:nth-child(3) { transition-delay: 0.14s; }
 
   /* Design rule rows — stagger right-to-left */
   .js-animate .design-rule {
@@ -1008,18 +1041,8 @@
   if (lenis) lenis.on('scroll', onScroll);
   onScroll();
 
-  /* ── Word-reveal: wrap each word in spans ── */
-  function setupWordReveal(el) {
-    if (!el) return;
-    var words = el.textContent.split(' ');
-    el.innerHTML = words.map(function(w, i) {
-      return '<span class="wr-word"><span class="wr-inner" style="transition-delay:' + (i * 0.065) + 's">' + w + '</span></span>';
-    }).join(' ');
-    el.classList.add('wrev-ready');
-  }
-  ['wrev-screens','wrev-features','wrev-timeline','wrev-challenges'].forEach(function(id) {
-    setupWordReveal(document.getElementById(id));
-  });
+  /* ── Word-reveal: whole-element animation, no word splitting ── */
+  /* Headings animate as a single unit (smooth blur-clear) rather than per-word. */
 
   /* ── countUp ── */
   function countUp(el, target, dur) {
@@ -1041,45 +1064,49 @@
     obs.observe(el);
   }
 
-  /* ── Generic reveal (fade + lift + scale) ── */
-  var reveals = Array.prototype.slice.call(document.querySelectorAll('.reveal'));
-  /* Double-rAF: hide, then immediately show above-fold elements before first paint */
-  requestAnimationFrame(function() {
-    reveals.forEach(function(el) { el.classList.add('ready'); });
+  /* ── Scroll-driven animation support ── */
+  var hasVT = typeof CSS !== 'undefined' && CSS.supports && CSS.supports('animation-timeline', 'view()');
+
+  if (!hasVT) {
+    /* IO fallback: generic reveal */
+    var reveals = Array.prototype.slice.call(document.querySelectorAll('.reveal'));
     requestAnimationFrame(function() {
-      reveals.forEach(function(el) {
-        if (el.getBoundingClientRect().top < window.innerHeight * 0.98) el.classList.add('in-view');
+      reveals.forEach(function(el) { el.classList.add('ready'); });
+      requestAnimationFrame(function() {
+        reveals.forEach(function(el) {
+          if (el.getBoundingClientRect().top < window.innerHeight * 0.98) el.classList.add('in-view');
+        });
       });
     });
-  });
 
-  var revealObs = new IntersectionObserver(function(entries) {
-    entries.forEach(function(entry) {
-      if (entry.isIntersecting) {
-        entry.target.classList.add('in-view');
-        revealObs.unobserve(entry.target);
-      }
-    });
-  }, { threshold: 0.04, rootMargin: '0px 0px -40px 0px' });
-  reveals.forEach(function(el) { revealObs.observe(el); });
+    var revealObs = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('in-view');
+          revealObs.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.04, rootMargin: '0px 0px -40px 0px' });
+    reveals.forEach(function(el) { revealObs.observe(el); });
 
-  /* ── Word reveal ── */
-  var wordRevObs = new IntersectionObserver(function(entries) {
-    entries.forEach(function(entry) {
-      if (entry.isIntersecting) {
-        entry.target.classList.add('wrev-in');
-        wordRevObs.unobserve(entry.target);
-      }
-    });
-  }, { threshold: 0.18, rootMargin: '0px 0px -6% 0px' });
-  document.querySelectorAll('.word-reveal').forEach(function(el) { wordRevObs.observe(el); });
+    /* IO fallback: word-reveal headings */
+    var wordRevObs = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('wrev-in');
+          wordRevObs.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+    document.querySelectorAll('.word-reveal').forEach(function(el) { wordRevObs.observe(el); });
+  }
 
   /* ── Split-block slide-in ── */
   var slideObs = new IntersectionObserver(function(entries) {
     entries.forEach(function(entry) {
       if (entry.isIntersecting) entry.target.classList.add('slide-in');
     });
-  }, { threshold: 0.18, rootMargin: '0px 0px -4% 0px' });
+  }, { threshold: 0.06, rootMargin: '0px 0px -40px 0px' });
   document.querySelectorAll('[data-slide]').forEach(function(el) { slideObs.observe(el); });
 
   /* ── Callout ── */

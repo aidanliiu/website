@@ -1,1629 +1,1421 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Post-Quantum Cryptography — Aidan Liu</title>
-<meta name="description" content="Research into post-quantum cryptography and lattice-based algorithms through the SVCSI program.">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.14/dist/lenis.min.js"></script>
-<style>
-  :root {
-    --bg:          #08080e;
-    --surface:     #0f0f1a;
-    --surface-2:   #161624;
-    --border:      #1f1f35;
-    --fg:          #e2e2f0;
-    --muted:       #9898b8;
-    --accent:      #00d4aa;
-    --accent-dim:  rgba(0,212,170,0.12);
-    --accent-glow: rgba(0,212,170,0.06);
-    --blue:        #4d7cfe;
-    --blue-dim:    rgba(77,124,254,0.12);
-    --red:         #ff6b6b;
-    --red-dim:     rgba(255,107,107,0.12);
-    --mono:        'JetBrains Mono','Courier New',monospace;
-    --sans:        'Plus Jakarta Sans',-apple-system,sans-serif;
-    --ease:        cubic-bezier(0.23,1,0.32,1);
-    --r:           10px;
-  }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Post-Quantum Cryptography — Aidan Liu</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.14/dist/lenis.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #08080e;
+      --bg2: #0e0e18;
+      --surface: #131320;
+      --surface2: #1a1a2a;
+      --border: rgba(255,255,255,0.07);
+      --border-strong: rgba(255,255,255,0.12);
+      --fg: #f0f0ff;
+      --fg-muted: #9090b0;
+      --fg-faint: #505070;
+      --accent: #00d4aa;
+      --accent-dim: rgba(0,212,170,0.12);
+      --accent-border: rgba(0,212,170,0.22);
+      --danger: #ff4d6a;
+      --danger-dim: rgba(255,77,106,0.1);
+      --mono: 'JetBrains Mono', monospace;
+      --sans: 'Plus Jakarta Sans', sans-serif;
+      --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+      --topbar-h: 56px;
+      --r: 8px;
+    }
+    html { font-family: var(--sans); font-size: 16px; color: var(--fg); background: var(--bg); }
+    body { overflow-x: hidden; }
+    a { color: inherit; text-decoration: none; }
 
-  *{box-sizing:border-box;margin:0;padding:0}
-  html{scroll-padding-top:80px;scroll-behavior:smooth}
+    /* ─── Progress bar ─── */
+    #progress-bar {
+      position: fixed; top: 0; left: 0; width: 100%; height: 2px;
+      background: var(--accent); transform-origin: left; transform: scaleX(0); z-index: 200;
+    }
 
-  body{
-    background:var(--bg);
-    color:var(--fg);
-    font-family:var(--sans);
-    font-size:16px;
-    line-height:1.65;
-    -webkit-font-smoothing:antialiased;
-    overflow-x:hidden;
-  }
+    /* ─── Topbar ─── */
+    #topbar {
+      position: fixed; top: 2px; left: 0; right: 0; z-index: 100;
+      height: var(--topbar-h); display: flex; align-items: center;
+      justify-content: space-between; padding: 0 40px;
+      transition: background 0.3s var(--ease-out), box-shadow 0.3s var(--ease-out);
+    }
+    #topbar.scrolled {
+      background: rgba(8,8,14,0.88);
+      backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+      box-shadow: 0 1px 0 var(--border);
+    }
+    .topbar-back {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 12px; font-weight: 600; color: var(--fg-muted);
+      letter-spacing: 0.06em; text-transform: uppercase;
+      transition: color 0.2s;
+    }
+    .topbar-back:hover { color: var(--accent); }
+    .topbar-back svg { width: 14px; height: 14px; }
+    .topbar-name { font-size: 13px; font-weight: 700; color: var(--fg); }
 
-  /* ── Topbar ── */
-  .topbar{
-    position:fixed;top:0;left:0;right:0;z-index:100;
-    display:flex;justify-content:space-between;align-items:center;
-    padding:18px 40px;
-    background:rgba(8,8,14,0.88);
-    backdrop-filter:blur(16px);
-    -webkit-backdrop-filter:blur(16px);
-    border-bottom:1px solid var(--border);
-  }
-  .back-link{
-    display:inline-flex;align-items:center;gap:8px;
-    font-size:12px;font-weight:600;color:var(--muted);
-    text-decoration:none;letter-spacing:0.04em;text-transform:uppercase;
-    transition:color 0.2s,gap 0.2s var(--ease);
-  }
-  .back-link:hover{color:var(--fg);gap:12px}
-  .back-link svg{width:13px;height:13px;flex-shrink:0}
-  .topbar-name{font-size:13px;font-weight:700;color:var(--fg);text-decoration:none;letter-spacing:-0.01em}
+    /* ─── Hero ─── */
+    .hero {
+      position: relative; min-height: 100dvh; display: flex;
+      flex-direction: column; justify-content: center;
+      padding: var(--topbar-h) 72px 80px; overflow: hidden;
+    }
+    #hero-canvas {
+      position: absolute; inset: 0; z-index: 0;
+    }
+    .hero-content { position: relative; z-index: 2; max-width: 800px; }
+    .hero-tag {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-size: 11px; font-weight: 700; letter-spacing: 0.12em;
+      text-transform: uppercase; color: var(--accent); margin-bottom: 28px;
+      font-family: var(--mono);
+    }
+    .hero-tag::before {
+      content: ''; display: block; width: 18px; height: 1px; background: var(--accent);
+    }
+    .hero-h1 {
+      font-size: clamp(36px, 5.5vw, 80px); font-weight: 800;
+      color: var(--fg); line-height: 1.04; letter-spacing: -0.03em;
+      margin-bottom: 24px; text-wrap: balance;
+    }
+    .hero-h1 em { font-style: italic; color: var(--accent); }
+    .hero-sub {
+      font-size: 16px; line-height: 1.68; color: var(--fg-muted);
+      max-width: 56ch; margin-bottom: 48px;
+    }
+    .hero-stats {
+      display: flex; gap: 0;
+      border: 1px solid var(--border-strong); border-radius: var(--r); overflow: hidden;
+      display: inline-flex;
+    }
+    .hero-stat {
+      padding: 18px 28px; border-right: 1px solid var(--border);
+    }
+    .hero-stat:last-child { border-right: none; }
+    .hero-stat-num {
+      font-size: 28px; font-weight: 800; color: var(--accent);
+      letter-spacing: -0.03em; line-height: 1; margin-bottom: 4px;
+      font-family: var(--mono);
+    }
+    .hero-stat-lbl {
+      font-size: 10px; color: var(--fg-faint); text-transform: uppercase;
+      letter-spacing: 0.09em; font-weight: 600;
+    }
+    .hero-org {
+      margin-top: 32px; font-size: 11px; font-family: var(--mono);
+      color: var(--fg-faint); letter-spacing: 0.08em; text-transform: uppercase;
+    }
 
-  /* ── Hero ── */
-  .hero{
-    position:relative;min-height:100svh;
-    display:flex;flex-direction:column;justify-content:flex-end;
-    padding:0 40px 80px;overflow:hidden;
-  }
-  #lattice-canvas{position:absolute;inset:0;width:100%;height:100%}
-  .hero-gradient{
-    position:absolute;inset:0;z-index:1;
-    background:linear-gradient(to top,var(--bg) 0%,rgba(8,8,14,0.55) 55%,transparent 100%);
-  }
-  .hero-content{position:relative;z-index:2;max-width:900px}
-  .hero-tag{
-    font-family:var(--mono);font-size:11px;color:var(--accent);
-    letter-spacing:0.12em;text-transform:uppercase;
-    margin-bottom:20px;display:flex;align-items:center;gap:10px;
-  }
-  .hero-tag::before{content:'';display:block;width:24px;height:1px;background:var(--accent)}
-  .hero-title{
-    font-size:clamp(38px,5.5vw,74px);font-weight:700;
-    line-height:1.07;letter-spacing:-0.03em;color:#fff;margin-bottom:28px;
-  }
-  .hero-title em{font-style:italic;color:var(--accent)}
-  .hero-meta{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
-  .hero-pill{
-    display:inline-flex;align-items:center;
-    padding:5px 12px;border:1px solid var(--border);border-radius:999px;
-    font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:0.06em;
-  }
-  .hero-pill.accent{border-color:rgba(0,212,170,0.4);color:var(--accent)}
-  .scroll-cue{
-    position:absolute;bottom:36px;right:40px;z-index:2;
-    width:1px;height:60px;
-    background:linear-gradient(to bottom,transparent,var(--accent));
-    animation:scrollLine 2.2s ease-in-out infinite;
-  }
-  @keyframes scrollLine{
-    0%{opacity:0;transform:scaleY(0);transform-origin:top}
-    50%{opacity:1;transform:scaleY(1)}
-    100%{opacity:0;transform:scaleY(0);transform-origin:bottom}
-  }
+    /* ─── Sections ─── */
+    .section { padding: 88px 72px; border-top: 1px solid var(--border); }
+    .section-inner { max-width: 1120px; margin: 0 auto; }
 
-  /* ── Layout primitives ── */
-  .section{padding:96px 40px;max-width:1120px;margin:0 auto}
-  .section-sm{padding:64px 40px;max-width:1120px;margin:0 auto}
-  .divider{border:none;border-top:1px solid var(--border);margin:0}
-  .section-label{
-    font-family:var(--mono);font-size:10px;letter-spacing:0.14em;
-    text-transform:uppercase;color:var(--accent);margin-bottom:14px;
-  }
-  .section-title{
-    font-size:clamp(24px,3.5vw,46px);font-weight:700;
-    letter-spacing:-0.025em;line-height:1.12;color:#fff;margin-bottom:16px;
-  }
-  .section-body{
-    font-size:15px;line-height:1.8;color:#c2c2da;max-width:65ch;margin-bottom:52px;
-  }
+    .section-label {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-size: 10px; font-weight: 700; letter-spacing: 0.12em;
+      text-transform: uppercase; color: var(--accent); margin-bottom: 18px;
+      font-family: var(--mono);
+    }
+    .section-label::before {
+      content: ''; width: 14px; height: 1px; background: var(--accent);
+    }
+    .section-h2 {
+      font-size: clamp(26px, 3.5vw, 50px); font-weight: 800;
+      letter-spacing: -0.03em; line-height: 1.06; color: var(--fg);
+      margin-bottom: 20px; text-wrap: balance;
+    }
+    .section-prose { font-size: 16px; line-height: 1.72; color: var(--fg-muted); max-width: 64ch; }
+    .section-split { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: start; }
 
-  /* ── Stats row ── */
-  .stats-row{
-    display:grid;grid-template-columns:repeat(3,1fr);gap:1px;
-    background:var(--border);border:1px solid var(--border);border-radius:var(--r);
-    overflow:hidden;
-  }
-  .stat-item{background:var(--surface);padding:36px 28px}
-  .stat-num{
-    font-size:44px;font-weight:800;letter-spacing:-0.04em;line-height:1;
-    color:#fff;margin-bottom:8px;
-  }
-  .stat-num span{color:var(--accent)}
-  .stat-label{font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:0.05em}
+    /* ─── Algorithm cards ─── */
+    .algo-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px;
+      background: var(--border); border: 1px solid var(--border);
+      border-radius: var(--r); overflow: hidden; margin-top: 44px;
+    }
+    .algo-card { background: var(--bg2); padding: 28px 24px; transition: background 0.2s; }
+    .algo-card:hover { background: var(--surface); }
+    .algo-card-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 12px; }
+    .algo-card-name { font-size: 16px; font-weight: 800; color: var(--fg); letter-spacing: -0.02em; }
+    .algo-badge {
+      font-size: 9px; font-weight: 700; padding: 3px 7px; border-radius: 4px;
+      text-transform: uppercase; letter-spacing: 0.06em; font-family: var(--mono);
+      white-space: nowrap; flex-shrink: 0; margin-top: 2px;
+    }
+    .badge-safe { background: var(--accent-dim); color: var(--accent); border: 1px solid var(--accent-border); }
+    .badge-broken { background: var(--danger-dim); color: var(--danger); border: 1px solid rgba(255,77,106,0.2); }
+    .badge-neutral { background: rgba(255,255,255,0.05); color: var(--fg-muted); border: 1px solid var(--border); }
+    .badge-legacy { background: rgba(255,200,50,0.08); color: #ffc832; border: 1px solid rgba(255,200,50,0.18); }
+    .algo-card-type {
+      font-size: 10px; font-family: var(--mono); color: var(--fg-faint);
+      text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 10px;
+    }
+    .algo-card-desc { font-size: 13px; line-height: 1.62; color: var(--fg-muted); }
 
-  /* ── Algorithm grid ── */
-  .algo-grid{
-    display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:0;
-  }
-  .algo-card{
-    background:var(--surface);border:1px solid var(--border);border-radius:var(--r);
-    padding:26px;position:relative;overflow:hidden;
-    transition:border-color 0.25s,transform 0.25s var(--ease);
-    cursor:default;
-  }
-  .algo-card:hover{border-color:var(--c,var(--accent));transform:translateY(-3px)}
-  .algo-card::before{
-    content:'';position:absolute;top:0;left:0;right:0;height:2px;
-    background:var(--c,var(--accent));
-    transform:scaleX(0);transform-origin:left;
-    transition:transform 0.35s var(--ease);
-  }
-  .algo-card:hover::before{transform:scaleX(1)}
-  .algo-card--blue{--c:var(--blue)}
-  .algo-card--red{--c:var(--red)}
-  .algo-badge{
-    display:inline-flex;align-items:center;gap:5px;
-    font-family:var(--mono);font-size:9px;letter-spacing:0.1em;
-    text-transform:uppercase;padding:4px 8px;border-radius:4px;margin-bottom:12px;
-  }
-  .algo-badge--safe{background:var(--accent-dim);color:var(--accent)}
-  .algo-badge--warn{background:var(--blue-dim);color:var(--blue)}
-  .algo-badge--vuln{background:var(--red-dim);color:var(--red)}
-  .algo-card h3{font-size:17px;font-weight:700;color:#fff;margin-bottom:7px;letter-spacing:-0.01em}
-  .algo-card p{font-size:12px;color:#b0b0cc;line-height:1.65}
+    /* ─── Caesar demo ─── */
+    .caesar-demo {
+      margin-top: 40px; background: var(--surface); border: 1px solid var(--border-strong);
+      border-radius: var(--r); padding: 32px; max-width: 680px;
+    }
+    .caesar-label {
+      font-size: 10px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.1em; color: var(--fg-faint); margin-bottom: 8px;
+      font-family: var(--mono);
+    }
+    .caesar-input {
+      width: 100%; background: var(--bg); border: 1px solid var(--border-strong);
+      border-radius: 6px; padding: 12px 16px; font-size: 15px; font-family: var(--mono);
+      color: var(--fg); outline: none; margin-bottom: 20px;
+      transition: border-color 0.2s;
+    }
+    .caesar-input:focus { border-color: var(--accent); }
+    .caesar-output {
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: 6px; padding: 12px 16px;
+      font-size: 15px; font-family: var(--mono);
+      color: var(--accent); letter-spacing: 0.04em; min-height: 46px;
+      word-break: break-all; margin-bottom: 20px;
+    }
+    .caesar-slider-row { display: flex; align-items: center; gap: 14px; }
+    .caesar-slider { flex: 1; accent-color: var(--accent); height: 4px; cursor: pointer; }
+    .caesar-shift-lbl {
+      font-size: 13px; font-family: var(--mono); color: var(--accent); min-width: 60px;
+    }
 
-  /* ── Cipher demo ── */
-  .demo-box{
-    background:var(--surface);border:1px solid var(--border);border-radius:var(--r);
-    padding:40px;margin-bottom:0;
-  }
-  .demo-box h3{font-size:15px;font-weight:700;color:#fff;margin-bottom:6px}
-  .demo-desc{font-size:13px;color:var(--muted);margin-bottom:28px;line-height:1.6}
-  .cipher-io{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:24px}
-  .cipher-field label{
-    display:block;font-family:var(--mono);font-size:10px;letter-spacing:0.1em;
-    text-transform:uppercase;color:var(--muted);margin-bottom:8px;
-  }
-  .cipher-field textarea,.cipher-output{
-    width:100%;padding:14px 16px;background:var(--bg);border:1px solid var(--border);
-    border-radius:8px;color:var(--fg);font-family:var(--mono);font-size:14px;
-    line-height:1.5;resize:none;min-height:100px;
-  }
-  .cipher-field textarea{transition:border-color 0.2s}
-  .cipher-field textarea:focus{outline:none;border-color:var(--accent)}
-  .cipher-output{color:var(--accent)}
-  .slider-row{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
-  .slider-row label{font-family:var(--mono);font-size:11px;color:var(--muted);white-space:nowrap}
-  input[type="range"]{
-    -webkit-appearance:none;flex:1;min-width:120px;height:4px;
-    background:var(--border);border-radius:2px;cursor:pointer;
-  }
-  input[type="range"]::-webkit-slider-thumb{
-    -webkit-appearance:none;width:16px;height:16px;
-    background:var(--accent);border-radius:50%;cursor:pointer;
-  }
-  .shift-val{
-    font-family:var(--mono);font-size:22px;font-weight:700;
-    color:var(--accent);min-width:28px;text-align:center;
-  }
+    /* ─── AES rounds ─── */
+    .aes-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 36px; }
+    .aes-round {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--r); padding: 20px 16px; text-align: center;
+      cursor: pointer; transition: background 0.18s, border-color 0.18s, transform 0.18s var(--ease-out);
+    }
+    .aes-round:hover { background: var(--surface2); border-color: var(--accent); }
+    .aes-round:active { transform: scale(0.97); }
+    .aes-round.active { background: var(--surface2); border-color: var(--accent); }
+    .aes-round-num {
+      font-size: 10px; font-family: var(--mono); color: var(--fg-faint);
+      text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 10px;
+    }
+    .aes-round-name { font-size: 14px; font-weight: 700; color: var(--fg); margin-bottom: 6px; }
+    .aes-round-icon { font-size: 22px; margin-bottom: 8px; }
+    .aes-detail {
+      margin-top: 20px; background: var(--surface); border: 1px solid var(--accent-border);
+      border-radius: var(--r); padding: 20px 24px; display: none;
+    }
+    .aes-detail.visible { display: block; }
+    .aes-detail-title { font-size: 16px; font-weight: 700; color: var(--accent); margin-bottom: 8px; }
+    .aes-detail-desc { font-size: 14px; line-height: 1.65; color: var(--fg-muted); }
 
-  /* ── AES diagram ── */
-  .aes-diagram{
-    background:var(--surface);border:1px solid var(--border);border-radius:var(--r);
-    padding:32px;
-  }
-  .aes-rounds{
-    display:flex;gap:6px;overflow-x:auto;padding-bottom:8px;
-    scrollbar-width:thin;scrollbar-color:var(--border) transparent;
-  }
-  .aes-round{
-    flex:0 0 auto;min-width:108px;background:var(--bg);
-    border:1px solid var(--border);border-radius:8px;padding:14px 12px;
-    cursor:pointer;transition:border-color 0.2s,background 0.2s;
-  }
-  .aes-round:hover,.aes-round.active{border-color:var(--accent);background:var(--accent-glow)}
-  .aes-round-num{font-family:var(--mono);font-size:9px;color:var(--muted);letter-spacing:0.08em;margin-bottom:8px}
-  .aes-round-ops{display:flex;flex-direction:column;gap:4px}
-  .aes-op{
-    font-size:10px;font-weight:600;padding:4px 6px;border-radius:4px;
-    text-align:center;letter-spacing:0.02em;
-  }
-  .aes-op--sub{background:rgba(0,212,170,0.15);color:var(--accent)}
-  .aes-op--shift{background:rgba(77,124,254,0.15);color:var(--blue)}
-  .aes-op--mix{background:rgba(255,180,50,0.15);color:#ffb432}
-  .aes-op--key{background:rgba(255,107,107,0.15);color:var(--red)}
-  .aes-detail{
-    margin-top:20px;padding:20px;background:var(--bg);
-    border:1px solid var(--border);border-radius:8px;display:none;
-  }
-  .aes-detail.visible{display:block}
-  .aes-detail h4{font-size:14px;font-weight:700;color:#fff;margin-bottom:8px}
-  .aes-detail p{font-size:13px;color:var(--muted);line-height:1.7}
+    /* ─── Quantum threats ─── */
+    .threat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 40px; }
+    .threat-card {
+      border: 1px solid var(--border); border-radius: var(--r);
+      padding: 32px 28px; background: var(--bg2);
+    }
+    .threat-card.danger { border-color: rgba(255,77,106,0.3); background: rgba(255,77,106,0.04); }
+    .threat-card.safe  { border-color: var(--accent-border); background: var(--accent-dim); }
+    .threat-card-badge {
+      display: inline-block; font-size: 10px; font-weight: 700;
+      padding: 4px 10px; border-radius: 100px; margin-bottom: 16px;
+      font-family: var(--mono); text-transform: uppercase; letter-spacing: 0.06em;
+    }
+    .threat-card.danger .threat-card-badge { background: var(--danger-dim); color: var(--danger); border: 1px solid rgba(255,77,106,0.2); }
+    .threat-card.safe  .threat-card-badge { background: var(--accent-dim); color: var(--accent); border: 1px solid var(--accent-border); }
+    .threat-card-title { font-size: 20px; font-weight: 800; color: var(--fg); letter-spacing: -0.02em; margin-bottom: 12px; }
+    .threat-card-sub { font-size: 12px; font-family: var(--mono); color: var(--fg-faint); margin-bottom: 14px; text-transform: uppercase; letter-spacing: 0.06em; }
+    .threat-card-desc { font-size: 14px; line-height: 1.65; color: var(--fg-muted); }
 
-  /* ── Threat section ── */
-  .threat-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:52px}
-  .threat-card{
-    background:var(--surface);border:1px solid var(--border);border-radius:var(--r);
-    padding:32px;
-  }
-  .threat-card--danger{border-color:rgba(255,107,107,0.28);background:rgba(255,107,107,0.03)}
-  .threat-card--safe{border-color:rgba(0,212,170,0.28);background:rgba(0,212,170,0.03)}
-  .threat-icon{font-size:26px;margin-bottom:14px}
-  .threat-card h3{font-size:18px;font-weight:700;color:#fff;margin-bottom:8px}
-  .threat-card p{font-size:13px;color:#c0c0d8;line-height:1.7;margin-bottom:14px}
-  .threat-badge{
-    display:inline-flex;align-items:center;gap:6px;
-    font-family:var(--mono);font-size:10px;letter-spacing:0.07em;
-    padding:5px 10px;border-radius:4px;
-  }
-  .threat-badge::before{content:'●';font-size:7px}
-  .threat-badge--danger{background:var(--red-dim);color:var(--red)}
-  .threat-badge--safe{background:var(--accent-dim);color:var(--accent)}
+    /* ─── Security bars ─── */
+    .security-legend { display: flex; gap: 16px; margin-top: 8px; flex-wrap: wrap; }
+    .sec-legend-item { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--fg-muted); }
+    .sec-legend-dot { width: 10px; height: 10px; border-radius: 50%; }
+    .security-chart { margin-top: 36px; display: flex; flex-direction: column; gap: 28px; }
+    .sec-row-label {
+      font-size: 13px; font-weight: 700; color: var(--fg); margin-bottom: 8px;
+      font-family: var(--mono);
+    }
+    .sec-bars { display: flex; flex-direction: column; gap: 6px; }
+    .sec-bar-row { display: flex; align-items: center; gap: 10px; }
+    .sec-bar-tag {
+      width: 68px; font-size: 9px; font-weight: 700; text-align: right;
+      color: var(--fg-faint); font-family: var(--mono); text-transform: uppercase;
+      letter-spacing: 0.05em; flex-shrink: 0;
+    }
+    .sec-bar-track { flex: 1; height: 6px; background: var(--surface); border-radius: 99px; overflow: hidden; }
+    .sec-bar-fill {
+      height: 100%; border-radius: 99px;
+      transform: scaleX(0); transform-origin: left;
+      transition: transform 0.7s var(--ease-out) calc(var(--ri,0) * 0.06s + 0.1s);
+    }
+    .bar-classical { background: #6080ff; }
+    .bar-quantum   { background: var(--accent); }
+    .bar-zero      { background: var(--danger); width: 2px !important; }
+    .sec-bar-val { font-size: 10px; font-family: var(--mono); color: var(--fg-faint); width: 42px; flex-shrink: 0; }
+    .js-animate .section.s-in .sec-bar-fill { transform: scaleX(1) !important; }
 
-  /* Security bars */
-  .sec-chart{
-    background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:32px;
-  }
-  .sec-chart-head{
-    display:flex;align-items:center;justify-content:space-between;
-    margin-bottom:28px;flex-wrap:wrap;gap:12px;
-  }
-  .sec-chart-head h3{font-size:15px;font-weight:700;color:#fff}
-  .sec-chart-head p{font-size:12px;color:var(--muted);margin-top:3px}
-  .legend{display:flex;gap:16px;font-family:var(--mono);font-size:10px}
-  .legend-item{display:flex;align-items:center;gap:6px}
-  .legend-dot{width:10px;height:3px;border-radius:2px}
-  .sec-bars{display:flex;flex-direction:column;gap:18px}
-  .sec-bar-row{display:grid;grid-template-columns:110px 1fr 50px 1fr 50px;gap:10px;align-items:center}
-  .sec-bar-label{font-family:var(--mono);font-size:11px;color:var(--muted)}
-  .sec-bar-track{height:6px;background:var(--border);border-radius:3px;overflow:hidden}
-  .sec-bar-fill{height:100%;border-radius:3px;transition:width 1.2s var(--ease);width:0}
-  .sec-bar-fill--c{background:var(--blue)}
-  .sec-bar-fill--q{background:var(--accent)}
-  .sec-bar-val{font-family:var(--mono);font-size:11px;color:var(--fg);text-align:right}
-  .sec-bar-val.danger{color:var(--red)}
-  .sec-bar-val.safe{color:var(--accent)}
+    /* ─── Lattice canvas ─── */
+    .lattice-split { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; margin-top: 40px; align-items: center; }
+    #lattice-canvas {
+      width: 100%; aspect-ratio: 1; border-radius: var(--r);
+      border: 1px solid var(--border); background: var(--bg2);
+      display: block;
+    }
+    .lattice-formula {
+      font-size: 20px; font-family: var(--mono); color: var(--accent);
+      margin: 16px 0; letter-spacing: 0.04em; text-align: center;
+      padding: 14px; background: var(--surface); border-radius: 6px;
+      border: 1px solid var(--accent-border);
+    }
+    .lattice-explain-title { font-size: 15px; font-weight: 700; color: var(--fg); margin-bottom: 10px; }
+    .lattice-explain-desc { font-size: 14px; line-height: 1.65; color: var(--fg-muted); }
+    .lattice-note {
+      margin-top: 16px; padding: 12px 14px; background: var(--accent-dim);
+      border-radius: 6px; border: 1px solid var(--accent-border);
+      font-size: 13px; color: var(--fg-muted); line-height: 1.6;
+    }
+    .lattice-note strong { color: var(--accent); }
 
-  /* ── Lattice visual ── */
-  .lattice-split{
-    display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center;
-  }
-  #lattice-mini{
-    display:block;border-radius:8px;background:var(--bg);
-    border:1px solid var(--border);width:100%;
-  }
-  .lattice-explain h3{font-size:20px;font-weight:700;color:#fff;margin-bottom:14px;letter-spacing:-0.02em}
-  .lattice-explain p{font-size:14px;color:#b8b8d4;line-height:1.75;margin-bottom:12px}
-  .lwe-formula{
-    font-family:var(--mono);font-size:16px;padding:16px 20px;
-    background:var(--bg);border:1px solid var(--border);border-radius:8px;
-    color:var(--accent);letter-spacing:0.04em;margin:16px 0;
-  }
+    /* ─── Kyber flow ─── */
+    .kyber-flow {
+      display: grid; grid-template-columns: 1fr 60px 1fr; gap: 0;
+      margin-top: 36px; align-items: stretch;
+    }
+    .kyber-party {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--r); padding: 28px 24px;
+    }
+    .kyber-party-name {
+      font-size: 12px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.1em; color: var(--accent); margin-bottom: 20px;
+      font-family: var(--mono);
+    }
+    .kyber-step { margin-bottom: 16px; }
+    .kyber-step-num {
+      font-size: 9px; font-family: var(--mono); color: var(--fg-faint);
+      text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 5px;
+    }
+    .kyber-step-name { font-size: 14px; font-weight: 700; color: var(--fg); margin-bottom: 5px; }
+    .kyber-step-desc { font-size: 12px; line-height: 1.6; color: var(--fg-muted); }
+    .kyber-key {
+      display: inline-flex; align-items: center; gap: 5px;
+      font-size: 11px; font-family: var(--mono); font-weight: 700;
+      padding: 3px 8px; border-radius: 4px; margin-top: 8px;
+    }
+    .key-result { background: var(--accent-dim); color: var(--accent); border: 1px solid var(--accent-border); }
+    .kyber-arrows {
+      display: flex; flex-direction: column; align-items: center;
+      justify-content: center; gap: 24px; padding: 16px 0;
+    }
+    .kyber-arrow {
+      display: flex; flex-direction: column; align-items: center; gap: 4px;
+      font-size: 9px; font-family: var(--mono); color: var(--fg-faint);
+      text-transform: uppercase; letter-spacing: 0.06em; text-align: center;
+    }
+    .kyber-arrow svg { width: 20px; height: 20px; stroke: var(--accent); }
 
-  /* ── Kyber protocol flow ── */
-  .kyber-flow{
-    background:var(--surface);border:1px solid var(--border);border-radius:var(--r);
-    padding:40px;display:grid;grid-template-columns:1fr 100px 1fr;gap:0;
-    align-items:start;overflow-x:auto;
-  }
-  .kyber-party-name{
-    font-family:var(--mono);font-size:11px;letter-spacing:0.1em;text-transform:uppercase;
-    color:var(--accent);margin-bottom:16px;text-align:center;
-  }
-  .kyber-box{
-    background:var(--bg);border:1px solid var(--border);border-radius:8px;
-    padding:14px 16px;margin-bottom:12px;font-size:12px;color:var(--fg);line-height:1.55;
-  }
-  .kyber-box strong{color:#fff;display:block;margin-bottom:3px;font-size:11px}
-  .kyber-box code{font-family:var(--mono);font-size:10px;color:var(--accent)}
-  .kyber-box.result{border-color:rgba(0,212,170,0.35);background:rgba(0,212,170,0.04)}
-  .kyber-middle{
-    display:flex;flex-direction:column;align-items:center;
-    padding-top:56px;gap:52px;
-  }
-  .k-arrow{display:flex;flex-direction:column;align-items:center;gap:5px;width:100%}
-  .k-line{
-    width:80px;height:1px;background:var(--accent);position:relative;
-  }
-  .k-line.right::after{
-    content:'';position:absolute;right:-1px;top:-4px;
-    border:5px solid transparent;border-left-color:var(--accent);
-  }
-  .k-line.left::before{
-    content:'';position:absolute;left:-1px;top:-4px;
-    border:5px solid transparent;border-right-color:var(--accent);
-  }
-  .k-label{font-family:var(--mono);font-size:9px;color:var(--muted);letter-spacing:0.06em;text-align:center}
+    /* ─── Library tabs ─── */
+    .lib-tabs { display: flex; border-bottom: 1px solid var(--border); margin-top: 36px; }
+    .lib-tab {
+      padding: 10px 18px; font-size: 12px; font-weight: 700;
+      cursor: pointer; border-bottom: 2px solid transparent;
+      color: var(--fg-muted); font-family: var(--mono); letter-spacing: 0.04em;
+      transition: color 0.15s, border-color 0.15s;
+    }
+    .lib-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+    .lib-panel { display: none; padding: 0; }
+    .lib-panel.active { display: block; }
+    .lib-code {
+      background: #080810; border: 1px solid var(--border);
+      border-top: none; border-radius: 0 0 var(--r) var(--r);
+      padding: 24px 20px; overflow-x: auto;
+    }
+    .lib-code pre {
+      font-size: 12px; line-height: 1.72; font-family: var(--mono);
+      color: #9090b8; white-space: pre;
+    }
+    .tok-kw  { color: #c792ea; }
+    .tok-fn  { color: #82aaff; }
+    .tok-str { color: #c3e88d; }
+    .tok-cmt { color: #3d5065; font-style: italic; }
+    .tok-num { color: #f78c6c; }
+    .tok-cls { color: #ffcb6b; }
+    .tok-var { color: #eeffff; }
+    .tok-op  { color: #89ddff; }
 
-  /* ── Code tabs ── */
-  .tool-tabs{display:flex;border-bottom:1px solid var(--border)}
-  .tool-tab{
-    padding:12px 22px;font-family:var(--mono);font-size:11px;letter-spacing:0.06em;
-    text-transform:uppercase;color:var(--muted);background:none;border:none;
-    cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;
-    transition:color 0.2s,border-color 0.2s;
-  }
-  .tool-tab.active{color:var(--accent);border-bottom-color:var(--accent)}
-  .tool-tab:hover{color:var(--fg)}
-  .tools-panel{
-    background:var(--surface);border:1px solid var(--border);
-    border-top:none;border-radius:0 0 var(--r) var(--r);
-  }
-  .tool-content{display:none;padding:32px}
-  .tool-content.active{display:block}
-  .tool-content > p{font-size:14px;color:var(--muted);line-height:1.7;margin-bottom:20px}
-  pre{
-    background:var(--bg);border:1px solid var(--border);border-radius:8px;
-    padding:20px;overflow-x:auto;font-family:var(--mono);font-size:12px;
-    line-height:1.75;color:var(--fg);
-    scrollbar-width:thin;scrollbar-color:var(--border) transparent;
-  }
-  .kw{color:#c792ea}
-  .fn{color:#82aaff}
-  .str{color:#c3e88d}
-  .cm{color:var(--muted);font-style:italic}
-  .vn{color:#ffcb6b}
-  .num{color:#f78c6c}
+    /* ─── Takeaways ─── */
+    .takeaway-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-top: 40px; }
+    .takeaway-card {
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: var(--r); padding: 28px 24px;
+      transition: border-color 0.2s;
+    }
+    .takeaway-card:hover { border-color: var(--border-strong); }
+    .takeaway-icon { font-size: 24px; margin-bottom: 14px; }
+    .takeaway-title { font-size: 15px; font-weight: 700; color: var(--fg); margin-bottom: 9px; letter-spacing: -0.01em; }
+    .takeaway-desc { font-size: 13px; line-height: 1.65; color: var(--fg-muted); }
 
-  /* ── Takeaways ── */
-  .takeaway-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-  .takeaway-item{
-    background:var(--surface);border:1px solid var(--border);border-radius:var(--r);
-    padding:26px;display:flex;gap:16px;align-items:flex-start;
-    transition:border-color 0.2s,transform 0.25s var(--ease);
-  }
-  .takeaway-item:hover{border-color:rgba(0,212,170,0.4);transform:translateY(-2px)}
-  .takeaway-icon{
-    width:36px;height:36px;border-radius:8px;background:var(--accent-dim);
-    display:flex;align-items:center;justify-content:center;
-    flex-shrink:0;font-size:17px;
-  }
-  .takeaway-item h4{font-size:14px;font-weight:700;color:#fff;margin-bottom:6px}
-  .takeaway-item p{font-size:13px;color:#c0c0d8;line-height:1.65}
+    /* ─── Links CTA ─── */
+    .links-cta {
+      background: var(--bg2); border-top: 1px solid var(--border);
+      padding: 80px 72px;
+    }
+    .links-cta-inner { max-width: 1120px; margin: 0 auto; }
+    .links-h2 {
+      font-size: clamp(28px, 4vw, 52px); font-weight: 800; color: var(--fg);
+      letter-spacing: -0.03em; margin-bottom: 10px;
+    }
+    .links-sub { font-size: 14px; color: var(--fg-faint); margin-bottom: 36px; }
+    .links-btns { display: flex; gap: 12px; flex-wrap: wrap; }
+    .link-btn {
+      display: inline-flex; align-items: center; gap: 9px;
+      padding: 13px 22px; border-radius: var(--r); font-size: 14px;
+      font-weight: 700; cursor: pointer;
+      transition: all 0.18s var(--ease-out);
+    }
+    .link-btn:active { transform: scale(0.97); }
+    .link-btn-primary { background: var(--accent); color: #000; }
+    .link-btn-primary:hover { background: #00bfa0; }
+    .link-btn-ghost {
+      background: rgba(255,255,255,0.05); color: var(--fg-muted);
+      border: 1px solid var(--border-strong);
+    }
+    .link-btn-ghost:hover { background: rgba(255,255,255,0.09); color: var(--fg); }
+    .link-btn svg { width: 15px; height: 15px; flex-shrink: 0; }
 
-  /* ── Footer / links ── */
-  .page-footer{
-    border-top:1px solid var(--border);padding:40px;
-    display:flex;justify-content:space-between;align-items:center;
-    max-width:1120px;margin:0 auto 60px;flex-wrap:wrap;gap:20px;
-  }
-  .footer-links{display:flex;gap:12px;flex-wrap:wrap}
-  .footer-link{
-    display:inline-flex;align-items:center;gap:7px;
-    padding:10px 22px;font-size:12px;font-weight:700;
-    letter-spacing:0.04em;text-transform:uppercase;text-decoration:none;
-    border-radius:999px;transition:all 0.2s var(--ease);
-  }
-  .footer-link--primary{background:var(--accent);color:#000}
-  .footer-link--primary:hover{background:#00efc0}
-  .footer-link--secondary{border:1px solid var(--border);color:var(--muted)}
-  .footer-link--secondary:hover{border-color:var(--fg);color:var(--fg)}
-  .footer-link svg{width:10px;height:10px}
-  .footer-copy{font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:0.06em}
+    /* ─── Footer ─── */
+    .footer-wrap { border-top: 1px solid var(--border); }
+    footer {
+      padding: 24px 72px; max-width: 1120px; margin: 0 auto;
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: 13px; color: var(--fg-faint);
+    }
+    footer a { color: var(--fg-muted); font-weight: 600; }
+    footer a:hover { color: var(--accent); }
 
-  /* ── Reveal animation — gated by .js-animate (see below) ── */
-  .d1{transition-delay:0.1s}
-  .d2{transition-delay:0.2s}
-  .d3{transition-delay:0.3s}
+    /* ─── ANIMATION SYSTEM ─── */
+    .js-animate .section {
+      opacity: 0; transform: translateY(20px);
+      transition: opacity 0.65s var(--ease-out), transform 0.75s var(--ease-out);
+    }
+    .js-animate .section.s-in { opacity: 1; transform: none; }
+    /* Algo cards — scale + fade, stagger */
+    .js-animate .algo-card {
+      opacity: 0; transform: translateY(20px) scale(0.97);
+      transition: opacity 0.5s var(--ease-out), transform 0.6s var(--ease-out);
+    }
+    .js-animate .section.s-in .algo-card { opacity: 1; transform: none; }
+    .js-animate .section.s-in .algo-card:nth-child(1) { transition-delay: 0.06s; }
+    .js-animate .section.s-in .algo-card:nth-child(2) { transition-delay: 0.12s; }
+    .js-animate .section.s-in .algo-card:nth-child(3) { transition-delay: 0.18s; }
+    .js-animate .section.s-in .algo-card:nth-child(4) { transition-delay: 0.24s; }
+    .js-animate .section.s-in .algo-card:nth-child(5) { transition-delay: 0.30s; }
+    .js-animate .section.s-in .algo-card:nth-child(6) { transition-delay: 0.36s; }
+    /* Caesar demo wipe */
+    .js-animate .caesar-demo {
+      clip-path: inset(0 100% 0 0); opacity: 0;
+      transition: clip-path 0.7s var(--ease-out) 0.08s, opacity 0.25s var(--ease-out);
+    }
+    .js-animate .section.s-in .caesar-demo { clip-path: inset(0 0% 0 0); opacity: 1; }
+    /* AES rounds stagger */
+    .js-animate .aes-round {
+      opacity: 0; transform: translateY(16px) scale(0.95);
+      transition: opacity 0.45s var(--ease-out), transform 0.5s var(--ease-out);
+    }
+    .js-animate .section.s-in .aes-round { opacity: 1; transform: none; }
+    .js-animate .section.s-in .aes-round:nth-child(1) { transition-delay: 0.05s; }
+    .js-animate .section.s-in .aes-round:nth-child(2) { transition-delay: 0.10s; }
+    .js-animate .section.s-in .aes-round:nth-child(3) { transition-delay: 0.15s; }
+    .js-animate .section.s-in .aes-round:nth-child(4) { transition-delay: 0.20s; }
+    /* Threat cards — slide from opposite sides */
+    .js-animate .threat-card.danger {
+      opacity: 0; transform: translateX(-32px);
+      transition: opacity 0.55s var(--ease-out) 0.05s, transform 0.65s var(--ease-out) 0.05s;
+    }
+    .js-animate .threat-card.safe {
+      opacity: 0; transform: translateX(32px);
+      transition: opacity 0.55s var(--ease-out) 0.12s, transform 0.65s var(--ease-out) 0.12s;
+    }
+    .js-animate .section.s-in .threat-card { opacity: 1; transform: none; }
+    /* Lattice split */
+    .js-animate .lattice-split {
+      opacity: 0; transform: translateY(20px);
+      transition: opacity 0.65s var(--ease-out) 0.08s, transform 0.75s var(--ease-out) 0.08s;
+    }
+    .js-animate .section.s-in .lattice-split { opacity: 1; transform: none; }
+    /* Kyber flow */
+    .js-animate .kyber-flow {
+      opacity: 0; transform: translateY(18px);
+      transition: opacity 0.6s var(--ease-out) 0.06s, transform 0.7s var(--ease-out) 0.06s;
+    }
+    .js-animate .section.s-in .kyber-flow { opacity: 1; transform: none; }
+    /* Lib tabs */
+    .js-animate .lib-tabs, .js-animate .lib-panel {
+      opacity: 0; transform: translateY(16px);
+      transition: opacity 0.55s var(--ease-out), transform 0.62s var(--ease-out);
+    }
+    .js-animate .section.s-in .lib-tabs { opacity: 1; transform: none; transition-delay: 0.05s; }
+    .js-animate .section.s-in .lib-panel { opacity: 1; transform: none; transition-delay: 0.12s; }
+    /* Takeaway cards stagger */
+    .js-animate .takeaway-card {
+      opacity: 0; transform: translateY(18px);
+      transition: opacity 0.48s var(--ease-out), transform 0.55s var(--ease-out);
+    }
+    .js-animate .section.s-in .takeaway-card { opacity: 1; transform: none; }
+    .js-animate .section.s-in .takeaway-card:nth-child(1) { transition-delay: 0.05s; }
+    .js-animate .section.s-in .takeaway-card:nth-child(2) { transition-delay: 0.11s; }
+    .js-animate .section.s-in .takeaway-card:nth-child(3) { transition-delay: 0.17s; }
+    .js-animate .section.s-in .takeaway-card:nth-child(4) { transition-delay: 0.23s; }
+    /* Link buttons stagger */
+    .js-animate .link-btn {
+      opacity: 0; transform: translateY(12px);
+      transition: opacity 0.42s var(--ease-out), transform 0.48s var(--ease-out);
+    }
+    .js-animate .links-cta.s-in .link-btn { opacity: 1; transform: none; }
+    .js-animate .links-cta.s-in .link-btn:nth-child(1) { transition-delay: 0.06s; }
+    .js-animate .links-cta.s-in .link-btn:nth-child(2) { transition-delay: 0.13s; }
+    .js-animate .links-cta.s-in { opacity: 1; transform: none; }
+    /* ─── Per-element cascade: label → h2 → prose → visuals ─── */
 
-  /* ── Word-reveal — exact match to main site ── */
-  .word-reveal .word{
-    display:inline-block;opacity:0;transform:translateY(0.35em);filter:blur(5px);
-    transition:opacity 0.5s var(--ease),transform 0.5s var(--ease),filter 0.5s var(--ease);
-    transition-delay:calc(var(--i,0)*0.04s);
-  }
-  .word-reveal.is-visible .word{opacity:1;transform:translateY(0);filter:blur(0)}
+    /* Section label: slides from left, fires first */
+    .js-animate .section-label {
+      opacity: 0; transform: translateX(-18px);
+      transition: opacity 0.4s var(--ease-out), transform 0.46s var(--ease-out);
+      transition-delay: 0s;
+    }
+    .js-animate .section.s-in .section-label {
+      opacity: 1; transform: none;
+    }
 
-  /* ── Responsive ── */
-  @media(max-width:768px){
-    .topbar{padding:16px 20px}
-    .hero{padding:0 20px 60px}
-    .section,.section-sm{padding:60px 20px}
-    .stats-row,.algo-grid,.cipher-io,.threat-grid,.lattice-split,.takeaway-grid{grid-template-columns:1fr}
-    .kyber-flow{grid-template-columns:1fr}
-    .kyber-middle{padding-top:0;gap:20px;flex-direction:row}
-    .sec-bar-row{grid-template-columns:80px 1fr 38px 1fr 38px;gap:6px}
-    .page-footer{flex-direction:column;align-items:flex-start}
-  }
-  @media(prefers-reduced-motion:reduce){
-    .scroll-cue{animation:none}
-    .sec-bar-fill{transition:none}
-  }
-  /* ── Scroll progress ── */
-  #scroll-progress {
-    position: fixed; top: 0; left: 0; height: 2px; width: 0%;
-    background: linear-gradient(90deg, var(--accent), #00efc0);
-    z-index: 200; transition: width 0.06s linear;
-    box-shadow: 0 0 8px rgba(0,212,170,0.5);
-  }
+    /* h2: clip-path wipe left → right, fires 70ms after label */
+    .js-animate .section-h2 {
+      clip-path: inset(0 102% 0 0);
+      transition: clip-path 0.75s var(--ease-out);
+      transition-delay: 0.07s;
+    }
+    .js-animate .section.s-in .section-h2 {
+      clip-path: inset(0 0% 0 0);
+    }
 
-  /* ── Topbar scroll state ── */
-  .topbar { transition: box-shadow 0.3s var(--ease), border-color 0.3s var(--ease); }
-  .topbar.scrolled { box-shadow: 0 1px 24px rgba(0,0,0,0.5); border-color: rgba(0,212,170,0.15); }
+    /* Prose: fades up, fires 200ms after label */
+    .js-animate .section-prose {
+      opacity: 0; transform: translateY(10px);
+      transition: opacity 0.52s var(--ease-out), transform 0.58s var(--ease-out);
+      transition-delay: 0.20s;
+    }
+    .js-animate .section.s-in .section-prose { opacity: 1; transform: none; }
 
-  /* ── js-animate guards (safe reveals) ── */
-  .js-animate .reveal {
-    opacity: 0; transform: translateY(52px);
-    transition: opacity 0.72s var(--ease), transform 0.78s var(--ease);
-  }
-  .js-animate .reveal.is-visible { opacity: 1; transform: none; }
-  .js-animate .reveal-zoom {
-    opacity: 0; transform: translateY(40px) scale(0.94);
-    transition: opacity 0.7s var(--ease), transform 0.75s var(--ease);
-  }
-  .js-animate .reveal-zoom.is-visible { opacity: 1; transform: none; }
+    /* Algo card types (sub-labels inside cards): delayed within each card */
+    .js-animate .algo-card-type {
+      opacity: 0;
+      transition: opacity 0.36s var(--ease-out);
+    }
+    .js-animate .section.s-in .algo-card-type { opacity: 1; }
+    .js-animate .section.s-in .algo-card:nth-child(1) .algo-card-type { transition-delay: 0.10s; }
+    .js-animate .section.s-in .algo-card:nth-child(2) .algo-card-type { transition-delay: 0.16s; }
+    .js-animate .section.s-in .algo-card:nth-child(3) .algo-card-type { transition-delay: 0.22s; }
+    .js-animate .section.s-in .algo-card:nth-child(4) .algo-card-type { transition-delay: 0.28s; }
+    .js-animate .section.s-in .algo-card:nth-child(5) .algo-card-type { transition-delay: 0.34s; }
+    .js-animate .section.s-in .algo-card:nth-child(6) .algo-card-type { transition-delay: 0.40s; }
 
-  /* ── Stagger classes for grouped elements ── */
-  .js-animate .stagger-child {
-    opacity: 0; transform: translateY(56px) scale(0.94);
-    transition: opacity 0.68s var(--ease), transform 0.72s var(--ease);
-  }
-  .js-animate .stagger-parent.group-visible .stagger-child { opacity: 1; transform: none; }
+    /* Caesar demo: clip-path wipe */
+    /* (already handled above via caesar-demo clip-path) */
 
-  /* delay tiers */
-  .stagger-child:nth-child(1) { transition-delay: 0.00s; }
-  .stagger-child:nth-child(2) { transition-delay: 0.08s; }
-  .stagger-child:nth-child(3) { transition-delay: 0.16s; }
-  .stagger-child:nth-child(4) { transition-delay: 0.24s; }
-  .stagger-child:nth-child(5) { transition-delay: 0.32s; }
-  .stagger-child:nth-child(6) { transition-delay: 0.40s; }
+    /* AES detail panel */
+    .aes-detail.visible {
+      animation: fadeSlideUp 0.38s var(--ease-out) forwards;
+    }
+    @keyframes fadeSlideUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: none; }
+    }
 
-  /* ── Slide in from sides (threat cards) ── */
-  .js-animate .slide-left  { opacity: 0; transform: translateX(-36px); transition: opacity 0.65s var(--ease), transform 0.7s var(--ease); }
-  .js-animate .slide-right { opacity: 0; transform: translateX(36px);  transition: opacity 0.65s var(--ease), transform 0.7s var(--ease); }
-  .js-animate .slide-left.slide-in, .js-animate .slide-right.slide-in  { opacity: 1; transform: none; }
-  .js-animate .slide-right.slide-in { transition-delay: 0.10s; }
+    /* Security row labels: slide from left, stagger */
+    .js-animate .sec-row-label {
+      opacity: 0; transform: translateX(-14px);
+      transition: opacity 0.4s var(--ease-out), transform 0.46s var(--ease-out);
+    }
+    .js-animate .section.s-in .sec-row-label { opacity: 1; transform: none; }
+    .js-animate .section.s-in .security-chart > div:nth-child(1) .sec-row-label { transition-delay: 0.07s; }
+    .js-animate .section.s-in .security-chart > div:nth-child(2) .sec-row-label { transition-delay: 0.13s; }
+    .js-animate .section.s-in .security-chart > div:nth-child(3) .sec-row-label { transition-delay: 0.19s; }
+    .js-animate .section.s-in .security-chart > div:nth-child(4) .sec-row-label { transition-delay: 0.25s; }
 
-  /* ── Hero entrance ── */
-  .js-animate .hero-content .hero-tag   { opacity: 0; transform: translateY(16px); animation: hero-tag-in 0.55s var(--ease) 0.1s forwards; }
-  .js-animate .hero-content .hero-title { opacity: 0; transform: translateY(24px); animation: hero-title-in 0.7s var(--ease) 0.22s forwards; }
-  .js-animate .hero-content .hero-meta  { opacity: 0; transform: translateY(18px); animation: hero-meta-in 0.55s var(--ease) 0.42s forwards; }
-  @keyframes hero-tag-in   { to { opacity: 1; transform: none; } }
-  @keyframes hero-title-in { to { opacity: 1; transform: none; } }
-  @keyframes hero-meta-in  { to { opacity: 1; transform: none; } }
+    /* Lattice explain: stagger title → prose → formula → note */
+    .js-animate .lattice-explain-title {
+      opacity: 0; transform: translateY(8px);
+      transition: opacity 0.44s var(--ease-out) 0.16s, transform 0.5s var(--ease-out) 0.16s;
+    }
+    .js-animate .section.s-in .lattice-explain-title { opacity: 1; transform: none; }
 
-  /* ── Count-up stat display ── */
-  .stat-num { transition: transform 0.2s var(--ease); }
-  .stat-item:hover .stat-num { transform: translateY(-3px); }
+    .js-animate .lattice-formula {
+      clip-path: inset(0 102% 0 0);
+      transition: clip-path 0.62s var(--ease-out) 0.26s;
+    }
+    .js-animate .section.s-in .lattice-formula { clip-path: inset(0 0% 0 0); }
 
-  @media(prefers-reduced-motion:reduce){
-    .js-animate .reveal, .js-animate .reveal-zoom,
-    .js-animate .stagger-child,
-    .js-animate .slide-left, .js-animate .slide-right,
-    .js-animate .hero-content .hero-tag,
-    .js-animate .hero-content .hero-title,
-    .js-animate .hero-content .hero-meta { opacity:1; transform:none; animation:none; }
-  }
+    .js-animate .lattice-explain-desc {
+      opacity: 0; transform: translateY(8px);
+      transition: opacity 0.44s var(--ease-out) 0.24s, transform 0.5s var(--ease-out) 0.24s;
+    }
+    .js-animate .section.s-in .lattice-explain-desc { opacity: 1; transform: none; }
 
-  /* ── Divider scan animation ── */
-  hr.divider { position:relative; overflow:hidden; }
-  .js-animate hr.divider.div-in::after {
-    content:''; position:absolute; top:0; left:-100%; width:30%; height:100%;
-    background:linear-gradient(90deg,transparent,rgba(0,212,170,0.45),transparent);
-    animation:divScan 0.7s var(--ease) forwards;
-  }
-  @keyframes divScan { to { left:100%; } }
+    .js-animate .lattice-note {
+      opacity: 0; transform: translateY(8px);
+      transition: opacity 0.44s var(--ease-out) 0.38s, transform 0.5s var(--ease-out) 0.38s;
+    }
+    .js-animate .section.s-in .lattice-note { opacity: 1; transform: none; }
 
-  /* ── Section label fade-right ── */
-  .js-animate .section-label {
-    opacity:0; transform:translateX(-12px);
-    transition:opacity 0.45s var(--ease), transform 0.5s var(--ease);
-  }
-  .js-animate .section-label.lbl-in { opacity:1; transform:none; }
+    /* Kyber party names: slide from their sides */
+    .js-animate .kyber-party:first-child .kyber-party-name {
+      opacity: 0; transform: translateX(-14px);
+      transition: opacity 0.42s var(--ease-out) 0.12s, transform 0.48s var(--ease-out) 0.12s;
+    }
+    .js-animate .kyber-party:last-child .kyber-party-name {
+      opacity: 0; transform: translateX(14px);
+      transition: opacity 0.42s var(--ease-out) 0.12s, transform 0.48s var(--ease-out) 0.12s;
+    }
+    .js-animate .section.s-in .kyber-party-name { opacity: 1; transform: none; }
 
-  /* ── Section title clip-reveal ── */
-  .js-animate .section-title { overflow:visible; }
+    /* Kyber steps: stagger */
+    .js-animate .kyber-step {
+      opacity: 0; transform: translateY(12px);
+      transition: opacity 0.44s var(--ease-out), transform 0.5s var(--ease-out);
+    }
+    .js-animate .section.s-in .kyber-step { opacity: 1; transform: none; }
+    .js-animate .section.s-in .kyber-party:first-child .kyber-step:nth-child(1) { transition-delay: 0.20s; }
+    .js-animate .section.s-in .kyber-party:first-child .kyber-step:nth-child(2) { transition-delay: 0.30s; }
+    .js-animate .section.s-in .kyber-party:last-child  .kyber-step:nth-child(1) { transition-delay: 0.24s; }
 
-  /* ── Kyber box stagger ── */
-  .js-animate .kyber-box {
-    opacity:0; transform:translateY(22px);
-    transition:opacity 0.55s var(--ease), transform 0.6s var(--ease), border-color 0.2s, background 0.2s;
-  }
-  .js-animate .kyber-flow.kf-in .kyber-box { opacity:1; transform:none; }
-  .kyber-flow.kf-in .kyber-box:nth-child(1) { transition-delay:0.00s; }
-  .kyber-flow.kf-in .kyber-box:nth-child(2) { transition-delay:0.10s; }
-  .kyber-flow.kf-in .kyber-box:nth-child(3) { transition-delay:0.20s; }
-  .kyber-flow.kf-in .kyber-party:last-child .kyber-box:nth-child(1) { transition-delay:0.08s; }
-  .kyber-flow.kf-in .kyber-party:last-child .kyber-box:nth-child(2) { transition-delay:0.18s; }
+    /* Kyber arrows: fade in */
+    .js-animate .kyber-arrow {
+      opacity: 0;
+      transition: opacity 0.4s var(--ease-out) 0.32s;
+    }
+    .js-animate .section.s-in .kyber-arrow { opacity: 1; }
+    .js-animate .section.s-in .kyber-arrow:nth-child(2) { transition-delay: 0.40s; }
 
-  /* ── Lattice split: left slides left, right slides right ── */
-  .js-animate .lattice-split > :first-child {
-    opacity:0; transform:translateX(-40px);
-    transition:opacity 0.7s var(--ease), transform 0.75s var(--ease);
-  }
-  .js-animate .lattice-split > :last-child {
-    opacity:0; transform:translateX(40px);
-    transition:opacity 0.7s var(--ease) 0.1s, transform 0.75s var(--ease) 0.1s;
-  }
-  .js-animate .lattice-split.lat-in > :first-child,
-  .js-animate .lattice-split.lat-in > :last-child { opacity:1; transform:none; }
+    /* Takeaway icons: pop in with scale */
+    .js-animate .takeaway-icon {
+      opacity: 0; transform: scale(0.5);
+      transition: opacity 0.38s var(--ease-out), transform 0.42s var(--ease-out);
+    }
+    .js-animate .section.s-in .takeaway-icon { opacity: 1; transform: scale(1); }
+    .js-animate .section.s-in .takeaway-card:nth-child(1) .takeaway-icon { transition-delay: 0.09s; }
+    .js-animate .section.s-in .takeaway-card:nth-child(2) .takeaway-icon { transition-delay: 0.15s; }
+    .js-animate .section.s-in .takeaway-card:nth-child(3) .takeaway-icon { transition-delay: 0.21s; }
+    .js-animate .section.s-in .takeaway-card:nth-child(4) .takeaway-icon { transition-delay: 0.27s; }
 
-  /* ── Security bar rows: stagger ── */
-  .js-animate .sec-bar-row {
-    opacity:0; transform:translateX(-20px);
-    transition:opacity 0.5s var(--ease), transform 0.55s var(--ease);
-  }
-  .js-animate .sec-chart.sc-in .sec-bar-row { opacity:1; transform:none; }
-  .sec-chart.sc-in .sec-bar-row:nth-child(1) { transition-delay:0.00s; }
-  .sec-chart.sc-in .sec-bar-row:nth-child(2) { transition-delay:0.07s; }
-  .sec-chart.sc-in .sec-bar-row:nth-child(3) { transition-delay:0.14s; }
-  .sec-chart.sc-in .sec-bar-row:nth-child(4) { transition-delay:0.21s; }
+    /* Takeaway titles: slide up after icon */
+    .js-animate .takeaway-title {
+      opacity: 0; transform: translateY(6px);
+      transition: opacity 0.4s var(--ease-out), transform 0.46s var(--ease-out);
+    }
+    .js-animate .section.s-in .takeaway-title { opacity: 1; transform: none; }
+    .js-animate .section.s-in .takeaway-card:nth-child(1) .takeaway-title { transition-delay: 0.16s; }
+    .js-animate .section.s-in .takeaway-card:nth-child(2) .takeaway-title { transition-delay: 0.22s; }
+    .js-animate .section.s-in .takeaway-card:nth-child(3) .takeaway-title { transition-delay: 0.28s; }
+    .js-animate .section.s-in .takeaway-card:nth-child(4) .takeaway-title { transition-delay: 0.34s; }
 
-  /* ── Demo box inner stagger ── */
-  .js-animate .demo-box h3, .js-animate .demo-box .demo-desc,
-  .js-animate .demo-box .cipher-io, .js-animate .demo-box .slider-row {
-    opacity:0; transform:translateY(14px);
-    transition:opacity 0.45s var(--ease), transform 0.5s var(--ease);
-  }
-  .js-animate .demo-box.demo-in h3       { opacity:1; transform:none; transition-delay:0.05s; }
-  .js-animate .demo-box.demo-in .demo-desc  { opacity:1; transform:none; transition-delay:0.12s; }
-  .js-animate .demo-box.demo-in .cipher-io  { opacity:1; transform:none; transition-delay:0.20s; }
-  .js-animate .demo-box.demo-in .slider-row { opacity:1; transform:none; transition-delay:0.30s; }
+    /* Links CTA heading: clip-path wipe */
+    .js-animate .links-h2 {
+      clip-path: inset(0 102% 0 0);
+      transition: clip-path 0.72s var(--ease-out) 0.05s;
+    }
+    .js-animate .links-cta.s-in .links-h2 { clip-path: inset(0 0% 0 0); }
 
-  /* ── AES diagram entrance ── */
-  .js-animate .aes-diagram {
-    opacity:0; transform:translateY(28px) scale(0.98);
-    transition:opacity 0.65s var(--ease), transform 0.7s var(--ease);
-  }
-  .js-animate .aes-diagram.aes-in { opacity:1; transform:none; }
+    /* Links sub: fades up */
+    .js-animate .links-sub {
+      opacity: 0; transform: translateY(8px);
+      transition: opacity 0.45s var(--ease-out) 0.18s, transform 0.5s var(--ease-out) 0.18s;
+    }
+    .js-animate .links-cta.s-in .links-sub { opacity: 1; transform: none; }
 
-  /* ── Footer links stagger ── */
-  .js-animate .footer-link {
-    opacity:0; transform:translateY(14px);
-    transition:opacity 0.45s var(--ease), transform 0.5s var(--ease), background 0.2s, color 0.2s, border-color 0.2s;
-  }
-  .js-animate .page-footer.ft-in .footer-link { opacity:1; transform:none; }
-  .page-footer.ft-in .footer-link:nth-child(1) { transition-delay:0.00s; }
-  .page-footer.ft-in .footer-link:nth-child(2) { transition-delay:0.08s; }
+    /* Hero always visible */
+    .hero { opacity: 1 !important; transform: none !important; }
 
-  .js-animate .footer-copy {
-    opacity:0; transition:opacity 0.5s var(--ease) 0.18s;
-  }
-  .js-animate .page-footer.ft-in .footer-copy { opacity:1; }
-
-  /* ── Takeaway stagger (override reveal classes) ── */
-  .js-animate .takeaway-item {
-    opacity:0; transform:translateY(32px) scale(0.98);
-    transition:opacity 0.6s var(--ease), transform 0.65s var(--ease),
-               border-color 0.2s, transform 0.25s var(--ease);
-  }
-  .js-animate .takeaway-grid.tg-in .takeaway-item { opacity:1; transform:translateY(0) scale(1); }
-  .takeaway-grid.tg-in .takeaway-item:nth-child(1) { transition-delay:0.00s; }
-  .takeaway-grid.tg-in .takeaway-item:nth-child(2) { transition-delay:0.09s; }
-  .takeaway-grid.tg-in .takeaway-item:nth-child(3) { transition-delay:0.18s; }
-  .takeaway-grid.tg-in .takeaway-item:nth-child(4) { transition-delay:0.27s; }
-  /* hover still works */
-  .takeaway-grid.tg-in .takeaway-item:hover { transform:translateY(-2px) scale(1) !important; }
-
-  /* ── AES round stagger (fires when parent gets aes-in) ── */
-  @keyframes aes-round-in {
-    from { opacity: 0; transform: translateY(14px); }
-    to   { opacity: 1; transform: none; }
-  }
-  .js-animate .aes-round { opacity: 0; }
-  .js-animate .aes-diagram.aes-in .aes-round {
-    animation: aes-round-in 0.4s var(--ease) both;
-    animation-delay: calc(var(--ri, 0) * 0.03s);
-  }
-
-  /* ── Kyber party name entrance ── */
-  .js-animate .kyber-party-name {
-    opacity: 0; transform: translateY(-10px);
-    transition: opacity 0.4s var(--ease), transform 0.45s var(--ease);
-  }
-  .js-animate .kyber-flow.kf-in .kyber-party:nth-child(1) .kyber-party-name {
-    opacity: 1; transform: none; transition-delay: 0.00s;
-  }
-  .js-animate .kyber-flow.kf-in .kyber-party:nth-child(2) .kyber-party-name {
-    opacity: 1; transform: none; transition-delay: 0.14s;
-  }
-
-  /* ── Security chart header slide-in ── */
-  .js-animate .sec-chart-head {
-    opacity: 0; transform: translateY(-18px);
-    transition: opacity 0.5s var(--ease), transform 0.55s var(--ease);
-  }
-  .js-animate .sec-chart.sc-in .sec-chart-head { opacity: 1; transform: none; }
-
-  /* ── Tool tab content slide-in on switch ── */
-  @keyframes tab-slide-in {
-    from { opacity: 0; transform: translateY(8px); }
-    to   { opacity: 1; transform: none; }
-  }
-  .tool-content.active { animation: tab-slide-in 0.3s var(--ease) both; }
-
-  /* ── prefers-reduced-motion: kill all new animations ── */
-  @media(prefers-reduced-motion:reduce){
-    .js-animate .section-label,
-    .js-animate .kyber-box,
-    .js-animate .kyber-party-name,
-    .js-animate .lattice-split > :first-child,
-    .js-animate .lattice-split > :last-child,
-    .js-animate .sec-bar-row,
-    .js-animate .sec-chart-head,
-    .js-animate .aes-round,
-    .js-animate .demo-box h3, .js-animate .demo-box .demo-desc,
-    .js-animate .demo-box .cipher-io, .js-animate .demo-box .slider-row,
-    .js-animate .aes-diagram,
-    .js-animate .footer-link, .js-animate .footer-copy,
-    .js-animate .takeaway-item { opacity:1; transform:none; animation:none; transition:none; }
-    .tool-content.active { animation: none; }
-  }
-
-  /* ══════════════════════════════════════════════════════
-     SUB-ELEMENT MOVEMENT — everything inside every block
-     ══════════════════════════════════════════════════════ */
-
-  /* ── pre / code block individual reveal ── */
-  .js-animate pre {
-    opacity: 0; transform: translateY(38px) scale(0.97);
-    filter: blur(3px);
-    transition: opacity 0.68s var(--ease), transform 0.72s var(--ease), filter 0.68s var(--ease);
-  }
-  .js-animate pre.is-in { opacity: 1; transform: none; filter: blur(0); }
-
-  /* ── Algo card inner content (transform-only; parent handles opacity) ── */
-  .js-animate .algo-card .algo-badge {
-    transform: translateY(-12px) scale(0.78);
-    transition: transform 0.42s var(--ease);
-  }
-  .js-animate .algo-card h3 {
-    transform: translateY(18px);
-    transition: transform 0.48s var(--ease) 0.06s;
-  }
-  .js-animate .algo-card p {
-    transform: translateY(14px);
-    transition: transform 0.48s var(--ease) 0.13s;
-  }
-  .js-animate .stagger-parent.group-visible .algo-card .algo-badge { transform: none; }
-  .js-animate .stagger-parent.group-visible .algo-card h3            { transform: none; }
-  .js-animate .stagger-parent.group-visible .algo-card p             { transform: none; }
-  /* per-card delay offsets */
-  .algo-grid.group-visible .stagger-child:nth-child(1) .algo-badge  { transition-delay: 0.03s; }
-  .algo-grid.group-visible .stagger-child:nth-child(1) h3           { transition-delay: 0.09s; }
-  .algo-grid.group-visible .stagger-child:nth-child(1) p            { transition-delay: 0.15s; }
-  .algo-grid.group-visible .stagger-child:nth-child(2) .algo-badge  { transition-delay: 0.11s; }
-  .algo-grid.group-visible .stagger-child:nth-child(2) h3           { transition-delay: 0.17s; }
-  .algo-grid.group-visible .stagger-child:nth-child(2) p            { transition-delay: 0.23s; }
-  .algo-grid.group-visible .stagger-child:nth-child(3) .algo-badge  { transition-delay: 0.19s; }
-  .algo-grid.group-visible .stagger-child:nth-child(3) h3           { transition-delay: 0.25s; }
-  .algo-grid.group-visible .stagger-child:nth-child(3) p            { transition-delay: 0.31s; }
-  .algo-grid.group-visible .stagger-child:nth-child(4) .algo-badge  { transition-delay: 0.27s; }
-  .algo-grid.group-visible .stagger-child:nth-child(4) h3           { transition-delay: 0.33s; }
-  .algo-grid.group-visible .stagger-child:nth-child(4) p            { transition-delay: 0.39s; }
-  .algo-grid.group-visible .stagger-child:nth-child(5) .algo-badge  { transition-delay: 0.35s; }
-  .algo-grid.group-visible .stagger-child:nth-child(5) h3           { transition-delay: 0.41s; }
-  .algo-grid.group-visible .stagger-child:nth-child(5) p            { transition-delay: 0.47s; }
-  .algo-grid.group-visible .stagger-child:nth-child(6) .algo-badge  { transition-delay: 0.43s; }
-  .algo-grid.group-visible .stagger-child:nth-child(6) h3           { transition-delay: 0.49s; }
-  .algo-grid.group-visible .stagger-child:nth-child(6) p            { transition-delay: 0.55s; }
-
-  /* ── Threat card inner stagger (transform-only; parent slides in) ── */
-  .js-animate .threat-card .threat-icon {
-    transform: scale(0.45) rotate(-15deg);
-    transition: transform 0.52s cubic-bezier(0.34,1.56,0.64,1);
-  }
-  .js-animate .threat-card h3 {
-    transform: translateY(20px);
-    transition: transform 0.52s var(--ease) 0.12s;
-  }
-  .js-animate .threat-card p {
-    transform: translateY(16px);
-    transition: transform 0.52s var(--ease) 0.21s;
-  }
-  .js-animate .threat-card .threat-badge {
-    transform: translateY(14px) scale(0.85);
-    transition: transform 0.48s var(--ease) 0.32s;
-  }
-  .js-animate .threat-card.slide-in .threat-icon  { transform: none; }
-  .js-animate .threat-card.slide-in h3            { transform: none; }
-  .js-animate .threat-card.slide-in p             { transform: none; }
-  .js-animate .threat-card.slide-in .threat-badge { transform: none; }
-
-  /* ── Stat label fade-up (transform-only; stagger-child handles opacity) ── */
-  .js-animate .stat-label {
-    transform: translateY(12px);
-    transition: transform 0.45s var(--ease) 0.24s;
-  }
-  .js-animate .stagger-parent.group-visible .stat-label { transform: none; }
-  /* per-stat delays */
-  .stats-row.group-visible .stagger-child:nth-child(1) .stat-label { transition-delay: 0.22s; }
-  .stats-row.group-visible .stagger-child:nth-child(2) .stat-label { transition-delay: 0.30s; }
-  .stats-row.group-visible .stagger-child:nth-child(3) .stat-label { transition-delay: 0.38s; }
-
-  /* ── Lattice explain sub-elements (transform-only; parent fades in) ── */
-  .js-animate .lattice-explain h3 {
-    transform: translateY(24px);
-    transition: transform 0.62s var(--ease) 0.12s;
-  }
-  .js-animate .lattice-explain p {
-    transform: translateY(20px);
-    transition: transform 0.62s var(--ease);
-  }
-  .js-animate .lattice-explain p:nth-of-type(1) { transition-delay: 0.20s; }
-  .js-animate .lattice-explain p:nth-of-type(2) { transition-delay: 0.34s; }
-  .js-animate .lwe-formula {
-    transform: translateX(-32px) scale(0.96);
-    transition: transform 0.62s var(--ease) 0.26s;
-  }
-  .js-animate .lattice-split.lat-in .lattice-explain h3 { transform: none; }
-  .js-animate .lattice-split.lat-in .lattice-explain p  { transform: none; }
-  .js-animate .lattice-split.lat-in .lwe-formula        { transform: none; }
-
-  /* ── Kyber middle arrows scale in ── */
-  .js-animate .k-arrow {
-    transform: scaleX(0);
-    transform-origin: center;
-    transition: transform 0.52s var(--ease);
-  }
-  .js-animate .kyber-flow.kf-in .k-arrow                         { transform: scaleX(1); }
-  .js-animate .kyber-flow.kf-in .kyber-middle .k-arrow:nth-child(1) { transition-delay: 0.30s; }
-  .js-animate .kyber-flow.kf-in .kyber-middle .k-arrow:nth-child(2) { transition-delay: 0.52s; }
-
-  /* ── Takeaway icon pop + text slide ── */
-  .js-animate .takeaway-icon {
-    transform: scale(0.42) rotate(-16deg);
-    transition: transform 0.56s cubic-bezier(0.34,1.56,0.64,1);
-  }
-  .js-animate .takeaway-item h4 {
-    transform: translateY(16px);
-    transition: transform 0.52s var(--ease) 0.07s;
-  }
-  .js-animate .takeaway-item p {
-    transform: translateY(12px);
-    transition: transform 0.52s var(--ease) 0.14s;
-  }
-  .js-animate .takeaway-grid.tg-in .takeaway-icon { transform: none; }
-  .js-animate .takeaway-grid.tg-in .takeaway-item h4 { transform: none; }
-  .js-animate .takeaway-grid.tg-in .takeaway-item p  { transform: none; }
-  /* per-item delays */
-  .takeaway-grid.tg-in .takeaway-item:nth-child(1) .takeaway-icon { transition-delay: 0.02s; }
-  .takeaway-grid.tg-in .takeaway-item:nth-child(2) .takeaway-icon { transition-delay: 0.11s; }
-  .takeaway-grid.tg-in .takeaway-item:nth-child(3) .takeaway-icon { transition-delay: 0.20s; }
-  .takeaway-grid.tg-in .takeaway-item:nth-child(4) .takeaway-icon { transition-delay: 0.29s; }
-  .takeaway-grid.tg-in .takeaway-item:nth-child(1) h4 { transition-delay: 0.06s; }
-  .takeaway-grid.tg-in .takeaway-item:nth-child(2) h4 { transition-delay: 0.15s; }
-  .takeaway-grid.tg-in .takeaway-item:nth-child(3) h4 { transition-delay: 0.24s; }
-  .takeaway-grid.tg-in .takeaway-item:nth-child(4) h4 { transition-delay: 0.33s; }
-  .takeaway-grid.tg-in .takeaway-item:nth-child(1) p  { transition-delay: 0.13s; }
-  .takeaway-grid.tg-in .takeaway-item:nth-child(2) p  { transition-delay: 0.22s; }
-  .takeaway-grid.tg-in .takeaway-item:nth-child(3) p  { transition-delay: 0.31s; }
-  .takeaway-grid.tg-in .takeaway-item:nth-child(4) p  { transition-delay: 0.40s; }
-
-  /* ── Section title: add blur on top of word-reveal ── */
-  .js-animate .word-reveal .word {
-    filter: blur(6px);
-    transition: opacity 0.5s var(--ease), transform 0.5s var(--ease), filter 0.5s var(--ease);
-  }
-  .js-animate .word-reveal.is-visible .word { filter: blur(0); }
-
-  /* ── prefers-reduced-motion additions ── */
-  @media(prefers-reduced-motion:reduce){
-    .js-animate pre,
-    .js-animate .algo-card .algo-badge, .js-animate .algo-card h3, .js-animate .algo-card p,
-    .js-animate .threat-card .threat-icon, .js-animate .threat-card h3,
-    .js-animate .threat-card p, .js-animate .threat-card .threat-badge,
-    .js-animate .stat-label,
-    .js-animate .lattice-explain h3, .js-animate .lattice-explain p, .js-animate .lwe-formula,
-    .js-animate .k-arrow,
-    .js-animate .takeaway-icon, .js-animate .takeaway-item h4, .js-animate .takeaway-item p,
-    .js-animate .word-reveal .word { transform: none !important; filter: none !important; transition: none !important; }
-  }
-
-</style>
+    /* ─── Responsive ─── */
+    @media (max-width: 900px) {
+      .hero { padding: 80px 24px 60px; }
+      .section { padding: 60px 24px; }
+      .algo-grid { grid-template-columns: 1fr 1fr; }
+      .section-split { grid-template-columns: 1fr; gap: 36px; }
+      .threat-grid { grid-template-columns: 1fr; }
+      .lattice-split { grid-template-columns: 1fr; }
+      .kyber-flow { grid-template-columns: 1fr; }
+      .kyber-arrows { flex-direction: row; }
+      .takeaway-grid { grid-template-columns: 1fr; }
+      .links-cta { padding: 56px 24px; }
+      footer { padding: 20px 24px; flex-direction: column; gap: 6px; text-align: center; }
+    }
+    @media (max-width: 520px) {
+      .algo-grid { grid-template-columns: 1fr; }
+      .aes-grid { grid-template-columns: repeat(2, 1fr); }
+      .hero-stats { flex-direction: column; }
+      .hero-stat { border-right: none; border-bottom: 1px solid var(--border); }
+      .hero-stat:last-child { border-bottom: none; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .js-animate .section, .js-animate .algo-card, .js-animate .caesar-demo,
+      .js-animate .aes-round, .js-animate .threat-card,
+      .js-animate .lattice-split, .js-animate .kyber-flow,
+      .js-animate .lib-tabs, .js-animate .lib-panel,
+      .js-animate .takeaway-card, .js-animate .link-btn,
+      .js-animate .links-cta, .js-animate .section-label,
+      .js-animate .section-h2, .js-animate .section-prose,
+      .js-animate .algo-card-type, .js-animate .sec-row-label,
+      .js-animate .lattice-explain-title, .js-animate .lattice-formula,
+      .js-animate .lattice-explain-desc, .js-animate .lattice-note,
+      .js-animate .kyber-party-name, .js-animate .kyber-step,
+      .js-animate .kyber-arrow, .js-animate .takeaway-icon,
+      .js-animate .takeaway-title, .js-animate .links-h2,
+      .js-animate .links-sub {
+        opacity: 1 !important; transform: none !important;
+        clip-path: none !important; transition: none !important; animation: none !important;
+      }
+      .sec-bar-fill { transform: none !important; transition: none !important; }
+    }
+  </style>
 </head>
 <body>
 
-<div id="scroll-progress" aria-hidden="true"></div>
-<header class="topbar" id="topbar">
-  <a href="index.html" class="back-link">
-    <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 7H4M4 7l3-3M4 7l3 3"/></svg>
+<div id="progress-bar"></div>
+
+<nav id="topbar">
+  <a class="topbar-back" href="index.html">
+    <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M9 2L4 7l5 5"/>
+    </svg>
     Back
   </a>
-  <a href="index.html" class="topbar-name">Aidan Liu</a>
-</header>
+  <a class="topbar-name" href="index.html">Aidan Liu</a>
+</nav>
 
-<!-- ── Hero ── -->
-<section class="hero">
-  <canvas id="lattice-canvas" aria-hidden="true"></canvas>
-  <div class="hero-gradient" aria-hidden="true"></div>
+<!-- ═══ HERO ═══ -->
+<section class="hero" aria-label="Project hero">
+  <canvas id="hero-canvas" aria-hidden="true"></canvas>
   <div class="hero-content">
-    <div class="hero-tag">SVCSI Cybersecurity Research</div>
-    <h1 class="hero-title">Post-Quantum<br><em>Cryptography</em></h1>
-    <div class="hero-meta">
-      <span class="hero-pill accent">Jul – Aug 2024</span>
-      <span class="hero-pill">Kyber KEM · AES · RSA</span>
-      <span class="hero-pill">Lattice-Based Crypto</span>
+    <span class="hero-tag">SVCSI · Stanford · Post-Quantum Research</span>
+    <h1 class="hero-h1">Post-Quantum<br><em>Cryptography</em></h1>
+    <p class="hero-sub">When quantum computers arrive, RSA and ECC break overnight. This research examines the algorithms being standardized to replace them — and implements them with real cryptographic libraries.</p>
+    <div class="hero-stats">
+      <div class="hero-stat">
+        <div class="hero-stat-num">5</div>
+        <div class="hero-stat-lbl">Algorithms studied</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-num">3</div>
+        <div class="hero-stat-lbl">Libraries implemented</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-num">256-bit</div>
+        <div class="hero-stat-lbl">Quantum-safe target</div>
+      </div>
     </div>
+    <p class="hero-org">2024 · SVCSI · Stanford University</p>
   </div>
-  <div class="scroll-cue" aria-hidden="true"></div>
 </section>
 
-<hr class="divider" id="div1">
+<!-- ═══ ALGORITHMS ═══ -->
+<section class="section" id="algorithms">
+  <div class="section-inner">
+    <span class="section-label">Algorithms</span>
+    <h2 class="section-h2">From classical ciphers<br>to quantum-resistant schemes</h2>
+    <p class="section-prose">This research examined five key cryptographic algorithms, tracing the evolution from historical ciphers to the lattice-based constructions being standardized by NIST for the post-quantum era.</p>
+    <div class="algo-grid">
+      <div class="algo-card">
+        <div class="algo-card-header">
+          <div>
+            <div class="algo-card-name">AES</div>
+            <div class="algo-card-type">Symmetric Block Cipher</div>
+          </div>
+          <span class="algo-badge badge-safe">QS-256</span>
+        </div>
+        <p class="algo-card-desc">128-bit block, 128/192/256-bit keys, 10–14 rounds. Quantum-resistant at AES-256; Grover's algorithm halves effective key length, so AES-128 drops to ~64-bit security post-quantum.</p>
+      </div>
+      <div class="algo-card">
+        <div class="algo-card-header">
+          <div>
+            <div class="algo-card-name">RSA</div>
+            <div class="algo-card-type">Asymmetric Encryption</div>
+          </div>
+          <span class="algo-badge badge-broken">Broken by Shor's</span>
+        </div>
+        <p class="algo-card-desc">Security rests on integer factorization hardness. Shor's algorithm solves this in polynomial time on a quantum computer, making RSA completely insecure in the post-quantum era.</p>
+      </div>
+      <div class="algo-card">
+        <div class="algo-card-header">
+          <div>
+            <div class="algo-card-name">Kyber KEM</div>
+            <div class="algo-card-type">Key Encapsulation</div>
+          </div>
+          <span class="algo-badge badge-safe">NIST Standard</span>
+        </div>
+        <p class="algo-card-desc">Lattice-based Key Encapsulation Mechanism. Security rests on Module-LWE problem. Selected by NIST for standardization in 2022; being deployed in TLS and SSH implementations now.</p>
+      </div>
+      <div class="algo-card">
+        <div class="algo-card-header">
+          <div>
+            <div class="algo-card-name">DES</div>
+            <div class="algo-card-type">Historical Cipher</div>
+          </div>
+          <span class="algo-badge badge-legacy">Deprecated</span>
+        </div>
+        <p class="algo-card-desc">56-bit key, 64-bit block cipher. Brute-forced in 22 hours in 1999. Studied as a historical baseline — illustrates why key length and algorithm choice both matter for security longevity.</p>
+      </div>
+      <div class="algo-card">
+        <div class="algo-card-header">
+          <div>
+            <div class="algo-card-name">SHA-256 / SHA-3</div>
+            <div class="algo-card-type">Hash Functions</div>
+          </div>
+          <span class="algo-badge badge-neutral">Classical Baseline</span>
+        </div>
+        <p class="algo-card-desc">Keccak sponge construction (SHA-3). Strong resistance under Grover's algorithm, though effective security is halved — requiring double the output length for post-quantum applications.</p>
+      </div>
+      <div class="algo-card">
+        <div class="algo-card-header">
+          <div>
+            <div class="algo-card-name">CRYSTALS-Dilithium</div>
+            <div class="algo-card-type">Digital Signature</div>
+          </div>
+          <span class="algo-badge badge-safe">NIST Standard</span>
+        </div>
+        <p class="algo-card-desc">Lattice-based digital signature scheme. Security based on Module-LWE and Module-SIS hardness problems. NIST's primary recommendation for post-quantum digital signatures.</p>
+      </div>
+    </div>
+  </div>
+</section>
 
-<!-- ── Stats ── -->
-<div class="section-sm">
-  <div class="stats-row stagger-parent" id="stats-row">
-    <div class="stat-item stagger-child">
-      <div class="stat-num">5<span>+</span></div>
-      <div class="stat-label">Algorithms analyzed</div>
+<!-- ═══ CAESAR ═══ -->
+<section class="section" id="caesar">
+  <div class="section-inner">
+    <span class="section-label">Historical Context</span>
+    <h2 class="section-h2">Where it all started:<br>the shift cipher</h2>
+    <p class="section-prose">Julius Caesar protected military orders by shifting each letter by a fixed number. A shift of 3 turns "HELLO" into "EBIIL." Simple — but it establishes the fundamental concept of a key-controlled transformation.</p>
+    <div class="caesar-demo">
+      <div class="caesar-label">Plaintext</div>
+      <textarea class="caesar-input" id="caesar-input" rows="2" placeholder="Type your message here...">HELLO WORLD</textarea>
+      <div class="caesar-label">Ciphertext (shift <span id="shift-display">3</span>)</div>
+      <div class="caesar-output" id="caesar-output">EBIIL TLOIA</div>
+      <div class="caesar-slider-row">
+        <span style="font-size:11px;color:var(--fg-faint);font-family:var(--mono);">Shift: 0</span>
+        <input class="caesar-slider" type="range" id="caesar-slider" min="0" max="25" value="3" />
+        <span class="caesar-shift-lbl">+<span id="shift-val">3</span></span>
+        <span style="font-size:11px;color:var(--fg-faint);font-family:var(--mono);">25</span>
+      </div>
     </div>
-    <div class="stat-item stagger-child">
-      <div class="stat-num">3</div>
-      <div class="stat-label">Crypto libraries implemented</div>
+  </div>
+</section>
+
+<!-- ═══ AES ═══ -->
+<section class="section" id="aes">
+  <div class="section-inner">
+    <span class="section-label">AES Deep Dive</span>
+    <h2 class="section-h2">AES: four transformations<br>per round</h2>
+    <p class="section-prose">AES operates on 128-bit data blocks arranged in a 4×4 byte state matrix. Each of the 10–14 rounds applies four distinct operations in sequence. Click any operation to understand what it does.</p>
+    <div class="aes-grid">
+      <div class="aes-round" data-round="subbytes">
+        <div class="aes-round-num">Step 01</div>
+        <div class="aes-round-icon">🔀</div>
+        <div class="aes-round-name">SubBytes</div>
+      </div>
+      <div class="aes-round" data-round="shiftrows">
+        <div class="aes-round-num">Step 02</div>
+        <div class="aes-round-icon">↔</div>
+        <div class="aes-round-name">ShiftRows</div>
+      </div>
+      <div class="aes-round" data-round="mixcols">
+        <div class="aes-round-num">Step 03</div>
+        <div class="aes-round-icon">✕</div>
+        <div class="aes-round-name">MixColumns</div>
+      </div>
+      <div class="aes-round" data-round="addroundkey">
+        <div class="aes-round-num">Step 04</div>
+        <div class="aes-round-icon">⊕</div>
+        <div class="aes-round-name">AddRoundKey</div>
+      </div>
     </div>
-    <div class="stat-item stagger-child">
-      <div class="stat-num">256<span>-bit</span></div>
-      <div class="stat-label">Quantum-safe key size target</div>
+    <div id="aes-detail" class="aes-detail">
+      <div class="aes-detail-title" id="aes-detail-title"></div>
+      <p class="aes-detail-desc" id="aes-detail-desc"></p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ QUANTUM THREATS ═══ -->
+<section class="section" id="quantum">
+  <div class="section-inner">
+    <span class="section-label">Quantum Threat Model</span>
+    <h2 class="section-h2">Two algorithms that<br>define the threat</h2>
+    <p class="section-prose">Quantum computing doesn't threaten all cryptography equally. The impact depends entirely on which mathematical problem underlies the scheme.</p>
+    <div class="threat-grid">
+      <div class="threat-card danger">
+        <span class="threat-card-badge">Catastrophic threat</span>
+        <div class="threat-card-title">Shor's Algorithm</div>
+        <div class="threat-card-sub">Polynomial-time factorization</div>
+        <p class="threat-card-desc">Solves integer factorization and discrete logarithm problems in polynomial time on a quantum computer. This completely breaks RSA, Diffie-Hellman, and ECC — the foundations of today's internet security. No mitigation exists; the algorithms must be replaced.</p>
+      </div>
+      <div class="threat-card safe">
+        <span class="threat-card-badge">Manageable threat</span>
+        <div class="threat-card-title">Grover's Algorithm</div>
+        <div class="threat-card-sub">Quadratic search speedup</div>
+        <p class="threat-card-desc">Provides a quadratic speedup for unstructured search problems. This halves the effective bit-security of symmetric ciphers — AES-128 drops to ~64-bit, but AES-256 remains strong at ~128-bit post-quantum security. Mitigation is straightforward: double the key length.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ SECURITY CHART ═══ -->
+<section class="section" id="security">
+  <div class="section-inner">
+    <span class="section-label">Security Analysis</span>
+    <h2 class="section-h2">Effective security:<br>classical vs. post-quantum</h2>
+    <p class="section-prose">Bit-security of each algorithm under each threat model. Note how RSA collapses to zero under Shor's, while Kyber holds its ground.</p>
+    <div class="security-legend">
+      <div class="sec-legend-item"><div class="sec-legend-dot" style="background:#6080ff"></div>Classical</div>
+      <div class="sec-legend-item"><div class="sec-legend-dot" style="background:var(--accent)"></div>Post-Quantum</div>
+    </div>
+    <div class="security-chart">
+      <div>
+        <div class="sec-row-label">AES-256</div>
+        <div class="sec-bars">
+          <div class="sec-bar-row">
+            <span class="sec-bar-tag">Classical</span>
+            <div class="sec-bar-track"><div class="sec-bar-fill bar-classical" style="width:100%;--ri:0"></div></div>
+            <span class="sec-bar-val">256 bits</span>
+          </div>
+          <div class="sec-bar-row">
+            <span class="sec-bar-tag">Post-QC</span>
+            <div class="sec-bar-track"><div class="sec-bar-fill bar-quantum" style="width:50%;--ri:1"></div></div>
+            <span class="sec-bar-val">~128 bits</span>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="sec-row-label">AES-128</div>
+        <div class="sec-bars">
+          <div class="sec-bar-row">
+            <span class="sec-bar-tag">Classical</span>
+            <div class="sec-bar-track"><div class="sec-bar-fill bar-classical" style="width:50%;--ri:2"></div></div>
+            <span class="sec-bar-val">128 bits</span>
+          </div>
+          <div class="sec-bar-row">
+            <span class="sec-bar-tag">Post-QC</span>
+            <div class="sec-bar-track"><div class="sec-bar-fill bar-quantum" style="width:25%;--ri:3"></div></div>
+            <span class="sec-bar-val">~64 bits</span>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="sec-row-label">RSA-2048</div>
+        <div class="sec-bars">
+          <div class="sec-bar-row">
+            <span class="sec-bar-tag">Classical</span>
+            <div class="sec-bar-track"><div class="sec-bar-fill bar-classical" style="width:44%;--ri:4"></div></div>
+            <span class="sec-bar-val">~112 bits</span>
+          </div>
+          <div class="sec-bar-row">
+            <span class="sec-bar-tag">Post-QC</span>
+            <div class="sec-bar-track"><div class="sec-bar-fill bar-zero" style="width:0.5%;--ri:5"></div></div>
+            <span class="sec-bar-val" style="color:var(--danger)">0 — broken</span>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="sec-row-label">Kyber-768</div>
+        <div class="sec-bars">
+          <div class="sec-bar-row">
+            <span class="sec-bar-tag">Classical</span>
+            <div class="sec-bar-track"><div class="sec-bar-fill bar-classical" style="width:70%;--ri:6"></div></div>
+            <span class="sec-bar-val">~180 bits</span>
+          </div>
+          <div class="sec-bar-row">
+            <span class="sec-bar-tag">Post-QC</span>
+            <div class="sec-bar-track"><div class="sec-bar-fill bar-quantum" style="width:70%;--ri:7"></div></div>
+            <span class="sec-bar-val">~180 bits</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ LATTICE ═══ -->
+<section class="section" id="lattice">
+  <div class="section-inner">
+    <span class="section-label">Mathematical Foundation</span>
+    <h2 class="section-h2">Why lattices resist<br>quantum attacks</h2>
+    <p class="section-prose">The Learning With Errors (LWE) problem provides security that appears hard for both classical and quantum computers — unlike the factorization and discrete-log problems that Shor's breaks.</p>
+    <div class="lattice-split">
+      <canvas id="lattice-canvas" width="400" height="400" aria-label="Animated lattice diagram"></canvas>
+      <div>
+        <div class="lattice-explain-title">The Learning With Errors Problem</div>
+        <p class="lattice-explain-desc">A lattice is a regular grid of points in n-dimensional space. The visualization shows a 2D lattice (white dots) with an observed vector (blue) that has been perturbed by small random error.</p>
+        <div class="lattice-formula">b = As + e (mod q)</div>
+        <p class="lattice-explain-desc">Given public matrix <strong>A</strong> and observed vector <strong>b</strong>, recover secret <strong>s</strong> knowing only that error <strong>e</strong> is small. Even for quantum computers, this appears computationally infeasible in high dimensions.</p>
+        <div class="lattice-note"><strong>Kyber</strong> uses the Module-LWE variant — a structured version that enables more efficient key generation and encapsulation while preserving quantum hardness.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ KYBER ═══ -->
+<section class="section" id="kyber">
+  <div class="section-inner">
+    <span class="section-label">Protocol</span>
+    <h2 class="section-h2">Kyber KEM: key exchange<br>step by step</h2>
+    <p class="section-prose">Kyber is a Key Encapsulation Mechanism. Alice generates a key pair and shares her public key. Bob encapsulates a shared secret using it. Alice decapsulates with her private key. Both end up with the same shared secret K — which neither ever transmitted.</p>
+    <div class="kyber-flow">
+      <div class="kyber-party">
+        <div class="kyber-party-name">Alice</div>
+        <div class="kyber-step">
+          <div class="kyber-step-num">Step 01</div>
+          <div class="kyber-step-name">Key Generation</div>
+          <p class="kyber-step-desc">Generates a public key pk and secret key sk using the Module-LWE problem structure.</p>
+        </div>
+        <div class="kyber-step">
+          <div class="kyber-step-num">Step 03</div>
+          <div class="kyber-step-name">Decapsulation</div>
+          <p class="kyber-step-desc">Receives ciphertext c from Bob. Uses her secret key sk to recover the shared secret K.</p>
+          <span class="kyber-key key-result">K — shared secret ✓</span>
+        </div>
+      </div>
+      <div class="kyber-arrows">
+        <div class="kyber-arrow">
+          <span>pk →</span>
+          <svg viewBox="0 0 20 20" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 10h12M12 5l5 5-5 5"/>
+          </svg>
+          <span>Public key</span>
+        </div>
+        <div class="kyber-arrow">
+          <span>← c</span>
+          <svg viewBox="0 0 20 20" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M16 10H4M8 5L3 10l5 5"/>
+          </svg>
+          <span>Ciphertext</span>
+        </div>
+      </div>
+      <div class="kyber-party">
+        <div class="kyber-party-name">Bob</div>
+        <div class="kyber-step">
+          <div class="kyber-step-num">Step 02</div>
+          <div class="kyber-step-name">Encapsulation</div>
+          <p class="kyber-step-desc">Receives Alice's public key pk. Generates a shared secret K and ciphertext c that encapsulates it using pk.</p>
+          <span class="kyber-key key-result">K — shared secret ✓</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ LIBRARIES ═══ -->
+<section class="section" id="libraries">
+  <div class="section-inner">
+    <span class="section-label">Implementation</span>
+    <h2 class="section-h2">Libraries used<br>in practice</h2>
+    <p class="section-prose">Three open-source cryptographic libraries were used to implement and test algorithms ranging from classical to post-quantum schemes.</p>
+    <div class="lib-tabs" role="tablist">
+      <button class="lib-tab active" data-tab="openssl">OpenSSL</button>
+      <button class="lib-tab" data-tab="libsodium">Libsodium / PyNaCl</button>
+      <button class="lib-tab" data-tab="liboqs">Liboqs</button>
+    </div>
+    <div class="lib-panel active" id="lib-openssl">
+      <div class="lib-code">
+        <pre><span class="tok-cmt"># AES-256-CBC encryption with OpenSSL</span>
+<span class="tok-var">$ </span><span class="tok-fn">openssl enc</span> -aes-256-cbc -salt \
+    -in plaintext.txt \
+    -out encrypted.bin \
+    -pass pass:<span class="tok-str">your_passphrase</span>
+
+<span class="tok-cmt"># Decrypt</span>
+<span class="tok-var">$ </span><span class="tok-fn">openssl enc</span> -d -aes-256-cbc \
+    -in encrypted.bin \
+    -out decrypted.txt \
+    -pass pass:<span class="tok-str">your_passphrase</span>
+
+<span class="tok-cmt"># Generate RSA key pair (classical — will be broken post-quantum)</span>
+<span class="tok-var">$ </span><span class="tok-fn">openssl genpkey</span> -algorithm RSA -pkeyopt rsa_keygen_bits:<span class="tok-num">4096</span> -out private.pem
+<span class="tok-var">$ </span><span class="tok-fn">openssl rsa</span> -in private.pem -pubout -out public.pem</pre>
+      </div>
+    </div>
+    <div class="lib-panel" id="lib-libsodium">
+      <div class="lib-code">
+        <pre><span class="tok-kw">from</span> <span class="tok-var">nacl</span> <span class="tok-kw">import</span> <span class="tok-var">public</span>, <span class="tok-var">encoding</span>
+
+<span class="tok-cmt"># Generate Curve25519 key pair</span>
+<span class="tok-var">alice_sk</span> = <span class="tok-cls">public</span>.<span class="tok-cls">PrivateKey</span>.<span class="tok-fn">generate</span>()
+<span class="tok-var">alice_pk</span> = <span class="tok-var">alice_sk</span>.<span class="tok-var">public_key</span>
+
+<span class="tok-cmt"># Encrypt message from Bob to Alice</span>
+<span class="tok-kw">from</span> <span class="tok-var">nacl.public</span> <span class="tok-kw">import</span> <span class="tok-cls">Box</span>
+<span class="tok-var">bob_sk</span> = <span class="tok-cls">public</span>.<span class="tok-cls">PrivateKey</span>.<span class="tok-fn">generate</span>()
+<span class="tok-var">box</span> = <span class="tok-cls">Box</span>(<span class="tok-var">bob_sk</span>, <span class="tok-var">alice_pk</span>)
+<span class="tok-var">encrypted</span> = <span class="tok-var">box</span>.<span class="tok-fn">encrypt</span>(<span class="tok-str">b"Hello, Alice!"</span>)
+
+<span class="tok-cmt"># Alice decrypts</span>
+<span class="tok-var">alice_box</span> = <span class="tok-cls">Box</span>(<span class="tok-var">alice_sk</span>, <span class="tok-var">bob_sk</span>.<span class="tok-var">public_key</span>)
+<span class="tok-var">plaintext</span> = <span class="tok-var">alice_box</span>.<span class="tok-fn">decrypt</span>(<span class="tok-var">encrypted</span>)
+
+<span class="tok-cmt"># Signing with Ed25519</span>
+<span class="tok-kw">from</span> <span class="tok-var">nacl.signing</span> <span class="tok-kw">import</span> <span class="tok-cls">SigningKey</span>
+<span class="tok-var">signing_key</span> = <span class="tok-cls">SigningKey</span>.<span class="tok-fn">generate</span>()
+<span class="tok-var">signed</span>      = <span class="tok-var">signing_key</span>.<span class="tok-fn">sign</span>(<span class="tok-str">b"message"</span>)</pre>
+      </div>
+    </div>
+    <div class="lib-panel" id="lib-liboqs">
+      <div class="lib-code">
+        <pre><span class="tok-kw">import</span> <span class="tok-var">oqs</span>
+
+<span class="tok-cmt"># Kyber-768 KEM — post-quantum key encapsulation</span>
+<span class="tok-kw">with</span> <span class="tok-var">oqs</span>.<span class="tok-cls">KeyEncapsulation</span>(<span class="tok-str">'Kyber768'</span>) <span class="tok-kw">as</span> <span class="tok-var">alice</span>:
+    <span class="tok-cmt"># Alice generates her key pair</span>
+    <span class="tok-var">public_key</span> = <span class="tok-var">alice</span>.<span class="tok-fn">generate_keypair</span>()
+
+    <span class="tok-cmt"># Bob encapsulates: generates ciphertext + shared secret</span>
+    <span class="tok-kw">with</span> <span class="tok-var">oqs</span>.<span class="tok-cls">KeyEncapsulation</span>(<span class="tok-str">'Kyber768'</span>) <span class="tok-kw">as</span> <span class="tok-var">bob</span>:
+        <span class="tok-var">ciphertext</span>, <span class="tok-var">shared_secret_bob</span> = <span class="tok-var">bob</span>.<span class="tok-fn">encap_secret</span>(<span class="tok-var">public_key</span>)
+
+    <span class="tok-cmt"># Alice decapsulates using her secret key</span>
+    <span class="tok-var">shared_secret_alice</span> = <span class="tok-var">alice</span>.<span class="tok-fn">decap_secret</span>(<span class="tok-var">ciphertext</span>)
+
+    <span class="tok-cmt"># Both parties now hold the same shared secret</span>
+    <span class="tok-fn">assert</span> <span class="tok-var">shared_secret_alice</span> <span class="tok-op">==</span> <span class="tok-var">shared_secret_bob</span>  <span class="tok-cmt"># True ✓</span>
+    <span class="tok-fn">print</span>(<span class="tok-str">f"Shared secret: </span>{<span class="tok-var">shared_secret_alice</span>.<span class="tok-fn">hex</span>()[:32]}<span class="tok-str">..."</span>)</pre>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ TAKEAWAYS ═══ -->
+<section class="section" id="takeaways">
+  <div class="section-inner">
+    <span class="section-label">Takeaways</span>
+    <h2 class="section-h2">What this research revealed</h2>
+    <div class="takeaway-grid">
+      <div class="takeaway-card">
+        <div class="takeaway-icon">🔐</div>
+        <div class="takeaway-title">Lattice hardness holds against quantum adversaries</div>
+        <p class="takeaway-desc">Unlike RSA and ECC, lattice-based schemes resist both classical and quantum attacks. The Shortest Vector Problem (SVP) and Learning With Errors have no known efficient quantum algorithms.</p>
+      </div>
+      <div class="takeaway-card">
+        <div class="takeaway-icon">🔑</div>
+        <div class="takeaway-title">NIST's selections are production-ready</div>
+        <p class="takeaway-desc">Kyber and Dilithium are not experimental. They're being deployed in TLS, SSH, and Signal Protocol implementations today. The standardization process took 6 years and multiple cryptanalysis rounds.</p>
+      </div>
+      <div class="takeaway-card">
+        <div class="takeaway-icon">🛡️</div>
+        <div class="takeaway-title">AES-256 remains post-quantum secure</div>
+        <p class="takeaway-desc">With Grover's algorithm only halving effective key length, AES-256 retains approximately 128-bit post-quantum security — well above the 80-bit threshold considered secure today.</p>
+      </div>
+      <div class="takeaway-card">
+        <div class="takeaway-icon">⚠️</div>
+        <div class="takeaway-title">RSA and ECC have a fixed expiration date</div>
+        <p class="takeaway-desc">Not "if" but "when." Harvest-now-decrypt-later attacks mean adversaries are collecting encrypted traffic today to decrypt once quantum computers arrive. Migration needs to start now.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ LINKS CTA ═══ -->
+<div class="links-cta section">
+  <div class="links-cta-inner">
+    <h2 class="links-h2">Explore the research</h2>
+    <p class="links-sub">Source code, paper, and implementation notes.</p>
+    <div class="links-btns">
+      <a class="link-btn link-btn-primary" href="https://github.com/aidanliiu" target="_blank" rel="noopener">
+        <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+        View on GitHub
+      </a>
+      <a class="link-btn link-btn-ghost" href="index.html">
+        <svg viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 2L4 7l5 5"/></svg>
+        Back to Portfolio
+      </a>
     </div>
   </div>
 </div>
 
-<hr class="divider" id="div2">
-
-<!-- ── Algorithm overview ── -->
-<section class="section">
-  <div class="section-label">Algorithms Covered</div>
-  <h2 class="section-title reveal word-reveal">From classical ciphers to quantum-resistant schemes</h2>
-  <p class="section-body reveal d1">This research examined five key cryptographic algorithms, tracing the evolution from historical ciphers to the lattice-based constructions being standardized by NIST for the post-quantum era.</p>
-  <div class="algo-grid stagger-parent" id="algo-grid">
-    <div class="algo-card stagger-child">
-      <div class="algo-badge algo-badge--warn">Symmetric</div>
-      <h3>AES</h3>
-      <p>Advanced Encryption Standard. 128-bit block, 128/192/256-bit keys, 10-14 rounds. Quantum-resistant at AES-256; Grover's algorithm halves effective key length, reducing AES-128 to ~64-bit security.</p>
-    </div>
-    <div class="algo-card algo-card--red stagger-child">
-      <div class="algo-badge algo-badge--vuln">Broken by Shor's</div>
-      <h3>RSA</h3>
-      <p>Asymmetric encryption based on integer factorization hardness. Shor's algorithm solves this in polynomial time on a quantum computer, making RSA completely insecure in the post-quantum era.</p>
-    </div>
-    <div class="algo-card stagger-child">
-      <div class="algo-badge algo-badge--safe">Post-Quantum Safe</div>
-      <h3>Kyber KEM</h3>
-      <p>Lattice-based Key Encapsulation Mechanism. Security rests on the Module-LWE problem, believed hard for both classical and quantum adversaries. Selected by NIST for standardization in 2022.</p>
-    </div>
-    <div class="algo-card algo-card--red stagger-child">
-      <div class="algo-badge algo-badge--vuln">Historical / Deprecated</div>
-      <h3>DES</h3>
-      <p>Data Encryption Standard (1977). 56-bit key, 64-bit block. Brute-forced in 22 hours in 1999. Studied here as a historical baseline and to motivate the transition to AES and beyond.</p>
-    </div>
-    <div class="algo-card algo-card--blue stagger-child">
-      <div class="algo-badge algo-badge--warn">Classical Baseline</div>
-      <h3>Hash Functions</h3>
-      <p>SHA-256 and SHA-3 for data integrity. SHA-3 uses the Keccak sponge construction. Both offer strong resistance under Grover's, requiring roughly double key length for equivalent post-quantum security.</p>
-    </div>
-    <div class="algo-card stagger-child">
-      <div class="algo-badge algo-badge--safe">NIST Standard</div>
-      <h3>CRYSTALS-Dilithium</h3>
-      <p>Lattice-based digital signature scheme. Paired with Kyber in the NIST PQC suite. Based on Module-LWE and Module-SIS hardness problems, designed for practical signature sizes and verification speed.</p>
-    </div>
-  </div>
-</section>
-
-<hr class="divider" id="div3">
-
-<!-- ── Caesar cipher interactive ── -->
-<section class="section">
-  <div class="section-label">Interactive Demo</div>
-  <h2 class="section-title reveal word-reveal">Where it all started: the shift cipher</h2>
-  <p class="section-body reveal d1">Julius Caesar protected military orders by shifting each letter by a fixed number. A shift of 3 turns "HELLO" into "EBIIL." Try it below. With only 26 possible keys, a brute-force attack takes seconds by hand - illustrating exactly why modern cryptography needs mathematical hardness, not just obscurity.</p>
-  <div class="demo-box" id="demo-box">
-    <h3>Caesar Shift Cipher</h3>
-    <p class="demo-desc">Type any message and drag the shift slider. Notice how every possible key can be tested manually in under a minute - the fundamental weakness of simple substitution ciphers.</p>
-    <div class="cipher-io">
-      <div class="cipher-field">
-        <label>Plaintext input</label>
-        <textarea id="cipher-input" placeholder="Type a message..." spellcheck="false">HELLO WORLD</textarea>
-      </div>
-      <div class="cipher-field">
-        <label>Ciphertext <span style="color:var(--accent);font-family:var(--mono);font-size:9px">(shift applied)</span></label>
-        <div class="cipher-output" id="cipher-output">EBIIL TLOIA</div>
-      </div>
-    </div>
-    <div class="slider-row">
-      <label>Shift</label>
-      <input type="range" id="cipher-shift" min="0" max="25" value="3">
-      <div class="shift-val" id="cipher-shift-val">3</div>
-      <label style="margin-left:6px;color:var(--muted);font-size:10px">out of 25 possible keys</label>
-    </div>
-  </div>
-</section>
-
-<hr class="divider" id="div4">
-
-<!-- ── AES rounds ── -->
-<section class="section">
-  <div class="section-label">Algorithm Deep-Dive</div>
-  <h2 class="section-title reveal word-reveal">AES: four transformations per round</h2>
-  <p class="section-body reveal d1">AES operates on 128-bit data blocks. Each of the 10-14 rounds (depending on key size) applies four distinct operations in sequence. The final round omits MixColumns - click any round below to understand what happens and why.</p>
-  <div class="aes-diagram" id="aes-diagram">
-    <div class="aes-rounds" id="aes-rounds"></div>
-    <div class="aes-detail" id="aes-detail">
-      <h4 id="aes-detail-title"></h4>
-      <p id="aes-detail-body"></p>
-    </div>
-  </div>
-</section>
-
-<hr class="divider" id="div5">
-
-<!-- ── Quantum threat ── -->
-<section class="section">
-  <div class="section-label">Quantum Threat Model</div>
-  <h2 class="section-title reveal word-reveal">Two algorithms that define the threat</h2>
-  <p class="section-body reveal d1">Quantum computing doesn't threaten all cryptography equally. The impact depends on which quantum algorithm applies to the underlying mathematical problem.</p>
-  <div class="threat-grid">
-    <div class="threat-card threat-card--danger slide-left" id="threat-left">
-      <div class="threat-icon">⚡</div>
-      <h3>Shor's Algorithm</h3>
-      <p>Developed by Peter Shor in 1994. Solves integer factorization and discrete logarithm in polynomial time on a quantum computer. Completely breaks RSA, Diffie-Hellman, and elliptic curve cryptography (ECC) once sufficiently large quantum computers exist.</p>
-      <span class="threat-badge threat-badge--danger">Breaks RSA and ECC entirely</span>
-    </div>
-    <div class="threat-card threat-card--safe slide-right" id="threat-right">
-      <div class="threat-icon">🔑</div>
-      <h3>Grover's Algorithm</h3>
-      <p>Provides a quadratic speedup for unstructured search. Effectively halves the bit-security of symmetric ciphers: AES-128 drops to approximately 64-bit effective security, while AES-256 remains strong at ~128 bits. Mitigated by simply using larger keys.</p>
-      <span class="threat-badge threat-badge--safe">Mitigated by doubling key size</span>
-    </div>
-  </div>
-
-  <div class="sec-chart" id="sec-chart">
-    <div class="sec-chart-head">
-      <div>
-        <h3>Effective security: classical vs. post-quantum</h3>
-        <p>Bit-security of each algorithm under each threat model</p>
-      </div>
-      <div class="legend">
-        <div class="legend-item"><div class="legend-dot" style="background:var(--blue)"></div><span style="font-family:var(--mono);font-size:10px;color:var(--muted)">Classical computer</span></div>
-        <div class="legend-item"><div class="legend-dot" style="background:var(--accent)"></div><span style="font-family:var(--mono);font-size:10px;color:var(--muted)">Quantum computer</span></div>
-      </div>
-    </div>
-    <div class="sec-bars" id="sec-bars">
-      <div class="sec-bar-row">
-        <div class="sec-bar-label">AES-256</div>
-        <div class="sec-bar-track"><div class="sec-bar-fill sec-bar-fill--c" data-target="100"></div></div>
-        <div class="sec-bar-val">256b</div>
-        <div class="sec-bar-track"><div class="sec-bar-fill sec-bar-fill--q" data-target="50"></div></div>
-        <div class="sec-bar-val safe">~128b</div>
-      </div>
-      <div class="sec-bar-row">
-        <div class="sec-bar-label">AES-128</div>
-        <div class="sec-bar-track"><div class="sec-bar-fill sec-bar-fill--c" data-target="50"></div></div>
-        <div class="sec-bar-val">128b</div>
-        <div class="sec-bar-track"><div class="sec-bar-fill sec-bar-fill--q" data-target="25"></div></div>
-        <div class="sec-bar-val">~64b</div>
-      </div>
-      <div class="sec-bar-row">
-        <div class="sec-bar-label">RSA-2048</div>
-        <div class="sec-bar-track"><div class="sec-bar-fill sec-bar-fill--c" data-target="44"></div></div>
-        <div class="sec-bar-val">~112b</div>
-        <div class="sec-bar-track"><div class="sec-bar-fill sec-bar-fill--q" data-target="0"></div></div>
-        <div class="sec-bar-val danger">0</div>
-      </div>
-      <div class="sec-bar-row">
-        <div class="sec-bar-label">Kyber-768</div>
-        <div class="sec-bar-track"><div class="sec-bar-fill sec-bar-fill--c" data-target="92"></div></div>
-        <div class="sec-bar-val">~180b</div>
-        <div class="sec-bar-track"><div class="sec-bar-fill sec-bar-fill--q" data-target="92"></div></div>
-        <div class="sec-bar-val safe">~180b</div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<hr class="divider" id="div6">
-
-<!-- ── Lattice visualization ── -->
-<section class="section">
-  <div class="section-label">Mathematical Foundation</div>
-  <h2 class="section-title reveal word-reveal">Why lattices resist quantum attacks</h2>
-  <div class="lattice-split" id="lattice-split">
-    <canvas id="lattice-mini" width="400" height="330" aria-label="Animated lattice diagram showing the Learning With Errors problem"></canvas>
-    <div class="lattice-explain">
-      <h3>The Learning With Errors (LWE) Problem</h3>
-      <p>A lattice is a regular grid of points in n-dimensional space, defined by a set of basis vectors. The visualization shows a 2D lattice with an observed vector (blue) that has been perturbed by a small error.</p>
-      <div class="lwe-formula">b = As + e (mod q)</div>
-      <p>Given public matrix <strong style="color:#fff">A</strong> and observed vector <strong style="color:#fff">b</strong>, recover secret <strong style="color:var(--accent)">s</strong> knowing only that error <strong style="color:#fff">e</strong> is small. Even for quantum computers, this appears computationally infeasible in high dimensions.</p>
-      <p>Kyber uses the Module-LWE (MLWE) variant, which generalizes LWE to module lattices - balancing security and performance for practical key sizes without sacrificing the underlying hardness guarantees.</p>
-    </div>
-  </div>
-</section>
-
-<hr class="divider" id="div7">
-
-<!-- ── Kyber protocol ── -->
-<section class="section">
-  <div class="section-label">Protocol Design</div>
-  <h2 class="section-title reveal word-reveal">Kyber KEM: key exchange step by step</h2>
-  <p class="section-body reveal d1">Kyber is a Key Encapsulation Mechanism. Alice generates a key pair and shares her public key. Bob uses it to encapsulate a shared secret and sends back only the ciphertext. Alice decapsulates with her private key. Neither party ever transmits the secret directly.</p>
-  <div class="kyber-flow" id="kyber-flow">
-    <div class="kyber-party">
-      <div class="kyber-party-name">Alice (Recipient)</div>
-      <div class="kyber-box">
-        <strong>1. Key Generation</strong>
-        Generate public key <code>pk</code> and private key <code>sk</code> using a random seed and Module-LWE lattice structure
-      </div>
-      <div style="height:24px"></div>
-      <div class="kyber-box">
-        <strong>3. Decapsulation</strong>
-        Use private key <code>sk</code> to recover shared secret <code>K</code> from received ciphertext <code>c</code>
-      </div>
-      <div class="kyber-box result">
-        <strong>Result</strong>
-        <code>K</code> = shared symmetric key, ready for session encryption
-      </div>
-    </div>
-    <div class="kyber-middle">
-      <div class="k-arrow">
-        <div class="k-label">PUBLIC KEY pk</div>
-        <div class="k-line right"></div>
-      </div>
-      <div class="k-arrow" style="margin-top:8px">
-        <div class="k-label">CIPHERTEXT c</div>
-        <div class="k-line left"></div>
-      </div>
-    </div>
-    <div class="kyber-party">
-      <div class="kyber-party-name">Bob (Sender)</div>
-      <div class="kyber-box" style="margin-top:52px">
-        <strong>2. Encapsulation</strong>
-        Use Alice's <code>pk</code> to generate ciphertext <code>c</code> and a shared secret <code>K</code>, derived from a random value
-      </div>
-      <div class="kyber-box result">
-        <strong>Result</strong>
-        <code>K</code> = same shared symmetric key, independently derived
-      </div>
-    </div>
-  </div>
-</section>
-
-<hr class="divider" id="div8">
-
-<!-- ── Tools ── -->
-<section class="section">
-  <div class="section-label">Implementation</div>
-  <h2 class="section-title reveal word-reveal">Libraries used in practice</h2>
-  <p class="section-body reveal d1">Three open-source cryptographic libraries were used to implement and test algorithms hands-on. Each occupies a different layer of the cryptography stack.</p>
-  <div class="reveal">
-    <div class="tool-tabs">
-      <button class="tool-tab active" data-tab="openssl">OpenSSL</button>
-      <button class="tool-tab" data-tab="libsodium">Libsodium / PyNaCl</button>
-      <button class="tool-tab" data-tab="liboqs">Liboqs</button>
-    </div>
-    <div class="tools-panel">
-      <div class="tool-content active" id="tab-openssl">
-        <p>OpenSSL is the industry-standard cryptography toolkit, supporting AES, DES, RSA, ECC, and major hash functions. Used here to implement symmetric AES and DES encryption, demonstrating the encryption-decryption pipeline and comparing security characteristics.</p>
-        <pre><span class="cm"># Encrypt a file with AES-256-CBC</span>
-openssl enc -aes-256-cbc \
-  -in plaintext.txt \
-  -out encrypted.bin \
-  -k <span class="str">"my-secret-key"</span>
-
-<span class="cm"># Decrypt back to plaintext</span>
-openssl enc -d -aes-256-cbc \
-  -in encrypted.bin \
-  -out decrypted.txt \
-  -k <span class="str">"my-secret-key"</span>
-
-<span class="cm"># Verify round-trip integrity</span>
-diff plaintext.txt decrypted.txt
-<span class="cm"># "No differences detected" -- successful implementation</span></pre>
-      </div>
-      <div class="tool-content" id="tab-libsodium">
-        <p>Libsodium (via Python binding PyNaCl) provides a high-level API for secure cryptographic operations. We built a Student-University secure data transmission protocol using ChaCha20-Poly1305 authenticated encryption and Ed25519 digital signatures for message authenticity.</p>
-        <pre><span class="kw">from</span> nacl.public <span class="kw">import</span> PrivateKey, Box
-<span class="kw">from</span> nacl.signing <span class="kw">import</span> SigningKey
-
-<span class="cm"># Curve25519 key generation for both parties</span>
-<span class="vn">alice_key</span> = PrivateKey.<span class="fn">generate</span>()
-<span class="vn">bob_key</span>   = PrivateKey.<span class="fn">generate</span>()
-
-<span class="cm"># Authenticated encryption: Alice sends to Bob</span>
-<span class="vn">box</span> = <span class="fn">Box</span>(alice_key, bob_key.public_key)
-<span class="vn">encrypted</span> = box.<span class="fn">encrypt</span>(<span class="str">b"Transcript: GPA 3.97"</span>)
-<span class="vn">decrypted</span> = box.<span class="fn">decrypt</span>(encrypted)
-
-<span class="cm"># Ed25519 signature for non-repudiation</span>
-<span class="vn">signing_key</span> = SigningKey.<span class="fn">generate</span>()
-<span class="vn">signed_msg</span>  = signing_key.<span class="fn">sign</span>(<span class="vn">encrypted</span>)
-signing_key.verify_key.<span class="fn">verify</span>(<span class="vn">signed_msg</span>)
-<span class="cm"># Verified -- authentic, unmodified message</span></pre>
-      </div>
-      <div class="tool-content" id="tab-liboqs">
-        <p>Liboqs (Open Quantum Safe) provides production-ready implementations of NIST-selected post-quantum algorithms. Used here to implement the full Kyber-768 KEM pipeline: key generation, encapsulation, and decapsulation, with correctness verified by comparing the independently-derived shared secrets.</p>
-        <pre><span class="kw">import</span> oqs
-
-<span class="cm"># Initialize Kyber-768 (NIST security level 3)</span>
-<span class="kw">with</span> oqs.<span class="fn">KeyEncapsulation</span>(<span class="str">"Kyber768"</span>) <span class="kw">as</span> <span class="vn">alice</span>:
-
-    <span class="cm"># Alice: generate key pair</span>
-    <span class="vn">public_key</span> = alice.<span class="fn">generate_keypair</span>()
-
-    <span class="cm"># Bob: encapsulate a shared secret using Alice's public key</span>
-    <span class="kw">with</span> oqs.<span class="fn">KeyEncapsulation</span>(<span class="str">"Kyber768"</span>) <span class="kw">as</span> <span class="vn">bob</span>:
-        <span class="vn">ciphertext</span>, <span class="vn">K_bob</span> = bob.<span class="fn">encap_secret</span>(public_key)
-
-    <span class="cm"># Alice: decapsulate to recover the same shared secret</span>
-    <span class="vn">K_alice</span> = alice.<span class="fn">decap_secret</span>(ciphertext)
-
-    <span class="kw">assert</span> K_alice == K_bob
-    <span class="fn">print</span>(<span class="str">f"Shared key: {K_alice.<span class="fn">hex</span>()[:32]}..."</span>)
-    <span class="cm"># Key exchange successful -- quantum-resistant session key established</span></pre>
-      </div>
-    </div>
-  </div>
-</section>
-
-<hr class="divider" id="div9">
-
-<!-- ── Takeaways ── -->
-<section class="section">
-  <div class="section-label">Key Findings</div>
-  <h2 class="section-title reveal word-reveal">What this research revealed</h2>
-  <div class="takeaway-grid stagger-parent" id="takeaway-grid">
-    <div class="takeaway-item">
-      <div class="takeaway-icon">🔐</div>
-      <div>
-        <h4>Lattice hardness holds against classical and quantum adversaries</h4>
-        <p>Unlike RSA and ECC, lattice-based schemes resist both classical and quantum attacks. The SVP and LWE problems have no known efficient algorithms on either hardware class - a uniquely strong security foundation.</p>
-      </div>
-    </div>
-    <div class="takeaway-item">
-      <div class="takeaway-icon">⏱</div>
-      <div>
-        <h4>Standardization rigor takes years for a reason</h4>
-        <p>The NIST PQC process ran from 2016 to 2022 with rounds of public cryptanalysis. Multiple candidate algorithms were broken or weakened during review. That scrutiny is exactly what makes a standard trustworthy.</p>
-      </div>
-    </div>
-    <div class="takeaway-item">
-      <div class="takeaway-icon">⚡</div>
-      <div>
-        <h4>Kyber achieves competitive performance</h4>
-        <p>Despite larger key sizes than RSA, Kyber uses NTT-based polynomial multiplication over module lattices, enabling fast key generation and encapsulation. In benchmarks, Kyber outperforms RSA on both key-gen and decapsulation speed.</p>
-      </div>
-    </div>
-    <div class="takeaway-item">
-      <div class="takeaway-icon">🌐</div>
-      <div>
-        <h4>"Harvest now, decrypt later" is a present threat</h4>
-        <p>Adversaries can intercept and store encrypted traffic today, waiting until quantum hardware matures to decrypt it. Systems protecting long-lived sensitive data need to begin migrating to PQC algorithms now - not when quantum computers arrive.</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<hr class="divider" id="div10">
-
-<footer class="page-footer" id="page-footer">
-  <div class="footer-links">
-    <a href="https://drive.google.com/file/d/1NOyVyaduviVALRvGwEAmc7xIMiMfBltP/view?usp=sharing" target="_blank" rel="noopener" class="footer-link footer-link--primary">
-      Read the Paper
-      <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 10L10 2M10 2H4M10 2v6"/></svg>
-    </a>
-    <a href="https://www.svcsi.org/" target="_blank" rel="noopener" class="footer-link footer-link--secondary">
-      SVCSI
-      <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 10L10 2M10 2H4M10 2v6"/></svg>
-    </a>
-  </div>
-  <div class="footer-copy">© Aidan Liu 2026 · SVCSI Research</div>
-</footer>
+<div class="footer-wrap">
+  <footer>
+    <span>© Aidan Liu 2026</span>
+    <a href="index.html">← Back to portfolio</a>
+  </footer>
+</div>
 
 <script>
-// ── Hero lattice canvas ────────────────────────────────────────
-(function(){
-  const cv = document.getElementById('lattice-canvas');
-  const cx = cv.getContext('2d');
-  let W, H, nodes = [], tick = 0;
-  const ACCENT = [0,212,170];
+  /* ─── Boot ─── */
+  document.documentElement.classList.add('js-animate');
 
-  const resize = () => {
-    W = cv.width  = cv.offsetWidth;
-    H = cv.height = cv.offsetHeight;
-    nodes = [];
-    const cols = Math.ceil(W/80)+3;
-    const rows = Math.ceil(H/70)+3;
-    for(let r=0;r<rows;r++){
-      for(let c=0;c<cols;c++){
-        nodes.push({
-          bx: c*80-40, by: r*70-40,
-          phase: Math.random()*Math.PI*2,
-          freq:  0.3+Math.random()*0.4,
-          amp:   3+Math.random()*5
-        });
-      }
-    }
-  };
+  /* ─── Lenis ─── */
+  var lenis = new Lenis({ lerp: 0.08, smoothWheel: true });
+  function raf(t) { lenis.raf(t); requestAnimationFrame(raf); }
+  requestAnimationFrame(raf);
 
-  const draw = () => {
-    cx.clearRect(0,0,W,H);
-    const t = tick*0.008;
-    const cols = Math.ceil(W/80)+3;
+  /* ─── Progress bar ─── */
+  var pb = document.getElementById('progress-bar');
+  lenis.on('scroll', function(e) { pb.style.transform = 'scaleX(' + e.progress + ')'; });
 
-    const pts = nodes.map(n=>({
-      x: n.bx + Math.sin(t*n.freq+n.phase)*n.amp,
-      y: n.by + Math.cos(t*n.freq*0.7+n.phase+1)*n.amp
-    }));
+  /* ─── Topbar ─── */
+  var topbar = document.getElementById('topbar');
+  window.addEventListener('scroll', function() {
+    topbar.classList.toggle('scrolled', window.scrollY > 8);
+  }, { passive: true });
 
-    pts.forEach((p,i)=>{
-      const col = i%cols;
-      const row = Math.floor(i/cols);
-      if(col<cols-1){
-        const q=pts[i+1];
-        const a=Math.max(0,1-Math.hypot(q.x-p.x,q.y-p.y)/115)*0.22;
-        cx.strokeStyle=`rgba(${ACCENT},${a})`;
-        cx.lineWidth=0.7;
-        cx.beginPath();cx.moveTo(p.x,p.y);cx.lineTo(q.x,q.y);cx.stroke();
-      }
-      if(row<Math.floor(nodes.length/cols)-1){
-        const q=pts[i+cols];
-        if(!q)return;
-        const a=Math.max(0,1-Math.hypot(q.x-p.x,q.y-p.y)/115)*0.22;
-        cx.strokeStyle=`rgba(${ACCENT},${a})`;
-        cx.lineWidth=0.7;
-        cx.beginPath();cx.moveTo(p.x,p.y);cx.lineTo(q.x,q.y);cx.stroke();
-      }
-    });
-
-    pts.forEach((p,i)=>{
-      const pulse=(Math.sin(t*nodes[i].freq*2+nodes[i].phase)+1)*0.5;
-      const a=0.12+pulse*0.38;
-      const r=1.8+pulse*1.4;
-      cx.beginPath();cx.arc(p.x,p.y,r,0,Math.PI*2);
-      cx.fillStyle=`rgba(${ACCENT},${a})`;
-      cx.fill();
-    });
-
-    tick++;
-    requestAnimationFrame(draw);
-  };
-
-  window.addEventListener('resize', resize);
-  resize();
-  draw();
-})();
-
-// ── Lattice mini (LWE illustration) ───────────────────────────
-(function(){
-  const cv = document.getElementById('lattice-mini');
-  if(!cv)return;
-  const cx = cv.getContext('2d');
-  const W = cv.width, H = cv.height;
-  let tick = 0;
-
-  const B = [[56,0],[26,48]]; // basis vectors
-  const nodes = [];
-  for(let a=-1;a<=5;a++){
-    for(let b=-1;b<=6;b++){
-      nodes.push({
-        ox: 70 + a*B[0][0] + b*B[1][0],
-        oy: 30 + a*B[0][1] + b*B[1][1],
-        phase:(a*3+b)*0.7
-      });
-    }
-  }
-
-  const target={x:225,y:160};
-  let closestIdx=0, minD=Infinity;
-  nodes.forEach((n,i)=>{
-    const d=Math.hypot(n.ox-target.x,n.oy-target.y);
-    if(d<minD){minD=d;closestIdx=i;}
-  });
-
-  const draw = () => {
-    cx.clearRect(0,0,W,H);
-    const t = tick*0.006;
-
-    const pts = nodes.map(n=>({
-      x:n.ox+Math.sin(t+n.phase)*2.5,
-      y:n.oy+Math.cos(t*0.7+n.phase)*2.5
-    }));
-
-    // edges between nearby nodes
-    pts.forEach((p,i)=>{
-      pts.forEach((q,j)=>{
-        if(j<=i)return;
-        const d=Math.hypot(q.x-p.x,q.y-p.y);
-        if(d<70){
-          cx.strokeStyle='rgba(0,212,170,0.1)';
-          cx.lineWidth=0.8;
-          cx.beginPath();cx.moveTo(p.x,p.y);cx.lineTo(q.x,q.y);cx.stroke();
-        }
-      });
-    });
-
-    // lattice nodes
-    pts.forEach((p,i)=>{
-      const isClose=i===closestIdx;
-      cx.beginPath();cx.arc(p.x,p.y,isClose?5:2.5,0,Math.PI*2);
-      cx.fillStyle=isClose?'rgba(0,212,170,0.9)':'rgba(0,212,170,0.3)';
-      cx.fill();
-    });
-
-    // target point (observed vector with error)
-    const pulse=(Math.sin(t*2)+1)*0.5;
-    cx.beginPath();cx.arc(target.x,target.y,4+pulse,0,Math.PI*2);
-    cx.fillStyle='rgba(77,124,254,0.85)';cx.fill();
-    cx.strokeStyle='rgba(77,124,254,0.4)';cx.lineWidth=2;
-    cx.beginPath();cx.arc(target.x,target.y,8+pulse*2,0,Math.PI*2);cx.stroke();
-
-    // dashed line to nearest lattice point
-    const cp=pts[closestIdx];
-    cx.setLineDash([4,4]);
-    cx.strokeStyle='rgba(77,124,254,0.45)';cx.lineWidth=1.5;
-    cx.beginPath();cx.moveTo(target.x,target.y);cx.lineTo(cp.x,cp.y);cx.stroke();
-    cx.setLineDash([]);
-
-    // labels
-    cx.font='9.5px "JetBrains Mono",monospace';
-    cx.fillStyle='rgba(77,124,254,0.85)';
-    cx.fillText('b = As + e',target.x+10,target.y-10);
-    cx.fillStyle='rgba(0,212,170,0.85)';
-    cx.fillText('nearest lattice pt',cp.x+8,cp.y-8);
-
-    tick++;
-    requestAnimationFrame(draw);
-  };
-  draw();
-})();
-
-// ── Caesar cipher ─────────────────────────────────────────────
-(function(){
-  const inp = document.getElementById('cipher-input');
-  const out = document.getElementById('cipher-output');
-  const sli = document.getElementById('cipher-shift');
-  const sv  = document.getElementById('cipher-shift-val');
-
-  const caesar = (text, shift) => text.split('').map(ch=>{
-    if(/[A-Z]/.test(ch)) return String.fromCharCode(((ch.charCodeAt(0)-65-shift+260)%26)+65);
-    if(/[a-z]/.test(ch)) return String.fromCharCode(((ch.charCodeAt(0)-97-shift+260)%26)+97);
-    return ch;
-  }).join('');
-
-  const update = () => {
-    const s=parseInt(sli.value);
-    sv.textContent=s;
-    out.textContent=caesar(inp.value.toUpperCase(),s);
-  };
-
-  inp.addEventListener('input',update);
-  sli.addEventListener('input',update);
-  update();
-})();
-
-// ── AES rounds ────────────────────────────────────────────────
-(function(){
-  const container = document.getElementById('aes-rounds');
-  const detail    = document.getElementById('aes-detail');
-  const dtitle    = document.getElementById('aes-detail-title');
-  const dbody     = document.getElementById('aes-detail-body');
-
-  const opMeta = {
-    SubBytes:    {cls:'aes-op--sub',  short:'SUBBYTES',  desc:'Each of the 16 bytes in the state is replaced via a fixed S-box lookup table. This non-linear substitution is the primary source of confusion in AES, making it resistant to linear and differential cryptanalysis.'},
-    ShiftRows:   {cls:'aes-op--shift',short:'SHIFTROWS',  desc:'Rows of the 4x4 byte matrix are cyclically shifted: row 0 unchanged, row 1 left by 1, row 2 by 2, row 3 by 3. This ensures bytes from one column spread into multiple columns, creating diffusion.'},
-    MixColumns:  {cls:'aes-op--mix',  short:'MIXCOLS',   desc:'Each 4-byte column is multiplied modulo x^4+1 with a fixed polynomial over GF(2^8). This linear mixing provides diffusion across the column, ensuring each output byte depends on all four input bytes.'},
-    AddRoundKey: {cls:'aes-op--key',  short:'ADDKEY',    desc:'The 128-bit state is XOR\'d with a subkey derived from the cipher key via the key schedule. This is the only operation directly involving the secret key, binding the ciphertext to it.'},
-  };
-
-  const rounds = [
-    {label:'INITIAL',   ops:['AddRoundKey'],                            note:'Key whitening before the first main round. Only AddRoundKey is applied - no SubBytes, ShiftRows, or MixColumns.'},
-    ...Array.from({length:9},(_,i)=>({label:`ROUND ${i+1}`,            ops:['SubBytes','ShiftRows','MixColumns','AddRoundKey']})),
-    {label:'FINAL',     ops:['SubBytes','ShiftRows','AddRoundKey'],     note:'MixColumns is omitted from the final round. This simplifies the inverse cipher without reducing security, since the MixColumns in round 10 would be "undone" by the inverse immediately anyway.'},
-  ];
-
-  rounds.forEach((round,i)=>{
-    const div=document.createElement('div');
-    div.className='aes-round';
-    div.style.setProperty('--ri',i);
-    div.innerHTML=`<div class="aes-round-num">${round.label}</div><div class="aes-round-ops">${
-      round.ops.map(op=>`<div class="aes-op ${opMeta[op].cls}">${opMeta[op].short}</div>`).join('')
-    }</div>`;
-    div.addEventListener('click',()=>{
-      document.querySelectorAll('.aes-round').forEach(el=>el.classList.remove('active'));
-      div.classList.add('active');
-      dtitle.textContent=round.label;
-      dbody.innerHTML=(round.note||'All four AES operations applied in standard sequence.')+
-        round.ops.map(op=>`<br><br><strong style="color:#fff">${op}:</strong> ${opMeta[op].desc}`).join('');
-      detail.classList.add('visible');
-    });
-    container.appendChild(div);
-  });
-})();
-
-// ── Tool tabs ─────────────────────────────────────────────────
-document.querySelectorAll('.tool-tab').forEach(tab=>{
-  tab.addEventListener('click',()=>{
-    document.querySelectorAll('.tool-tab').forEach(t=>t.classList.remove('active'));
-    document.querySelectorAll('.tool-content').forEach(c=>c.classList.remove('active'));
-    tab.classList.add('active');
-    document.getElementById('tab-'+tab.dataset.tab).classList.add('active');
-  });
-});
-
-
-
-// ──────────────────────────────────────────────────────────────
-//  SCROLL ENGINE + ANIMATIONS
-// ──────────────────────────────────────────────────────────────
-
-document.documentElement.classList.add('js-animate');
-
-// ── Scroll progress + topbar ─────────────────────────────────
-var progressBar = document.getElementById('scroll-progress');
-var topbarEl    = document.getElementById('topbar');
-
-function updateScroll() {
-  var max = document.documentElement.scrollHeight - window.innerHeight;
-  if (progressBar) progressBar.style.width = (max > 0 ? (window.scrollY / max * 100) : 0) + '%';
-  if (topbarEl) topbarEl.classList.toggle('scrolled', window.scrollY > 10);
-}
-window.addEventListener('scroll', updateScroll, { passive: true });
-updateScroll();
-
-// ── Lenis smooth scroll ───────────────────────────────────────
-(function() {
-  try {
-    if (typeof Lenis !== 'function') return;
-    var lenis = new Lenis({
-      duration: 1.15,
-      easing: function(t) { return 1 - Math.pow(1 - t, 4); },
-      smoothWheel: true
-    });
-    lenis.on('scroll', updateScroll);
-    function raf(time) { lenis.raf(time); requestAnimationFrame(raf); }
-    requestAnimationFrame(raf);
-  } catch(e) {}
-})();
-
-// ── Helper: fire once on first intersection ───────────────────
-function onceVisible(el, fn, opts) {
-  if (!el) return;
-  var obs = new IntersectionObserver(function(entries) {
-    if (entries[0].isIntersecting) { fn(); obs.disconnect(); }
-  }, opts || { threshold: 0.12 });
-  obs.observe(el);
-}
-
-// ── Helper: add class when element enters viewport ────────────
-function revealClass(el, cls, threshold, delay) {
-  if (!el) return;
-  setTimeout(function() {
-    onceVisible(el, function() { el.classList.add(cls); }, { threshold: threshold || 0.12, rootMargin: '0px 0px -4% 0px' });
-  }, delay || 0);
-}
-
-// ── Generic .reveal / .reveal-zoom (IO-based) ────────────────
-Array.from(document.querySelectorAll('.reveal, .reveal-zoom')).forEach(function(el) {
-  var obs = new IntersectionObserver(function(entries) {
-    if (entries[0].isIntersecting) { el.classList.add('is-visible'); obs.disconnect(); }
-  }, { threshold: 0.12, rootMargin: '0px 0px -3% 0px' });
-  obs.observe(el);
-});
-
-// ── Section labels (fade-right) ───────────────────────────────
-Array.from(document.querySelectorAll('.section-label')).forEach(function(el) {
-  revealClass(el, 'lbl-in', 0.1);
-});
-
-// ── Word-reveal headings ─────────────────────────────────────
-(function() {
-  function splitWords(el) {
-    var i = 0, frag = document.createDocumentFragment();
-    Array.from(el.childNodes).forEach(function(node) {
-      if (node.nodeType === Node.TEXT_NODE) {
-        node.textContent.split(/(\s+)/).forEach(function(chunk) {
-          if (!chunk.trim()) { if (chunk) frag.appendChild(document.createTextNode(' ')); }
-          else {
-            var sp = document.createElement('span');
-            sp.className = 'word'; sp.style.setProperty('--i', i++); sp.textContent = chunk;
-            frag.appendChild(sp);
-          }
-        });
-      } else if (node.nodeType === Node.ELEMENT_NODE) {
-        var w = document.createElement(node.tagName);
-        w.className = 'word'; w.style.setProperty('--i', i++); w.textContent = node.textContent;
-        frag.appendChild(w);
-      }
-    });
-    el.replaceChildren(frag);
-  }
-  Array.from(document.querySelectorAll('.word-reveal')).forEach(function(el) {
-    splitWords(el);
-    var wordObs = new IntersectionObserver(function(entries) {
-      if (entries[0].isIntersecting) {
-        el.classList.add('is-visible');
-        wordObs.disconnect();
-      }
-    }, { threshold: 0.08 });
-    wordObs.observe(el);
-  });
-})();
-
-// ── Stagger groups (algo cards + stats) ──────────────────────
-Array.from(document.querySelectorAll('.stagger-parent')).forEach(function(parent) {
-  onceVisible(parent, function() { parent.classList.add('group-visible'); }, { threshold: 0.08 });
-});
-
-// ── Threat cards: slide from sides ───────────────────────────
-revealClass(document.getElementById('threat-left'),  'slide-in', 0.15);
-revealClass(document.getElementById('threat-right'), 'slide-in', 0.15);
-
-// ── Lattice split: slide from sides ──────────────────────────
-revealClass(document.getElementById('lattice-split'), 'lat-in', 0.12);
-
-// ── Kyber flow boxes ─────────────────────────────────────────
-revealClass(document.getElementById('kyber-flow'), 'kf-in', 0.10);
-
-// ── AES diagram ──────────────────────────────────────────────
-revealClass(document.getElementById('aes-diagram'), 'aes-in', 0.12);
-
-// ── Demo box inner stagger ────────────────────────────────────
-revealClass(document.getElementById('demo-box'), 'demo-in', 0.12);
-
-// ── Security chart rows ───────────────────────────────────────
-revealClass(document.getElementById('sec-chart'), 'sc-in', 0.12);
-
-// ── Takeaway grid ─────────────────────────────────────────────
-revealClass(document.getElementById('takeaway-grid'), 'tg-in', 0.08);
-
-// ── Footer ────────────────────────────────────────────────────
-revealClass(document.getElementById('page-footer'), 'ft-in', 0.1);
-
-// ── Divider scan ──────────────────────────────────────────────
-Array.from(document.querySelectorAll('hr.divider')).forEach(function(hr) {
-  onceVisible(hr, function() {
-    hr.classList.add('div-in');
-    setTimeout(function() { hr.classList.remove('div-in'); }, 800);
-  }, { threshold: 0.5 });
-});
-
-// ── Stat count-up ─────────────────────────────────────────────
-function countUp(el, target, suffix) {
-  var start = performance.now(), dur = 1100;
-  (function loop(now) {
-    var p = Math.min((now - start) / dur, 1);
-    var v = Math.round(target * (1 - Math.pow(1 - p, 3)));
-    el.innerHTML = v + '<span>' + suffix + '</span>';
-    if (p < 1) requestAnimationFrame(loop);
-  })(performance.now());
-}
-onceVisible(document.getElementById('stats-row'), function() {
-  var defs = [{ v: 5, s: '+' }, { v: 3, s: '' }, { v: 256, s: '-bit' }];
-  Array.from(document.querySelectorAll('#stats-row .stat-num')).forEach(function(el, i) {
-    if (defs[i]) setTimeout(function() { countUp(el, defs[i].v, defs[i].s); }, i * 130);
-  });
-}, { threshold: 0.5 });
-
-// ── Security bar grow ─────────────────────────────────────────
-onceVisible(document.getElementById('sec-bars'), function() {
-  Array.from(document.querySelectorAll('.sec-bar-fill')).forEach(function(bar, i) {
-    setTimeout(function() { bar.style.width = bar.dataset.target + '%'; }, i * 60);
-  });
-}, { threshold: 0.25 });
-
-// ── Pre / code block reveals ──────────────────────────────────
-Array.from(document.querySelectorAll('pre')).forEach(function(el) {
-  revealClass(el, 'is-in', 0.08);
-});
-
-// ── General h3/h4 sweep ───────────────────────────────────────
-// Catches standalone headings not already handled by another animation system
-(function() {
-  var SKIP = '.word-reveal, .stagger-child, .kyber-box, .demo-box, .sec-chart-head';
-  var ease = 'cubic-bezier(0.23,1,0.32,1)';
-  Array.from(document.querySelectorAll('h3, h4')).forEach(function(el) {
-    if (el.closest(SKIP) || el.classList.contains('reveal') || el.dataset.swept) return;
-    el.dataset.swept = '1';
-    el.style.opacity = '0';
-    el.style.transform = 'translateY(34px)';
-    el.style.filter = 'blur(4px)';
-    el.style.transition = 'opacity 0.6s ' + ease + ', transform 0.65s ' + ease + ', filter 0.6s ' + ease;
+  /* ─── Section-level IO — ONE observer per section ─── */
+  document.querySelectorAll('.section, .links-cta').forEach(function(section) {
     var obs = new IntersectionObserver(function(entries) {
       if (entries[0].isIntersecting) {
-        el.style.opacity = '1';
-        el.style.transform = 'none';
-        el.style.filter = 'none';
+        section.classList.add('s-in');
         obs.disconnect();
       }
-    }, { threshold: 0.1, rootMargin: '0px 0px -4% 0px' });
-    obs.observe(el);
+    }, { threshold: 0.06, rootMargin: '0px 0px -60px 0px' });
+    obs.observe(section);
   });
-})();
 
+  /* ─── Hero canvas (animated lattice) ─── */
+  (function() {
+    var canvas = document.getElementById('hero-canvas');
+    var ctx = canvas.getContext('2d');
+    function resize() {
+      canvas.width  = canvas.offsetWidth;
+      canvas.height = canvas.offsetHeight;
+    }
+    resize();
+    window.addEventListener('resize', resize, { passive: true });
 
+    var B = [[56, 0], [26, 48]];
+    var nodes = [], range = 10;
+    for (var i = -range; i <= range; i++) {
+      for (var j = -range; j <= range; j++) {
+        nodes.push({
+          i: i, j: j,
+          x: function(ci,cj) { return ci * B[0][0] + cj * B[1][0]; }(i,j),
+          y: function(ci,cj) { return ci * B[0][1] + cj * B[1][1]; }(i,j)
+        });
+      }
+    }
+
+    var targetNode = nodes[Math.floor(nodes.length * 0.42)];
+    var tx = targetNode.x + 18, ty = targetNode.y + 14;
+    var pulse = 0;
+
+    function draw(ts) {
+      var w = canvas.width, h = canvas.height;
+      ctx.clearRect(0, 0, w, h);
+      var cx = w / 2, cy = h / 2;
+      pulse = (pulse + 0.02) % (Math.PI * 2);
+
+      /* edges */
+      ctx.strokeStyle = 'rgba(0,212,170,0.06)';
+      ctx.lineWidth = 0.8;
+      nodes.forEach(function(n) {
+        [[1,0],[0,1],[1,1]].forEach(function(d) {
+          var m = nodes.find(function(q) { return q.i === n.i+d[0] && q.j === n.j+d[1]; });
+          if (!m) return;
+          ctx.beginPath();
+          ctx.moveTo(cx + n.x, cy + n.y);
+          ctx.lineTo(cx + m.x, cy + m.y);
+          ctx.stroke();
+        });
+      });
+
+      /* dots */
+      nodes.forEach(function(n) {
+        var sx = cx + n.x, sy = cy + n.y;
+        if (sx < -50 || sx > w+50 || sy < -50 || sy > h+50) return;
+        ctx.beginPath();
+        ctx.arc(sx, sy, 1.6, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(0,212,170,0.25)';
+        ctx.fill();
+      });
+
+      /* target blue dot with pulse */
+      var bx = cx + tx, by = cy + ty;
+      var r = 4 + Math.sin(pulse) * 2;
+      ctx.beginPath();
+      ctx.arc(bx, by, r, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(100,140,255,0.7)';
+      ctx.fill();
+
+      /* pulse ring */
+      ctx.beginPath();
+      ctx.arc(bx, by, r + 8 + Math.sin(pulse) * 4, 0, Math.PI * 2);
+      ctx.strokeStyle = 'rgba(100,140,255,' + (0.15 + 0.1 * Math.sin(pulse)) + ')';
+      ctx.lineWidth = 1.2;
+      ctx.stroke();
+
+      requestAnimationFrame(draw);
+    }
+    requestAnimationFrame(draw);
+  })();
+
+  /* ─── Lattice canvas ─── */
+  (function() {
+    var canvas = document.getElementById('lattice-canvas');
+    if (!canvas) return;
+    var ctx = canvas.getContext('2d');
+    var W = 400, H = 400;
+    var B2 = [[56, 0], [26, 48]];
+    var nodes2 = [];
+    for (var i = -5; i <= 5; i++) {
+      for (var j = -5; j <= 5; j++) {
+        nodes2.push({
+          x: i * B2[0][0] + j * B2[1][0],
+          y: i * B2[0][1] + j * B2[1][1]
+        });
+      }
+    }
+    var errX = 12, errY = 8;
+    var pulse2 = 0;
+
+    function drawLattice() {
+      ctx.clearRect(0, 0, W, H);
+      var cx = W/2, cy = H/2;
+      pulse2 = (pulse2 + 0.018) % (Math.PI * 2);
+
+      ctx.strokeStyle = 'rgba(255,255,255,0.08)';
+      ctx.lineWidth = 0.8;
+      nodes2.forEach(function(n) {
+        [-1,0,1].forEach(function(di) {
+          [-1,0,1].forEach(function(dj) {
+            if (di === 0 && dj === 0) return;
+            var mx = n.x + di * B2[0][0] + dj * B2[1][0];
+            var my = n.y + di * B2[0][1] + dj * B2[1][1];
+            var near = nodes2.find(function(q) { return Math.abs(q.x - mx) < 1 && Math.abs(q.y - my) < 1; });
+            if (!near) return;
+            ctx.beginPath();
+            ctx.moveTo(cx + n.x, cy + n.y);
+            ctx.lineTo(cx + near.x, cy + near.y);
+            ctx.stroke();
+          });
+        });
+      });
+
+      nodes2.forEach(function(n) {
+        var sx = cx + n.x, sy = cy + n.y;
+        if (sx < 0 || sx > W || sy < 0 || sy > H) return;
+        ctx.beginPath();
+        ctx.arc(sx, sy, 2.2, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(255,255,255,0.6)';
+        ctx.fill();
+      });
+
+      /* nearest node indicator */
+      var nearNode = nodes2.reduce(function(best, n) {
+        var d = Math.hypot(n.x - errX, n.y - errY);
+        return d < best.d ? { n: n, d: d } : best;
+      }, { n: null, d: Infinity });
+      if (nearNode.n) {
+        ctx.beginPath();
+        ctx.arc(cx + nearNode.n.x, cy + nearNode.n.y, 5 + Math.sin(pulse2) * 1.5, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(0,212,170,0.3)';
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(cx + nearNode.n.x, cy + nearNode.n.y, 3, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(0,212,170,0.9)';
+        ctx.fill();
+      }
+
+      /* blue observed vector */
+      var bx = cx + errX, by = cy + errY;
+      ctx.beginPath();
+      ctx.moveTo(cx, cy);
+      ctx.lineTo(bx, by);
+      ctx.strokeStyle = 'rgba(100,140,255,0.7)';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.arc(bx, by, 3.5 + Math.sin(pulse2) * 1.5, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(100,140,255,0.9)';
+      ctx.fill();
+
+      requestAnimationFrame(drawLattice);
+    }
+    requestAnimationFrame(drawLattice);
+  })();
+
+  /* ─── Caesar cipher ─── */
+  var caesarInput  = document.getElementById('caesar-input');
+  var caesarOutput = document.getElementById('caesar-output');
+  var caesarSlider = document.getElementById('caesar-slider');
+  var shiftVal     = document.getElementById('shift-val');
+  var shiftDisplay = document.getElementById('shift-display');
+
+  function cipherShift(text, shift) {
+    return text.split('').map(function(ch) {
+      var c = ch.toUpperCase().charCodeAt(0);
+      if (c >= 65 && c <= 90) return String.fromCharCode(((c - 65 - shift + 26) % 26) + 65);
+      return ch;
+    }).join('');
+  }
+  function updateCaesar() {
+    var shift = parseInt(caesarSlider.value);
+    shiftVal.textContent = shift;
+    shiftDisplay.textContent = shift;
+    caesarOutput.textContent = cipherShift(caesarInput.value, shift) || '—';
+  }
+  caesarInput.addEventListener('input', updateCaesar);
+  caesarSlider.addEventListener('input', updateCaesar);
+  updateCaesar();
+
+  /* ─── AES rounds ─── */
+  var aesData = {
+    subbytes: {
+      title: 'SubBytes — Non-Linear Substitution',
+      desc:  'Each of the 16 bytes in the 4×4 state matrix is independently replaced using a fixed 256-entry lookup table called the S-box. The S-box is constructed using multiplicative inverses in GF(2⁸), providing non-linearity that prevents linear and differential cryptanalysis attacks.'
+    },
+    shiftrows: {
+      title: 'ShiftRows — Row Rotation',
+      desc:  'The four rows of the state matrix are cyclically shifted to the left by different offsets: row 0 by 0, row 1 by 1, row 2 by 2, row 3 by 3 positions. This causes each column of the output to contain bytes from all four columns of the input, providing inter-column diffusion.'
+    },
+    mixcols: {
+      title: 'MixColumns — Column Mixing',
+      desc:  'Each column of the state is treated as a 4-term polynomial over GF(2⁸) and multiplied by a fixed polynomial. This achieves complete diffusion across each column. This step is omitted in the final round because applying it would not add security but would add complexity for decryption.'
+    },
+    addroundkey: {
+      title: 'AddRoundKey — Key XOR',
+      desc:  'Each byte of the state is combined with a byte from the round key using bitwise XOR (⊕). The round key is derived from the original cipher key using the AES key schedule. This is the only step that directly involves the key material, binding the output to the secret key.'
+    }
+  };
+  var activeRound = null;
+  document.querySelectorAll('.aes-round').forEach(function(round) {
+    round.addEventListener('click', function() {
+      var key = round.getAttribute('data-round');
+      var detail = document.getElementById('aes-detail');
+      if (activeRound === key) {
+        detail.classList.remove('visible');
+        round.classList.remove('active');
+        activeRound = null;
+        return;
+      }
+      document.querySelectorAll('.aes-round').forEach(function(r) { r.classList.remove('active'); });
+      round.classList.add('active');
+      document.getElementById('aes-detail-title').textContent = aesData[key].title;
+      document.getElementById('aes-detail-desc').textContent  = aesData[key].desc;
+      detail.classList.add('visible');
+      activeRound = key;
+    });
+  });
+
+  /* ─── Library tabs ─── */
+  document.querySelectorAll('.lib-tab').forEach(function(tab) {
+    tab.addEventListener('click', function() {
+      var t = tab.getAttribute('data-tab');
+      document.querySelectorAll('.lib-tab').forEach(function(tb) { tb.classList.remove('active'); });
+      document.querySelectorAll('.lib-panel').forEach(function(p) { p.classList.remove('active'); });
+      tab.classList.add('active');
+      document.getElementById('lib-' + t).classList.add('active');
+    });
+  });
 </script>
 </body>
 </html>
