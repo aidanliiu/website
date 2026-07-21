@@ -11,6 +11,209 @@
 <link rel="stylesheet" href="style.css">
 <link rel="stylesheet" href="links.css">
 
+<!-- Mode applied before render to prevent flash -->
+<script>
+(function(){
+  var m = localStorage.getItem('siteMode');
+  if (m === 'minimal' || m === 'animated') {
+    document.documentElement.classList.add('mode-' + m);
+  } else {
+    document.documentElement.classList.add('mode-choosing');
+  }
+})();
+</script>
+
+<style>
+/* ── Mode Select ─────────────────────────────────────── */
+#mode-select {
+  position: fixed; inset: 0; z-index: 10000;
+  display: none; flex-direction: column;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  overflow: hidden;
+}
+html.mode-choosing #mode-select { display: flex; }
+
+/* Header strip — full width, dark, tells user what to do */
+.ms-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 18px 36px; flex-shrink: 0;
+  background: #0a0a0a;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+  position: relative; z-index: 2;
+}
+.ms-header-name {
+  font-size: 12px; font-weight: 700; letter-spacing: 0.1em;
+  text-transform: uppercase; color: #fff;
+}
+.ms-header-inst {
+  font-size: 12px; font-weight: 400; color: rgba(255,255,255,0.38);
+  letter-spacing: 0.02em;
+}
+
+/* Halves row */
+.ms-halves {
+  flex: 1; display: flex; flex-direction: row;
+  position: relative; overflow: hidden; min-height: 0;
+}
+
+/* Thin divider between halves */
+.ms-halves::before {
+  content: '';
+  position: absolute; top: 0; bottom: 0; left: 50%;
+  width: 1px; background: rgba(160,160,160,0.15);
+  z-index: 2; pointer-events: none;
+}
+
+/* Each half */
+.ms-half {
+  flex: 1; height: 100%;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  cursor: pointer; position: relative; overflow: hidden;
+  transition: flex 0.55s cubic-bezier(0.23, 1, 0.32, 1);
+  border: none; outline: none;
+}
+.ms-half:hover { flex: 1.22; }
+.ms-half:active { flex: 1.12; }
+.ms-half:focus-visible { outline: 2px solid rgba(128,128,128,0.5); outline-offset: -4px; }
+
+.ms-half--dark { background: #0a0a0a; }
+.ms-half--dark::after {
+  content: ''; position: absolute; inset: 0;
+  background: radial-gradient(ellipse 55% 50% at 45% 50%, rgba(255,255,255,0.03) 0%, transparent 70%);
+  pointer-events: none;
+}
+.ms-half--light { background: #f5f4f1; }
+
+/* Content — never overlaps because it's inside the half, not absolute */
+.ms-half-content {
+  display: flex; flex-direction: column;
+  align-items: flex-start; gap: 8px;
+  padding: 0 52px; position: relative; z-index: 1;
+  max-width: 320px;
+}
+
+.ms-mode-word {
+  font-size: clamp(34px, 4vw, 52px);
+  letter-spacing: -0.03em; line-height: 1; display: block;
+}
+.ms-half--dark .ms-mode-word { color: #fff; font-weight: 700; }
+.ms-half--light .ms-mode-word { color: #111; font-weight: 400; }
+
+.ms-mode-hint {
+  font-size: 13px; font-weight: 400; display: block;
+  margin-bottom: 4px;
+}
+.ms-half--dark .ms-mode-hint { color: rgba(255,255,255,0.38); }
+.ms-half--light .ms-mode-hint { color: rgba(17,17,17,0.35); }
+
+.ms-mode-desc { font-size: 13px; line-height: 1.65; max-width: 230px; display: block; margin-top: 8px; }
+.ms-half--dark .ms-mode-desc { color: rgba(255,255,255,0.44); }
+.ms-half--light .ms-mode-desc { color: rgba(17,17,17,0.42); }
+
+/* "Enter →" — always at low opacity so user sees it, full on hover */
+.ms-enter {
+  display: inline-flex; align-items: center; gap: 5px;
+  margin-top: 20px;
+  font-size: 11px; font-weight: 600;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  opacity: 0.3;
+  transition: opacity 0.2s ease-out;
+}
+.ms-half--dark .ms-enter { color: #fff; }
+.ms-half--light .ms-enter { color: #111; }
+.ms-enter-arrow { transition: transform 0.2s ease-out; }
+.ms-half:hover .ms-enter { opacity: 1; }
+.ms-half:hover .ms-enter-arrow { transform: translateX(4px); }
+
+/* ── Entrance animations ─────────────────────────────── */
+@keyframes ms-in-down {
+  from { opacity: 0; transform: translateY(-10px); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes ms-in-left {
+  from { opacity: 0; transform: translateX(-24px); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes ms-in-right {
+  from { opacity: 0; transform: translateX(24px); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes ms-in-up {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: none; }
+}
+
+html.mode-choosing .ms-header {
+  animation: ms-in-down 0.5s cubic-bezier(0.23, 1, 0.32, 1) both;
+}
+html.mode-choosing .ms-half--dark {
+  animation: ms-in-left 0.65s cubic-bezier(0.23, 1, 0.32, 1) 0.08s both;
+}
+html.mode-choosing .ms-half--light {
+  animation: ms-in-right 0.65s cubic-bezier(0.23, 1, 0.32, 1) 0.08s both;
+}
+html.mode-choosing .ms-half-content {
+  animation: ms-in-up 0.55s cubic-bezier(0.23, 1, 0.32, 1) 0.3s both;
+}
+
+/* ── Exit ────────────────────────────────────────────── */
+#mode-select.ms-exit {
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.32s cubic-bezier(0.4, 0, 1, 1);
+}
+
+/* ── Mobile: vertical split ──────────────────────────── */
+@media (max-width: 600px) {
+  .ms-halves { flex-direction: column; }
+  .ms-halves::before {
+    top: 50%; bottom: auto; left: 0; right: 0;
+    width: auto; height: 1px;
+  }
+  .ms-half-content { padding: 0 28px; max-width: none; }
+  .ms-mode-word { font-size: clamp(26px, 7vw, 36px); }
+  .ms-header { padding: 14px 20px; }
+  .ms-header-inst { font-size: 11px; }
+}
+
+/* ── Mode Toggle Button ────────────────────────────────── */
+#mode-toggle {
+  position: fixed; bottom: 22px; right: 22px; z-index: 9500;
+  display: flex; align-items: center; gap: 7px;
+  padding: 9px 15px 9px 12px;
+  background: rgba(12,12,12,0.88);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 99px;
+  color: rgba(255,255,255,0.6);
+  font-size: 12px; font-weight: 500; letter-spacing: 0.03em;
+  cursor: pointer;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  transition: border-color 0.2s, color 0.2s, transform 0.18s;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
+#mode-toggle:hover {
+  border-color: rgba(255,255,255,0.26); color: #fff;
+  transform: translateY(-1px);
+}
+#mode-toggle svg { flex-shrink: 0; }
+html.mode-choosing #mode-toggle { display: none; }
+
+/* ── Minimal Mode Cover (blank — to be designed) ──────── */
+#minimal-cover {
+  position: fixed; inset: 0; z-index: 9000;
+  background: #f8f8f6;
+  display: none;
+  align-items: center; justify-content: center;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
+html.mode-minimal #minimal-cover { display: flex; }
+
+/* Hide loader until a mode is chosen, and skip entirely in minimal mode */
+html.mode-choosing #site-loader { display: none !important; }
+html.mode-minimal  #site-loader { display: none !important; }
+</style>
+
 <!-- ═══════════════════════════════════
      LOADER — inline so it renders before
      any external stylesheet resolves.
@@ -105,6 +308,50 @@
 </style>
 </head>
 <body class="sl-active">
+
+<!-- ── Mode Select ─────────────────────────────────────── -->
+<div id="mode-select" role="dialog" aria-modal="true" aria-label="Choose your experience">
+
+  <div class="ms-header">
+    <span class="ms-header-name">Aidan Liu</span>
+    <span class="ms-header-inst">Two ways to see the same portfolio — pick a side to enter</span>
+  </div>
+
+  <div class="ms-halves">
+    <button class="ms-half ms-half--dark" data-mode="animated" aria-label="Enter animated experience">
+      <div class="ms-half-content">
+        <span class="ms-mode-word">Animated</span>
+        <span class="ms-mode-hint">Motion &amp; depth</span>
+        <span class="ms-mode-desc">Scroll-triggered animations, a cinematic loading screen, and interactive visuals. The full experience as it was designed.</span>
+        <span class="ms-enter">Enter <span class="ms-enter-arrow">→</span></span>
+      </div>
+    </button>
+
+    <button class="ms-half ms-half--light" data-mode="minimal" aria-label="Enter minimalistic experience">
+      <div class="ms-half-content">
+        <span class="ms-mode-word">Minimalistic</span>
+        <span class="ms-mode-hint">Clean &amp; still</span>
+        <span class="ms-mode-desc">No animations. Clean typography and focused layout — loads instantly and stays distraction-free.</span>
+        <span class="ms-enter">Enter <span class="ms-enter-arrow">→</span></span>
+      </div>
+    </button>
+  </div>
+
+</div>
+
+<!-- ── Mode Toggle (persistent) ───────────────────────── -->
+<button id="mode-toggle" aria-label="Switch mode">
+  <svg width="13" height="13" viewBox="0 0 13 13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+    <circle cx="6.5" cy="6.5" r="5.5"/>
+    <path d="M6.5 1v11M1 6.5h11" opacity="0.5"/>
+  </svg>
+  <span id="mode-toggle-label">Minimalistic</span>
+</button>
+
+<!-- ── Minimal Mode Cover (blank — design TBD) ────────── -->
+<div id="minimal-cover" aria-label="Minimalistic mode">
+  <!-- content goes here -->
+</div>
 
 <!-- ═══════════════════════════════════
      PAGE LOADER
@@ -701,17 +948,9 @@
           <!-- SVG shorthand macros (inlined per card for full portability) -->
           <!-- GEAR = VEX Robotics  |  BBALL = Basketball  |  STAR = Board Recognition -->
 
-          <!-- ── Set 1 (13 unique awards, grouped by activity, newest → oldest within each) ── -->
+          <!-- ── Awards sorted by date, most recent first ── -->
           <div class="awards-set">
-            <!-- Board Recognition -->
-            <div class="award-card award-card--gold" role="button" tabindex="0" data-teaser="The school board literally stood up for me." data-desc="Recognized by the Los Gatos-Saratoga Union High School District Board of Trustees as a Roaring &amp; Soaring Honoree in December 2025. This recognition is awarded to students who exemplify outstanding achievement in both academics and extracurricular contributions — being nominated by my school and honored at a board meeting in front of the community is something I'll always remember.">
-              <span class="award-cat">Board Recognition</span>
-              <p class="award-year">Dec '25</p>
-              <p class="award-name">Roaring &amp; Soaring Honoree</p>
-              <div class="award-icon"><img src="roaring-soaring-dec25.jpg" alt="Roaring & Soaring Honoree"></div>
-              <p class="award-sub">Los Gatos-Saratoga UHSD Board of Trustees</p>
-            </div>
-            <!-- VEX Robotics -->
+            <!-- Mar '26 -->
             <div class="award-card award-card--vex" role="button" tabindex="0" data-teaser="Showed up to Nationals. Left with the title." data-desc="Won the Division (Red) Champion title at the VEX Robotics Nationals tournament. As Team Captain and Mechanical Lead for Team 95071V, I led our alliance through every elimination round — building strategy, adjusting our robot between matches, and communicating with our alliance partners in real time. One of the proudest moments of my robotics career.">
               <span class="award-cat">VEX Robotics</span>
               <p class="award-year">Mar '26</p>
@@ -719,6 +958,7 @@
               <div class="award-icon"><img src="nationals-mar26.jpg" alt="Nationals Tournament Champion"></div>
               <p class="award-sub">Division (Red) Champion · Team 95071V</p>
             </div>
+            <!-- 2025–26 season -->
             <div class="award-card award-card--vex" role="button" tabindex="0" data-teaser="Worlds. Nationals. States. All in one season." data-desc="Qualified for the VEX Robotics World Championship (Worlds), Nationals, and States in a single season — one of the highest qualification achievements in competitive robotics. This was the result of months of late nights redesigning mechanisms, iterating on autonomous routines, and competing at signature events across Northern California.">
               <span class="award-cat">VEX Robotics</span>
               <p class="award-year">2025–26</p>
@@ -726,28 +966,6 @@
               <div class="award-icon"><img src="worlds-2526.jpg" alt="Worlds Nationals States 2025-26"></div>
               <p class="award-sub">Team 95071V</p>
             </div>
-            <div class="award-card award-card--vex" role="button" tabindex="0" data-teaser="The judges loved the notebook. The robot helped too." data-desc="Received the Create Award at the NorthCal Silicon Valley Signature Event — one of the most prestigious design awards in VEX Robotics. The Create Award recognizes teams that demonstrate exceptional innovation in engineering design, documented through a detailed engineering notebook. I led the documentation process and presented our design decisions to a panel of expert judges.">
-              <span class="award-cat">VEX Robotics</span>
-              <p class="award-year">Feb '25</p>
-              <p class="award-name">Create Award Winner</p>
-              <div class="award-icon"><img src="create-award-feb25.jpg" alt="Create Award Winner"></div>
-              <p class="award-sub">NorthCal Silicon Valley Signature Event</p>
-            </div>
-            <div class="award-card award-card--vex" role="button" tabindex="0" data-teaser="Round two. Rebuilt the robot. Came back bigger." data-desc="Qualified for both the VEX Robotics Nationals and States competitions during the 2024–25 season as Team 95071V. Building on our previous year's success, we redesigned our robot from the ground up for the new game, competing through a full season of regionals before earning our place at the state and national level.">
-              <span class="award-cat">VEX Robotics</span>
-              <p class="award-year">2024–25</p>
-              <p class="award-name">Nationals &amp; States Qualified</p>
-              <div class="award-icon"><img src="nationals-2425.jpg" alt="Nationals & States 2024-25"></div>
-              <p class="award-sub">Team 95071V</p>
-            </div>
-            <div class="award-card award-card--vex" role="button" tabindex="0" data-teaser="First season. Zero experience. Qualified for Worlds anyway." data-desc="In my very first competitive VEX season with Team 95071H, we qualified for Worlds, Nationals, and States — an extraordinary result for a team's debut year. I came in as a sophomore with no prior competition experience and threw myself into building, programming, and driving. This is where I fell in love with robotics.">
-              <span class="award-cat">VEX Robotics</span>
-              <p class="award-year">2023–24</p>
-              <p class="award-name">Worlds, Nationals &amp; States Qualified</p>
-              <div class="award-icon award-icon--zoom"><img src="worlds-2324.jpg" alt="Worlds Nationals States 2023-24"></div>
-              <p class="award-sub">Team 95071H</p>
-            </div>
-            <!-- Varsity Basketball -->
             <div class="award-card award-card--vball" role="button" tabindex="0" data-teaser="Third year on varsity. Still getting better." data-desc="Named to the 2nd Team All-League in the SCVAL El Camino Division for the 2025–26 season — my third year on the varsity roster. This recognition reflects consistent performance throughout the league schedule, including key games against top-ranked opponents in one of the most competitive divisions in Northern California.">
               <span class="award-cat">Varsity Basketball</span>
               <p class="award-year">2025–26</p>
@@ -762,6 +980,15 @@
               <div class="award-icon"><img src="ccs-scholastic-2526.jpg" alt="CCS Scholastic Award"></div>
               <p class="award-sub">CIF Central Coast Section</p>
             </div>
+            <!-- Dec '25 -->
+            <div class="award-card award-card--gold" role="button" tabindex="0" data-teaser="The school board literally stood up for me." data-desc="Recognized by the Los Gatos-Saratoga Union High School District Board of Trustees as a Roaring &amp; Soaring Honoree in December 2025. This recognition is awarded to students who exemplify outstanding achievement in both academics and extracurricular contributions — being nominated by my school and honored at a board meeting in front of the community is something I'll always remember.">
+              <span class="award-cat">Board Recognition</span>
+              <p class="award-year">Dec '25</p>
+              <p class="award-name">Roaring &amp; Soaring Honoree</p>
+              <div class="award-icon"><img src="roaring-soaring-dec25.jpg" alt="Roaring & Soaring Honoree"></div>
+              <p class="award-sub">Los Gatos-Saratoga UHSD Board of Trustees</p>
+            </div>
+            <!-- Pre-season 2025–26 (Nov '25) -->
             <div class="award-card award-card--vball" role="button" tabindex="0" data-teaser="Pre-season tournament. Set the tone early." data-desc="Selected as one of the top performers at the San Marin Mustangs Invitational pre-season tournament. Earning All-Tournament honors is a sign-of-things-to-come moment — this recognition at the start of the 2025–26 season set the tone for what turned out to be a strong year for our team.">
               <span class="award-cat">Varsity Basketball</span>
               <p class="award-year">2025–26</p>
@@ -769,12 +996,21 @@
               <div class="award-icon"><img src="alltournament-2526.jpg" alt="All Tournament Award"></div>
               <p class="award-sub">San Marin Mustangs Invitational</p>
             </div>
-            <div class="award-card award-card--vball" role="button" tabindex="0" data-teaser="The weekend everything clicked." data-desc="Named Most Valuable Player at the James Lick Tournament during the 2024–25 season. I led the team in scoring and assists across the bracket, and we took home the tournament title. It was one of those weekends where everything clicked — the team was connected and I was locked in on both ends of the floor.">
-              <span class="award-cat">Varsity Basketball</span>
+            <!-- Feb '25 -->
+            <div class="award-card award-card--vex" role="button" tabindex="0" data-teaser="The judges loved the notebook. The robot helped too." data-desc="Received the Create Award at the NorthCal Silicon Valley Signature Event — one of the most prestigious design awards in VEX Robotics. The Create Award recognizes teams that demonstrate exceptional innovation in engineering design, documented through a detailed engineering notebook. I led the documentation process and presented our design decisions to a panel of expert judges.">
+              <span class="award-cat">VEX Robotics</span>
+              <p class="award-year">Feb '25</p>
+              <p class="award-name">Create Award Winner</p>
+              <div class="award-icon"><img src="create-award-feb25.jpg" alt="Create Award Winner"></div>
+              <p class="award-sub">NorthCal Silicon Valley Signature Event</p>
+            </div>
+            <!-- 2024–25 season -->
+            <div class="award-card award-card--vex" role="button" tabindex="0" data-teaser="Round two. Rebuilt the robot. Came back bigger." data-desc="Qualified for both the VEX Robotics Nationals and States competitions during the 2024–25 season as Team 95071V. Building on our previous year's success, we redesigned our robot from the ground up for the new game, competing through a full season of regionals before earning our place at the state and national level.">
+              <span class="award-cat">VEX Robotics</span>
               <p class="award-year">2024–25</p>
-              <p class="award-name">MVP Award</p>
-              <div class="award-icon"><img src="mvp-jameslick-2425.jpg" alt="MVP Award James Lick"></div>
-              <p class="award-sub">James Lick Tournament</p>
+              <p class="award-name">Nationals &amp; States Qualified</p>
+              <div class="award-icon"><img src="nationals-2425.jpg" alt="Nationals & States 2024-25"></div>
+              <p class="award-sub">Team 95071V</p>
             </div>
             <div class="award-card award-card--vball" role="button" tabindex="0" data-teaser="Every practice. Every film session. Worth it." data-desc="Won the SCVAL El Camino Division league championship with the Saratoga varsity basketball team in 2024–25. We finished the league season at the top of the standings after a grueling schedule. Winning the league title as a group is a different kind of satisfaction — every practice and film session paid off.">
               <span class="award-cat">Varsity Basketball</span>
@@ -790,6 +1026,21 @@
               <div class="award-icon"><img src="allleague-2425.jpg" alt="2024-25 2nd Team All-League"></div>
               <p class="award-sub">SCVAL El Camino Division</p>
             </div>
+            <div class="award-card award-card--vball" role="button" tabindex="0" data-teaser="The weekend everything clicked." data-desc="Named Most Valuable Player at the James Lick Tournament during the 2024–25 season. I led the team in scoring and assists across the bracket, and we took home the tournament title. It was one of those weekends where everything clicked — the team was connected and I was locked in on both ends of the floor.">
+              <span class="award-cat">Varsity Basketball</span>
+              <p class="award-year">2024–25</p>
+              <p class="award-name">MVP Award</p>
+              <div class="award-icon"><img src="mvp-jameslick-2425.jpg" alt="MVP Award James Lick"></div>
+              <p class="award-sub">James Lick Tournament</p>
+            </div>
+            <!-- 2023–24 season -->
+            <div class="award-card award-card--vex" role="button" tabindex="0" data-teaser="First season. Zero experience. Qualified for Worlds anyway." data-desc="In my very first competitive VEX season with Team 95071H, we qualified for Worlds, Nationals, and States — an extraordinary result for a team's debut year. I came in as a sophomore with no prior competition experience and threw myself into building, programming, and driving. This is where I fell in love with robotics.">
+              <span class="award-cat">VEX Robotics</span>
+              <p class="award-year">2023–24</p>
+              <p class="award-name">Worlds, Nationals &amp; States Qualified</p>
+              <div class="award-icon award-icon--zoom"><img src="worlds-2324.jpg" alt="Worlds Nationals States 2023-24"></div>
+              <p class="award-sub">Team 95071H</p>
+            </div>
             <div class="award-card award-card--vball" role="button" tabindex="0" data-teaser="Freshman year on JV. Already on the list." data-desc="Named to the 3rd Team All-League in the SCVAL El Camino Division for JV in 2023–24. My freshman year, playing up against older and bigger players every night. I used that season to develop my game fundamentals and earn a spot on the varsity roster the following year.">
               <span class="award-cat">JV Basketball</span>
               <p class="award-year">2023–24</p>
@@ -797,7 +1048,7 @@
               <div class="award-icon"><img src="allleague-2324.jpg" alt="2023-24 JV 3rd Team All-League"></div>
               <p class="award-sub">SCVAL El Camino Division</p>
             </div>
-          </div><!-- /.awards-set Set 1 -->
+          </div><!-- /.awards-set -->
 
 
         </div><!-- /.awards-track -->
@@ -949,29 +1200,22 @@
   var countEl = document.getElementById('sl-count');
   if (!loader) return;
 
-  var MIN_MS   = 1650; // minimum display time in ms (allows name animation to breathe)
-  var start    = Date.now();
-  var settled  = false;
-  var pct      = 0;
+  var MIN_MS = 1650; /* minimum display time */
+  var start, settled, pct, si, rafId;
 
-  /* Update bar width + numeric counter together */
   function setProgress(n) {
     pct = n;
     bar.style.width = n + '%';
     if (countEl) countEl.textContent = String(Math.round(n)).padStart(2, '0');
   }
 
-  /* Staged fake-progress that stalls before 100 to wait for real load.
-     Each entry: { target%, ms to reach it from current }            */
   var stages = [
     { to: 22, dur: 280 },
     { to: 48, dur: 340 },
     { to: 68, dur: 320 },
     { to: 84, dur: 380 },
-    { to: 91, dur: 460 }   /* stalls here until window.load fires  */
+    { to: 91, dur: 460 }
   ];
-  var si = 0;
-  var rafId;
 
   function runStage() {
     if (si >= stages.length || settled) return;
@@ -979,10 +1223,8 @@
     var from = pct;
     var diff = s.to - from;
     var t0   = performance.now();
-
     function tick(now) {
       var frac = Math.min(1, (now - t0) / s.dur);
-      /* ease-out-cubic */
       var ease = 1 - Math.pow(1 - frac, 3);
       setProgress(from + diff * ease);
       if (frac < 1) { rafId = requestAnimationFrame(tick); }
@@ -990,19 +1232,14 @@
     }
     rafId = requestAnimationFrame(tick);
   }
-  runStage();
 
-  /* Dismiss: finish bar → brief pause → fade the overlay */
   function dismiss() {
     if (settled) return;
     settled = true;
     cancelAnimationFrame(rafId);
-
     var elapsed = Date.now() - start;
     var hold    = Math.max(0, MIN_MS - elapsed);
-
     setTimeout(function () {
-      /* Animate bar to 100 % smoothly over 280 ms */
       var from = pct;
       var t0   = performance.now();
       (function tick(now) {
@@ -1011,7 +1248,6 @@
         setProgress(from + (100 - from) * ease);
         if (frac < 1) { requestAnimationFrame(tick); }
         else {
-          /* Hold 240 ms at 100 % so the eye registers it, then fade */
           setTimeout(function () {
             document.body.classList.remove('sl-active');
             loader.classList.add('sl-exit');
@@ -1022,12 +1258,91 @@
     }, hold);
   }
 
-  window.addEventListener('load', dismiss);
-  setTimeout(dismiss, 4800); /* hard safety fallback */
+  function startLoader() {
+    start   = Date.now();
+    settled = false;
+    pct     = 0;
+    si      = 0;
+    setProgress(0);
+    loader.style.display = '';
+    loader.classList.remove('sl-exit');
+    document.body.classList.add('sl-active');
+    runStage();
+    /* If page already loaded (user took time to read the splash), dismiss after MIN_MS */
+    if (document.readyState === 'complete') {
+      setTimeout(dismiss, MIN_MS);
+    } else {
+      window.addEventListener('load', dismiss);
+    }
+    setTimeout(dismiss, 4800); /* hard safety fallback */
+  }
+
+  /* When mode-choosing is shown, defer the loader until user picks Animated.
+     Otherwise auto-start immediately (returning visitor with saved mode). */
+  if (document.documentElement.classList.contains('mode-choosing')) {
+    window.__startLoader = startLoader;
+  } else {
+    startLoader();
+  }
 })();
 </script>
 
 <script src="script.js"></script>
+
+<script>
+// ── Mode System ───────────────────────────────────────────
+(function () {
+  function setMode(mode) {
+    localStorage.setItem('siteMode', mode);
+    document.documentElement.classList.remove('mode-minimal', 'mode-animated', 'mode-choosing');
+    document.documentElement.classList.add('mode-' + mode);
+    updateToggleLabel(mode);
+  }
+
+  function updateToggleLabel(mode) {
+    var lbl = document.getElementById('mode-toggle-label');
+    if (lbl) lbl.textContent = mode === 'animated' ? 'Minimalistic' : 'Animated';
+  }
+
+  // Choice buttons in splash
+  var overlay = document.getElementById('mode-select');
+  document.querySelectorAll('.ms-half[data-mode]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var chosen = this.dataset.mode;
+      // Fade the overlay out, then apply mode
+      if (overlay) {
+        overlay.classList.add('ms-exit');
+        overlay.addEventListener('transitionend', function onDone() {
+          overlay.removeEventListener('transitionend', onDone);
+          setMode(chosen);
+          overlay.style.display = 'none';
+          overlay.classList.remove('ms-exit');
+          /* Fire the loader only after the user actively chose Animated */
+          if (chosen === 'animated' && typeof window.__startLoader === 'function') {
+            window.__startLoader();
+            window.__startLoader = null;
+          }
+        });
+      } else {
+        setMode(chosen);
+      }
+    });
+  });
+
+  // Persistent toggle
+  var toggle = document.getElementById('mode-toggle');
+  if (toggle) {
+    toggle.addEventListener('click', function () {
+      var cur = localStorage.getItem('siteMode') || 'animated';
+      setMode(cur === 'animated' ? 'minimal' : 'animated');
+    });
+  }
+
+  // Init label on page load
+  var stored = localStorage.getItem('siteMode');
+  if (stored) updateToggleLabel(stored);
+})();
+</script>
 
 <script>
 // Scroll-position save/restore (project pages + gallery)

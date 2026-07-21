@@ -7,7 +7,6 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
-  <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.14/dist/lenis.min.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
@@ -31,7 +30,7 @@
       --topbar-h: 56px;
       --r: 8px;
     }
-    html { font-family: var(--sans); font-size: 16px; color: var(--fg); background: var(--bg); }
+    html { font-family: var(--sans); font-size: 16px; color: var(--fg); background: var(--bg); scroll-behavior: auto; }
     body { overflow-x: hidden; }
     a { color: inherit; text-decoration: none; }
 
@@ -260,7 +259,7 @@
     .bar-quantum   { background: var(--accent); }
     .bar-zero      { background: var(--danger); width: 2px !important; }
     .sec-bar-val { font-size: 10px; font-family: var(--mono); color: var(--fg-faint); width: 42px; flex-shrink: 0; }
-    .js-animate .section.s-in .sec-bar-fill { transform: scaleX(1) !important; }
+    .sec-bar-fill { transform-origin: left; }
 
     /* ─── Lattice canvas ─── */
     .lattice-split { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; margin-top: 40px; align-items: center; }
@@ -401,133 +400,89 @@
     footer a { color: var(--fg-muted); font-weight: 600; }
     footer a:hover { color: var(--accent); }
 
-    /* ─── ANIMATION SYSTEM ─── */
-    .js-animate .section {
-      opacity: 0; transform: translateY(20px);
-      transition: opacity 0.65s var(--ease-out), transform 0.75s var(--ease-out);
+    /* ─── ANIMATION SYSTEM (IO-triggered transitions — no scroll-driven dependency) ─── */
+
+    /* ─── ANIMATION SYSTEM — .ready pattern (matches diabetes/elderlyai) ─── */
+
+    .js-animate .section-label.ready {
+      opacity: 0; transform: translateX(-56px);
+      transition: opacity 0.42s var(--ease-out), transform 0.45s var(--ease-out);
     }
-    .js-animate .section.s-in { opacity: 1; transform: none; }
-    /* Algo cards — scale + fade, stagger */
+    .js-animate .section-label.ready.in-view { opacity: 1; transform: none; }
+
+    .js-animate .section-h2.ready {
+      opacity: 0; filter: blur(20px); transform: translateY(40px);
+      transition: opacity 0.8s var(--ease-out) 0.12s,
+                  filter 0.9s var(--ease-out) 0.12s,
+                  transform 0.75s var(--ease-out) 0.12s;
+      will-change: opacity, filter, transform;
+    }
+    .js-animate .section-h2.ready.in-view { opacity: 1; filter: blur(0px); transform: none; }
+
+    .js-animate .section-prose.ready {
+      opacity: 0; transform: translateY(20px);
+      transition: opacity 0.65s var(--ease-out) 0.22s, transform 0.7s var(--ease-out) 0.22s;
+    }
+    .js-animate .section-prose.ready.in-view { opacity: 1; transform: none; }
+
+    .js-animate .links-h2.ready {
+      opacity: 0; filter: blur(20px); transform: translateY(40px);
+      transition: opacity 0.8s var(--ease-out), filter 0.9s var(--ease-out), transform 0.75s var(--ease-out);
+      will-change: opacity, filter, transform;
+    }
+    .js-animate .links-h2.ready.in-view { opacity: 1; filter: blur(0px); transform: none; }
+
+    .js-animate .links-sub.ready {
+      opacity: 0; transform: translateY(24px) scale(0.96);
+      transition: opacity 0.6s var(--ease-out) 0.18s, transform 0.65s var(--ease-out) 0.18s;
+    }
+    .js-animate .links-sub.ready.in-view { opacity: 1; transform: none; }
+
+    .js-animate .caesar-demo.ready {
+      opacity: 0; transform: translateY(52px) scale(0.88);
+      transition: opacity 0.65s var(--ease-out), transform 0.7s var(--ease-out);
+    }
+    .js-animate .caesar-demo.ready.in-view { opacity: 1; transform: none; }
+
+    .js-animate .lattice-split.ready {
+      opacity: 0; transform: translateX(44px) scale(0.96);
+      transition: opacity 0.7s var(--ease-out) 0.05s, transform 0.75s var(--ease-out) 0.05s;
+    }
+    .js-animate .lattice-split.ready.in-view { opacity: 1; transform: none; }
+
+    .js-animate .lib-tabs.ready {
+      opacity: 0; transform: translateY(36px) scale(0.93);
+      transition: opacity 0.65s var(--ease-out) 0.08s, transform 0.7s var(--ease-out) 0.08s;
+    }
+    .js-animate .lib-tabs.ready.in-view { opacity: 1; transform: none; }
+
+    
+
+    /* ── Algo cards — scale bloom, stagger ── */
     .js-animate .algo-card {
-      opacity: 0; transform: translateY(20px) scale(0.97);
-      transition: opacity 0.5s var(--ease-out), transform 0.6s var(--ease-out);
+      opacity: 0; transform: translateY(30px) scale(0.93);
+      transition: opacity 0.65s var(--ease-out), transform 0.7s var(--ease-out);
     }
-    .js-animate .section.s-in .algo-card { opacity: 1; transform: none; }
-    .js-animate .section.s-in .algo-card:nth-child(1) { transition-delay: 0.06s; }
-    .js-animate .section.s-in .algo-card:nth-child(2) { transition-delay: 0.12s; }
-    .js-animate .section.s-in .algo-card:nth-child(3) { transition-delay: 0.18s; }
-    .js-animate .section.s-in .algo-card:nth-child(4) { transition-delay: 0.24s; }
-    .js-animate .section.s-in .algo-card:nth-child(5) { transition-delay: 0.30s; }
-    .js-animate .section.s-in .algo-card:nth-child(6) { transition-delay: 0.36s; }
-    /* Caesar demo wipe */
-    .js-animate .caesar-demo {
-      clip-path: inset(0 100% 0 0); opacity: 0;
-      transition: clip-path 0.7s var(--ease-out) 0.08s, opacity 0.25s var(--ease-out);
-    }
-    .js-animate .section.s-in .caesar-demo { clip-path: inset(0 0% 0 0); opacity: 1; }
-    /* AES rounds stagger */
+    .js-animate .algo-grid.revealed .algo-card { opacity: 1; transform: none; }
+    .algo-grid.revealed .algo-card:nth-child(1) { transition-delay: 0.00s; }
+    .algo-grid.revealed .algo-card:nth-child(2) { transition-delay: 0.07s; }
+    .algo-grid.revealed .algo-card:nth-child(3) { transition-delay: 0.14s; }
+    .algo-grid.revealed .algo-card:nth-child(4) { transition-delay: 0.21s; }
+    .algo-grid.revealed .algo-card:nth-child(5) { transition-delay: 0.28s; }
+    .algo-grid.revealed .algo-card:nth-child(6) { transition-delay: 0.35s; }
+    .js-animate .algo-card-type { opacity: 0; transition: opacity 0.35s var(--ease-out) 0.08s; }
+    .js-animate .algo-grid.revealed .algo-card-type { opacity: 1; }
+
+    /* ── AES rounds — scale bloom, stagger ── */
     .js-animate .aes-round {
-      opacity: 0; transform: translateY(16px) scale(0.95);
-      transition: opacity 0.45s var(--ease-out), transform 0.5s var(--ease-out);
+      opacity: 0; transform: translateY(24px) scale(0.94);
+      transition: opacity 0.6s var(--ease-out), transform 0.65s var(--ease-out);
     }
-    .js-animate .section.s-in .aes-round { opacity: 1; transform: none; }
-    .js-animate .section.s-in .aes-round:nth-child(1) { transition-delay: 0.05s; }
-    .js-animate .section.s-in .aes-round:nth-child(2) { transition-delay: 0.10s; }
-    .js-animate .section.s-in .aes-round:nth-child(3) { transition-delay: 0.15s; }
-    .js-animate .section.s-in .aes-round:nth-child(4) { transition-delay: 0.20s; }
-    /* Threat cards — slide from opposite sides */
-    .js-animate .threat-card.danger {
-      opacity: 0; transform: translateX(-32px);
-      transition: opacity 0.55s var(--ease-out) 0.05s, transform 0.65s var(--ease-out) 0.05s;
-    }
-    .js-animate .threat-card.safe {
-      opacity: 0; transform: translateX(32px);
-      transition: opacity 0.55s var(--ease-out) 0.12s, transform 0.65s var(--ease-out) 0.12s;
-    }
-    .js-animate .section.s-in .threat-card { opacity: 1; transform: none; }
-    /* Lattice split */
-    .js-animate .lattice-split {
-      opacity: 0; transform: translateY(20px);
-      transition: opacity 0.65s var(--ease-out) 0.08s, transform 0.75s var(--ease-out) 0.08s;
-    }
-    .js-animate .section.s-in .lattice-split { opacity: 1; transform: none; }
-    /* Kyber flow */
-    .js-animate .kyber-flow {
-      opacity: 0; transform: translateY(18px);
-      transition: opacity 0.6s var(--ease-out) 0.06s, transform 0.7s var(--ease-out) 0.06s;
-    }
-    .js-animate .section.s-in .kyber-flow { opacity: 1; transform: none; }
-    /* Lib tabs */
-    .js-animate .lib-tabs, .js-animate .lib-panel {
-      opacity: 0; transform: translateY(16px);
-      transition: opacity 0.55s var(--ease-out), transform 0.62s var(--ease-out);
-    }
-    .js-animate .section.s-in .lib-tabs { opacity: 1; transform: none; transition-delay: 0.05s; }
-    .js-animate .section.s-in .lib-panel { opacity: 1; transform: none; transition-delay: 0.12s; }
-    /* Takeaway cards stagger */
-    .js-animate .takeaway-card {
-      opacity: 0; transform: translateY(18px);
-      transition: opacity 0.48s var(--ease-out), transform 0.55s var(--ease-out);
-    }
-    .js-animate .section.s-in .takeaway-card { opacity: 1; transform: none; }
-    .js-animate .section.s-in .takeaway-card:nth-child(1) { transition-delay: 0.05s; }
-    .js-animate .section.s-in .takeaway-card:nth-child(2) { transition-delay: 0.11s; }
-    .js-animate .section.s-in .takeaway-card:nth-child(3) { transition-delay: 0.17s; }
-    .js-animate .section.s-in .takeaway-card:nth-child(4) { transition-delay: 0.23s; }
-    /* Link buttons stagger */
-    .js-animate .link-btn {
-      opacity: 0; transform: translateY(12px);
-      transition: opacity 0.42s var(--ease-out), transform 0.48s var(--ease-out);
-    }
-    .js-animate .links-cta.s-in .link-btn { opacity: 1; transform: none; }
-    .js-animate .links-cta.s-in .link-btn:nth-child(1) { transition-delay: 0.06s; }
-    .js-animate .links-cta.s-in .link-btn:nth-child(2) { transition-delay: 0.13s; }
-    .js-animate .links-cta.s-in { opacity: 1; transform: none; }
-    /* ─── Per-element cascade: label → h2 → prose → visuals ─── */
-
-    /* Section label: slides from left, fires first */
-    .js-animate .section-label {
-      opacity: 0; transform: translateX(-18px);
-      transition: opacity 0.4s var(--ease-out), transform 0.46s var(--ease-out);
-      transition-delay: 0s;
-    }
-    .js-animate .section.s-in .section-label {
-      opacity: 1; transform: none;
-    }
-
-    /* h2: clip-path wipe left → right, fires 70ms after label */
-    .js-animate .section-h2 {
-      clip-path: inset(0 102% 0 0);
-      transition: clip-path 0.75s var(--ease-out);
-      transition-delay: 0.07s;
-    }
-    .js-animate .section.s-in .section-h2 {
-      clip-path: inset(0 0% 0 0);
-    }
-
-    /* Prose: fades up, fires 200ms after label */
-    .js-animate .section-prose {
-      opacity: 0; transform: translateY(10px);
-      transition: opacity 0.52s var(--ease-out), transform 0.58s var(--ease-out);
-      transition-delay: 0.20s;
-    }
-    .js-animate .section.s-in .section-prose { opacity: 1; transform: none; }
-
-    /* Algo card types (sub-labels inside cards): delayed within each card */
-    .js-animate .algo-card-type {
-      opacity: 0;
-      transition: opacity 0.36s var(--ease-out);
-    }
-    .js-animate .section.s-in .algo-card-type { opacity: 1; }
-    .js-animate .section.s-in .algo-card:nth-child(1) .algo-card-type { transition-delay: 0.10s; }
-    .js-animate .section.s-in .algo-card:nth-child(2) .algo-card-type { transition-delay: 0.16s; }
-    .js-animate .section.s-in .algo-card:nth-child(3) .algo-card-type { transition-delay: 0.22s; }
-    .js-animate .section.s-in .algo-card:nth-child(4) .algo-card-type { transition-delay: 0.28s; }
-    .js-animate .section.s-in .algo-card:nth-child(5) .algo-card-type { transition-delay: 0.34s; }
-    .js-animate .section.s-in .algo-card:nth-child(6) .algo-card-type { transition-delay: 0.40s; }
-
-    /* Caesar demo: clip-path wipe */
-    /* (already handled above via caesar-demo clip-path) */
+    .js-animate .aes-grid.revealed .aes-round { opacity: 1; transform: none; }
+    .aes-grid.revealed .aes-round:nth-child(1) { transition-delay: 0.00s; }
+    .aes-grid.revealed .aes-round:nth-child(2) { transition-delay: 0.08s; }
+    .aes-grid.revealed .aes-round:nth-child(3) { transition-delay: 0.16s; }
+    .aes-grid.revealed .aes-round:nth-child(4) { transition-delay: 0.24s; }
 
     /* AES detail panel */
     .aes-detail.visible {
@@ -538,109 +493,117 @@
       to   { opacity: 1; transform: none; }
     }
 
-    /* Security row labels: slide from left, stagger */
+    /* ── Threat cards — slide from opposite sides ── */
+    .js-animate .threat-card.danger {
+      opacity: 0; transform: translateX(-36px);
+      transition: opacity 0.65s var(--ease-out), transform 0.7s var(--ease-out);
+    }
+    .js-animate .threat-card.safe {
+      opacity: 0; transform: translateX(36px);
+      transition: opacity 0.65s var(--ease-out) 0.08s, transform 0.7s var(--ease-out) 0.08s;
+    }
+    .js-animate .threat-grid.revealed .threat-card { opacity: 1; transform: none; }
+
+    /* ── Security chart rows — slide from left, stagger ── */
     .js-animate .sec-row-label {
-      opacity: 0; transform: translateX(-14px);
-      transition: opacity 0.4s var(--ease-out), transform 0.46s var(--ease-out);
+      opacity: 0; transform: translateX(-18px);
+      transition: opacity 0.5s var(--ease-out), transform 0.55s var(--ease-out);
     }
-    .js-animate .section.s-in .sec-row-label { opacity: 1; transform: none; }
-    .js-animate .section.s-in .security-chart > div:nth-child(1) .sec-row-label { transition-delay: 0.07s; }
-    .js-animate .section.s-in .security-chart > div:nth-child(2) .sec-row-label { transition-delay: 0.13s; }
-    .js-animate .section.s-in .security-chart > div:nth-child(3) .sec-row-label { transition-delay: 0.19s; }
-    .js-animate .section.s-in .security-chart > div:nth-child(4) .sec-row-label { transition-delay: 0.25s; }
+    .js-animate .security-chart.revealed .sec-row-label { opacity: 1; transform: none; }
+    .security-chart.revealed > div:nth-child(1) .sec-row-label { transition-delay: 0.00s; }
+    .security-chart.revealed > div:nth-child(2) .sec-row-label { transition-delay: 0.08s; }
+    .security-chart.revealed > div:nth-child(3) .sec-row-label { transition-delay: 0.16s; }
+    .security-chart.revealed > div:nth-child(4) .sec-row-label { transition-delay: 0.24s; }
+    .js-animate .sec-bar-fill { transform: scaleX(0) !important; transform-origin: left; transition: transform 0.7s var(--ease-out); }
+    .js-animate .security-chart.revealed .sec-bar-fill { transform: scaleX(1) !important; transition-delay: 0.12s; }
 
-    /* Lattice explain: stagger title → prose → formula → note */
+    /* ── Lattice split children — cascade when parent gets .ready.in-view ── */
     .js-animate .lattice-explain-title {
-      opacity: 0; transform: translateY(8px);
-      transition: opacity 0.44s var(--ease-out) 0.16s, transform 0.5s var(--ease-out) 0.16s;
+      opacity: 0; transform: translateY(14px);
+      transition: opacity 0.5s var(--ease-out) 0.15s, transform 0.55s var(--ease-out) 0.15s;
     }
-    .js-animate .section.s-in .lattice-explain-title { opacity: 1; transform: none; }
-
+    .js-animate .lattice-split.ready.in-view .lattice-explain-title { opacity: 1; transform: none; }
     .js-animate .lattice-formula {
-      clip-path: inset(0 102% 0 0);
-      transition: clip-path 0.62s var(--ease-out) 0.26s;
+      opacity: 0; transform: translateY(10px);
+      transition: opacity 0.5s var(--ease-out) 0.26s, transform 0.55s var(--ease-out) 0.26s;
     }
-    .js-animate .section.s-in .lattice-formula { clip-path: inset(0 0% 0 0); }
-
+    .js-animate .lattice-split.ready.in-view .lattice-formula { opacity: 1; transform: none; }
     .js-animate .lattice-explain-desc {
-      opacity: 0; transform: translateY(8px);
-      transition: opacity 0.44s var(--ease-out) 0.24s, transform 0.5s var(--ease-out) 0.24s;
+      opacity: 0; transform: translateY(10px);
+      transition: opacity 0.5s var(--ease-out) 0.24s, transform 0.55s var(--ease-out) 0.24s;
     }
-    .js-animate .section.s-in .lattice-explain-desc { opacity: 1; transform: none; }
-
+    .js-animate .lattice-split.ready.in-view .lattice-explain-desc { opacity: 1; transform: none; }
+    .js-animate .lattice-explain-desc + .lattice-explain-desc { transition-delay: 0.32s !important; }
     .js-animate .lattice-note {
-      opacity: 0; transform: translateY(8px);
-      transition: opacity 0.44s var(--ease-out) 0.38s, transform 0.5s var(--ease-out) 0.38s;
+      opacity: 0; transform: translateY(10px);
+      transition: opacity 0.5s var(--ease-out) 0.40s, transform 0.55s var(--ease-out) 0.40s;
     }
-    .js-animate .section.s-in .lattice-note { opacity: 1; transform: none; }
+    .js-animate .lattice-split.ready.in-view .lattice-note { opacity: 1; transform: none; }
 
-    /* Kyber party names: slide from their sides */
+    /* ── Kyber flow — stagger parties, steps, arrows ── */
     .js-animate .kyber-party:first-child .kyber-party-name {
-      opacity: 0; transform: translateX(-14px);
-      transition: opacity 0.42s var(--ease-out) 0.12s, transform 0.48s var(--ease-out) 0.12s;
+      opacity: 0; transform: translateX(-18px);
+      transition: opacity 0.55s var(--ease-out), transform 0.6s var(--ease-out);
     }
     .js-animate .kyber-party:last-child .kyber-party-name {
-      opacity: 0; transform: translateX(14px);
-      transition: opacity 0.42s var(--ease-out) 0.12s, transform 0.48s var(--ease-out) 0.12s;
+      opacity: 0; transform: translateX(18px);
+      transition: opacity 0.55s var(--ease-out) 0.06s, transform 0.6s var(--ease-out) 0.06s;
     }
-    .js-animate .section.s-in .kyber-party-name { opacity: 1; transform: none; }
-
-    /* Kyber steps: stagger */
+    .js-animate .kyber-flow.revealed .kyber-party-name { opacity: 1; transform: none; }
     .js-animate .kyber-step {
-      opacity: 0; transform: translateY(12px);
-      transition: opacity 0.44s var(--ease-out), transform 0.5s var(--ease-out);
+      opacity: 0; transform: translateY(22px) scale(0.95);
+      transition: opacity 0.55s var(--ease-out), transform 0.6s var(--ease-out);
     }
-    .js-animate .section.s-in .kyber-step { opacity: 1; transform: none; }
-    .js-animate .section.s-in .kyber-party:first-child .kyber-step:nth-child(1) { transition-delay: 0.20s; }
-    .js-animate .section.s-in .kyber-party:first-child .kyber-step:nth-child(2) { transition-delay: 0.30s; }
-    .js-animate .section.s-in .kyber-party:last-child  .kyber-step:nth-child(1) { transition-delay: 0.24s; }
-
-    /* Kyber arrows: fade in */
+    .js-animate .kyber-flow.revealed .kyber-step { opacity: 1; transform: none; }
+    .kyber-flow.revealed .kyber-party:first-child .kyber-step:nth-child(2) { transition-delay: 0.12s; }
+    .kyber-flow.revealed .kyber-party:first-child .kyber-step:nth-child(3) { transition-delay: 0.24s; }
+    .kyber-flow.revealed .kyber-party:last-child  .kyber-step:nth-child(2) { transition-delay: 0.18s; }
     .js-animate .kyber-arrow {
       opacity: 0;
-      transition: opacity 0.4s var(--ease-out) 0.32s;
+      transition: opacity 0.45s var(--ease-out) 0.24s;
     }
-    .js-animate .section.s-in .kyber-arrow { opacity: 1; }
-    .js-animate .section.s-in .kyber-arrow:nth-child(2) { transition-delay: 0.40s; }
+    .js-animate .kyber-flow.revealed .kyber-arrow { opacity: 1; }
+    .kyber-flow.revealed .kyber-arrow:nth-child(2) { transition-delay: 0.34s; }
 
-    /* Takeaway icons: pop in with scale */
+    /* ── Library tabs — handled by .ready.in-view above ── */
+
+    /* ── Takeaway cards — scale bloom stagger ── */
+    .js-animate .takeaway-card {
+      opacity: 0; transform: translateY(28px) scale(0.93);
+      transition: opacity 0.65s var(--ease-out), transform 0.7s var(--ease-out);
+    }
+    .js-animate .takeaway-grid.revealed .takeaway-card { opacity: 1; transform: none; }
+    .takeaway-grid.revealed .takeaway-card:nth-child(1) { transition-delay: 0.00s; }
+    .takeaway-grid.revealed .takeaway-card:nth-child(2) { transition-delay: 0.09s; }
+    .takeaway-grid.revealed .takeaway-card:nth-child(3) { transition-delay: 0.18s; }
+    .takeaway-grid.revealed .takeaway-card:nth-child(4) { transition-delay: 0.27s; }
     .js-animate .takeaway-icon {
       opacity: 0; transform: scale(0.5);
-      transition: opacity 0.38s var(--ease-out), transform 0.42s var(--ease-out);
+      transition: opacity 0.4s var(--ease-out) 0.1s, transform 0.45s var(--ease-out) 0.1s;
     }
-    .js-animate .section.s-in .takeaway-icon { opacity: 1; transform: scale(1); }
-    .js-animate .section.s-in .takeaway-card:nth-child(1) .takeaway-icon { transition-delay: 0.09s; }
-    .js-animate .section.s-in .takeaway-card:nth-child(2) .takeaway-icon { transition-delay: 0.15s; }
-    .js-animate .section.s-in .takeaway-card:nth-child(3) .takeaway-icon { transition-delay: 0.21s; }
-    .js-animate .section.s-in .takeaway-card:nth-child(4) .takeaway-icon { transition-delay: 0.27s; }
-
-    /* Takeaway titles: slide up after icon */
+    .js-animate .takeaway-grid.revealed .takeaway-icon { opacity: 1; transform: scale(1); }
+    .takeaway-grid.revealed .takeaway-card:nth-child(1) .takeaway-icon { transition-delay: 0.04s; }
+    .takeaway-grid.revealed .takeaway-card:nth-child(2) .takeaway-icon { transition-delay: 0.13s; }
+    .takeaway-grid.revealed .takeaway-card:nth-child(3) .takeaway-icon { transition-delay: 0.22s; }
+    .takeaway-grid.revealed .takeaway-card:nth-child(4) .takeaway-icon { transition-delay: 0.31s; }
     .js-animate .takeaway-title {
-      opacity: 0; transform: translateY(6px);
-      transition: opacity 0.4s var(--ease-out), transform 0.46s var(--ease-out);
-    }
-    .js-animate .section.s-in .takeaway-title { opacity: 1; transform: none; }
-    .js-animate .section.s-in .takeaway-card:nth-child(1) .takeaway-title { transition-delay: 0.16s; }
-    .js-animate .section.s-in .takeaway-card:nth-child(2) .takeaway-title { transition-delay: 0.22s; }
-    .js-animate .section.s-in .takeaway-card:nth-child(3) .takeaway-title { transition-delay: 0.28s; }
-    .js-animate .section.s-in .takeaway-card:nth-child(4) .takeaway-title { transition-delay: 0.34s; }
-
-    /* Links CTA heading: clip-path wipe */
-    .js-animate .links-h2 {
-      clip-path: inset(0 102% 0 0);
-      transition: clip-path 0.72s var(--ease-out) 0.05s;
-    }
-    .js-animate .links-cta.s-in .links-h2 { clip-path: inset(0 0% 0 0); }
-
-    /* Links sub: fades up */
-    .js-animate .links-sub {
       opacity: 0; transform: translateY(8px);
       transition: opacity 0.45s var(--ease-out) 0.18s, transform 0.5s var(--ease-out) 0.18s;
     }
-    .js-animate .links-cta.s-in .links-sub { opacity: 1; transform: none; }
+    .js-animate .takeaway-grid.revealed .takeaway-title { opacity: 1; transform: none; }
+    .takeaway-grid.revealed .takeaway-card:nth-child(1) .takeaway-title { transition-delay: 0.10s; }
+    .takeaway-grid.revealed .takeaway-card:nth-child(2) .takeaway-title { transition-delay: 0.19s; }
+    .takeaway-grid.revealed .takeaway-card:nth-child(3) .takeaway-title { transition-delay: 0.28s; }
+    .takeaway-grid.revealed .takeaway-card:nth-child(4) .takeaway-title { transition-delay: 0.37s; }
 
-    /* Hero always visible */
-    .hero { opacity: 1 !important; transform: none !important; }
+    /* ── Link buttons — rise up stagger ── */
+    .js-animate .link-btn {
+      opacity: 0; transform: translateY(18px);
+      transition: opacity 0.5s var(--ease-out), transform 0.55s var(--ease-out);
+    }
+    .js-animate .links-btns.revealed .link-btn { opacity: 1; transform: none; }
+    .links-btns.revealed .link-btn:nth-child(1) { transition-delay: 0.00s; }
+    .links-btns.revealed .link-btn:nth-child(2) { transition-delay: 0.09s; }
 
     /* ─── Responsive ─── */
     @media (max-width: 900px) {
@@ -663,27 +626,9 @@
       .hero-stat { border-right: none; border-bottom: 1px solid var(--border); }
       .hero-stat:last-child { border-bottom: none; }
     }
-    @media (prefers-reduced-motion: reduce) {
-      .js-animate .section, .js-animate .algo-card, .js-animate .caesar-demo,
-      .js-animate .aes-round, .js-animate .threat-card,
-      .js-animate .lattice-split, .js-animate .kyber-flow,
-      .js-animate .lib-tabs, .js-animate .lib-panel,
-      .js-animate .takeaway-card, .js-animate .link-btn,
-      .js-animate .links-cta, .js-animate .section-label,
-      .js-animate .section-h2, .js-animate .section-prose,
-      .js-animate .algo-card-type, .js-animate .sec-row-label,
-      .js-animate .lattice-explain-title, .js-animate .lattice-formula,
-      .js-animate .lattice-explain-desc, .js-animate .lattice-note,
-      .js-animate .kyber-party-name, .js-animate .kyber-step,
-      .js-animate .kyber-arrow, .js-animate .takeaway-icon,
-      .js-animate .takeaway-title, .js-animate .links-h2,
-      .js-animate .links-sub {
-        opacity: 1 !important; transform: none !important;
-        clip-path: none !important; transition: none !important; animation: none !important;
-      }
-      .sec-bar-fill { transform: none !important; transition: none !important; }
-    }
+    
   </style>
+  <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.14/dist/lenis.min.js"></script>
 </head>
 <body>
 
@@ -1155,31 +1100,74 @@
   /* ─── Boot ─── */
   document.documentElement.classList.add('js-animate');
 
-  /* ─── Lenis ─── */
-  var lenis = new Lenis({ lerp: 0.08, smoothWheel: true });
-  function raf(t) { lenis.raf(t); requestAnimationFrame(raf); }
-  requestAnimationFrame(raf);
+  /* ─── Lenis smooth scroll ─── */
+  var lenis = null;
+  try {
+    if (typeof Lenis === 'function') {
+      lenis = new Lenis({ duration: 1.2, easing: function(t){ return 1-Math.pow(1-t,4); }, smoothWheel: true });
+      function raf(t){ lenis.raf(t); requestAnimationFrame(raf); }
+      requestAnimationFrame(raf);
+    }
+  } catch(e) { lenis = null; }
 
-  /* ─── Progress bar ─── */
+  /* ─── Progress bar (native) ─── */
   var pb = document.getElementById('progress-bar');
-  lenis.on('scroll', function(e) { pb.style.transform = 'scaleX(' + e.progress + ')'; });
+  function updateProgress() {
+    var max = document.documentElement.scrollHeight - window.innerHeight;
+    pb.style.transform = max > 0 ? 'scaleX(' + (window.scrollY / max) + ')' : 'scaleX(0)';
+  }
 
   /* ─── Topbar ─── */
   var topbar = document.getElementById('topbar');
+
   window.addEventListener('scroll', function() {
     topbar.classList.toggle('scrolled', window.scrollY > 8);
+    updateProgress();
   }, { passive: true });
+  requestAnimationFrame(updateProgress);
 
-  /* ─── Section-level IO — ONE observer per section ─── */
-  document.querySelectorAll('.section, .links-cta').forEach(function(section) {
-    var obs = new IntersectionObserver(function(entries) {
-      if (entries[0].isIntersecting) {
-        section.classList.add('s-in');
-        obs.disconnect();
-      }
-    }, { threshold: 0.06, rootMargin: '0px 0px -60px 0px' });
-    obs.observe(section);
+  /* ─── Reveal system ─── */
+  var revealSels = ['.section-label','.section-h2','.section-prose',
+                    '.links-h2','.links-sub','.caesar-demo','.lattice-split','.lib-tabs'];
+  var reveals = [];
+  revealSels.forEach(function(sel) {
+    Array.prototype.push.apply(reveals, Array.prototype.slice.call(document.querySelectorAll(sel)));
   });
+
+  if (reveals.length && window.IntersectionObserver) {
+    /* IO set up SYNCHRONOUSLY before any rAF */
+    var revealObs = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('in-view');
+          revealObs.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.05, rootMargin: '0px 0px -30px 0px' });
+    reveals.forEach(function(el) { revealObs.observe(el); });
+
+    /* rAF1: add .ready (CSS hides) → rAF2: immediately reveal in-viewport ones */
+    requestAnimationFrame(function() {
+      reveals.forEach(function(el) { el.classList.add('ready'); });
+      requestAnimationFrame(function() {
+        reveals.forEach(function(el) {
+          if (el.getBoundingClientRect().top < window.innerHeight * 0.95) {
+            el.classList.add('in-view');
+          }
+        });
+      });
+    });
+  }
+
+  /* ─── Container stagger (CSS class-based) ─── */
+  var containerObs = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) { entry.target.classList.add('revealed'); containerObs.unobserve(entry.target); }
+    });
+  }, { threshold: 0.04, rootMargin: '0px 0px -40px 0px' });
+  document.querySelectorAll(
+    '.algo-grid, .aes-grid, .threat-grid, .security-chart, .kyber-flow, .takeaway-grid, .links-btns'
+  ).forEach(function(el) { containerObs.observe(el); });
 
   /* ─── Hero canvas (animated lattice) ─── */
   (function() {
@@ -1406,16 +1394,15 @@
     });
   });
 
-  /* ─── Library tabs ─── */
   document.querySelectorAll('.lib-tab').forEach(function(tab) {
     tab.addEventListener('click', function() {
-      var t = tab.getAttribute('data-tab');
-      document.querySelectorAll('.lib-tab').forEach(function(tb) { tb.classList.remove('active'); });
+      document.querySelectorAll('.lib-tab').forEach(function(t) { t.classList.remove('active'); });
       document.querySelectorAll('.lib-panel').forEach(function(p) { p.classList.remove('active'); });
       tab.classList.add('active');
-      document.getElementById('lib-' + t).classList.add('active');
+      document.getElementById('lib-' + tab.getAttribute('data-tab')).classList.add('active');
     });
   });
 </script>
 </body>
 </html>
+<!-- updated Mon Jul 20 21:10:05 PDT 2026 -->

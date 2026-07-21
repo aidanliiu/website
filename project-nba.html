@@ -7,10 +7,10 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
-  <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.14/dist/lenis.min.js"></script>
   <style>
     /* ─── Reset & tokens ─── */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: auto; }
     :root {
       --bg: #f4f2ef;
       --fg: #100f0d;
@@ -428,236 +428,200 @@
     footer a:hover { color: var(--accent); }
     .footer-wrap { border-top: 1px solid var(--border); }
 
-    /* ─── ANIMATION SYSTEM ─── */
-    /* Base: sections start hidden */
-    .js-animate .section,
-    .js-animate .links-cta {
+    /* ─── ANIMATION SYSTEM — .ready pattern (matches diabetes/elderlyai) ─── */
+    /* Elements only hide AFTER JS adds .ready in rAF1, ensuring a painted
+       opacity:0 frame exists before .in-view triggers the transition */
+
+    .js-animate .section-label-pill.ready {
+      opacity: 0; transform: translateX(-56px);
+      transition: opacity 0.45s var(--ease-out), transform 0.48s var(--ease-out);
+    }
+    .js-animate .section-label-pill.ready.in-view { opacity: 1; transform: none; }
+
+    .js-animate .section-h2.ready {
+      opacity: 0; filter: blur(20px); transform: translateY(40px);
+      transition: opacity 0.8s var(--ease-out) 0.12s,
+                  filter 0.9s var(--ease-out) 0.12s,
+                  transform 0.75s var(--ease-out) 0.12s;
+      will-change: opacity, filter, transform;
+    }
+    .js-animate .section-h2.ready.in-view { opacity: 1; filter: blur(0px); transform: none; }
+
+    .js-animate .section-prose.ready {
       opacity: 0; transform: translateY(20px);
-      transition: opacity 0.65s var(--ease-out), transform 0.75s var(--ease-out);
+      transition: opacity 0.65s var(--ease-out) 0.22s, transform 0.7s var(--ease-out) 0.22s;
     }
-    .js-animate .section.s-in,
-    .js-animate .links-cta.s-in {
-      opacity: 1; transform: none;
-    }
-    /* Dataset cards — scale + fade, stagger */
-    .js-animate .dataset-card {
-      opacity: 0; transform: translateY(22px) scale(0.97);
-      transition: opacity 0.5s var(--ease-out), transform 0.6s var(--ease-out);
-    }
-    .js-animate .section.s-in .dataset-card { opacity: 1; transform: none; }
-    .js-animate .section.s-in .dataset-card:nth-child(1) { transition-delay: 0.07s; }
-    .js-animate .section.s-in .dataset-card:nth-child(2) { transition-delay: 0.15s; }
-    .js-animate .section.s-in .dataset-card:nth-child(3) { transition-delay: 0.23s; }
-    /* Pipeline steps — slide from left, stagger */
-    .js-animate .pipeline-step {
-      opacity: 0; transform: translateX(-18px);
-      transition: opacity 0.48s var(--ease-out), transform 0.56s var(--ease-out);
-    }
-    .js-animate .section.s-in .pipeline-step { opacity: 1; transform: none; }
-    .js-animate .section.s-in .pipeline-step:nth-child(1) { transition-delay: 0.03s; }
-    .js-animate .section.s-in .pipeline-step:nth-child(2) { transition-delay: 0.07s; }
-    .js-animate .section.s-in .pipeline-step:nth-child(3) { transition-delay: 0.11s; }
-    .js-animate .section.s-in .pipeline-step:nth-child(4) { transition-delay: 0.15s; }
-    .js-animate .section.s-in .pipeline-step:nth-child(5) { transition-delay: 0.19s; }
-    .js-animate .section.s-in .pipeline-step:nth-child(6) { transition-delay: 0.23s; }
-    .js-animate .section.s-in .pipeline-step:nth-child(7) { transition-delay: 0.27s; }
-    .js-animate .section.s-in .pipeline-step:nth-child(8) { transition-delay: 0.31s; }
-    .js-animate .section.s-in .pipeline-step:nth-child(9) { transition-delay: 0.35s; }
-    /* Code block — clip-path wipe */
-    .js-animate .code-block {
-      clip-path: inset(0 100% 0 0); opacity: 0;
-      transition: clip-path 0.7s var(--ease-out) 0.08s, opacity 0.25s var(--ease-out);
-    }
-    .js-animate .section.s-in .code-block { clip-path: inset(0 0% 0 0); opacity: 1; }
-    /* Models grid */
-    .js-animate .models-grid {
-      opacity: 0; transform: translateY(18px);
-      transition: opacity 0.6s var(--ease-out) 0.08s, transform 0.7s var(--ease-out) 0.08s;
-    }
-    .js-animate .section.s-in .models-grid { opacity: 1; transform: none; }
-    /* Feat bars animate on s-in */
-    .js-animate .section.s-in .feat-bar-fill { transform: scaleX(1) !important; }
-    /* Results players — slide from left, stagger */
-    .js-animate .results-player {
-      opacity: 0; transform: translateX(-14px);
-      transition: opacity 0.48s var(--ease-out), transform 0.56s var(--ease-out);
-    }
-    .js-animate .section.s-in .results-player { opacity: 1; transform: none; }
-    .js-animate .section.s-in .results-player:nth-child(1) { transition-delay: 0.04s; }
-    .js-animate .section.s-in .results-player:nth-child(2) { transition-delay: 0.11s; }
-    .js-animate .section.s-in .results-player:nth-child(3) { transition-delay: 0.18s; }
-    .js-animate .section.s-in .results-player:nth-child(4) { transition-delay: 0.25s; }
-    .js-animate .section.s-in .results-bar-fill { transform: scaleX(1) !important; }
-    /* Ranking items — scale up, stagger */
-    .js-animate .ranking-item {
-      opacity: 0; transform: translateY(14px) scale(0.95);
-      transition: opacity 0.42s var(--ease-out), transform 0.48s var(--ease-out);
-    }
-    .js-animate .section.s-in .ranking-item { opacity: 1; transform: none; }
-    .js-animate .section.s-in .ranking-item:nth-child(1) { transition-delay: 0.04s; }
-    .js-animate .section.s-in .ranking-item:nth-child(2) { transition-delay: 0.07s; }
-    .js-animate .section.s-in .ranking-item:nth-child(3) { transition-delay: 0.10s; }
-    .js-animate .section.s-in .ranking-item:nth-child(4) { transition-delay: 0.13s; }
-    .js-animate .section.s-in .ranking-item:nth-child(5) { transition-delay: 0.16s; }
-    .js-animate .section.s-in .ranking-item:nth-child(6) { transition-delay: 0.19s; }
-    .js-animate .section.s-in .ranking-item:nth-child(7) { transition-delay: 0.22s; }
-    /* Table rows — slide from left */
-    .js-animate tbody tr {
-      opacity: 0; transform: translateX(-8px);
-      transition: opacity 0.38s var(--ease-out), transform 0.44s var(--ease-out);
-    }
-    .js-animate .section.s-in tbody tr { opacity: 1; transform: none; }
-    .js-animate .section.s-in tbody tr:nth-child(1) { transition-delay: 0.04s; }
-    .js-animate .section.s-in tbody tr:nth-child(2) { transition-delay: 0.07s; }
-    .js-animate .section.s-in tbody tr:nth-child(3) { transition-delay: 0.10s; }
-    .js-animate .section.s-in tbody tr:nth-child(4) { transition-delay: 0.13s; }
-    .js-animate .section.s-in tbody tr:nth-child(5) { transition-delay: 0.16s; }
-    .js-animate .section.s-in tbody tr:nth-child(6) { transition-delay: 0.19s; }
-    .js-animate .section.s-in tbody tr:nth-child(7) { transition-delay: 0.22s; }
-    .js-animate .section.s-in tbody tr:nth-child(8) { transition-delay: 0.25s; }
-    /* Takeaways — slide from left, stagger */
-    .js-animate .takeaway-item {
-      opacity: 0; transform: translateX(-14px);
-      transition: opacity 0.5s var(--ease-out), transform 0.58s var(--ease-out);
-    }
-    .js-animate .section.s-in .takeaway-item { opacity: 1; transform: none; }
-    .js-animate .section.s-in .takeaway-item:nth-child(1) { transition-delay: 0.05s; }
-    .js-animate .section.s-in .takeaway-item:nth-child(2) { transition-delay: 0.12s; }
-    .js-animate .section.s-in .takeaway-item:nth-child(3) { transition-delay: 0.19s; }
-    .js-animate .section.s-in .takeaway-item:nth-child(4) { transition-delay: 0.26s; }
-    /* Link buttons — rise up, stagger */
-    .js-animate .link-btn {
-      opacity: 0; transform: translateY(14px);
-      transition: opacity 0.42s var(--ease-out), transform 0.48s var(--ease-out);
-    }
-    .js-animate .links-cta.s-in .link-btn { opacity: 1; transform: none; }
-    .js-animate .links-cta.s-in .link-btn:nth-child(1) { transition-delay: 0.07s; }
-    .js-animate .links-cta.s-in .link-btn:nth-child(2) { transition-delay: 0.14s; }
-    .js-animate .links-cta.s-in .link-btn:nth-child(3) { transition-delay: 0.21s; }
-    /* ─── Per-element cascade: label → h2 → prose → visuals ─── */
+    .js-animate .section-prose.ready.in-view { opacity: 1; transform: none; }
 
-    /* Section label pill: slides from left, fires first */
-    .js-animate .section-label-pill {
-      opacity: 0; transform: translateX(-18px);
-      transition: opacity 0.4s var(--ease-out), transform 0.46s var(--ease-out);
-      transition-delay: 0s;
+    .js-animate .results-callout.ready {
+      opacity: 0; transform: translateY(52px) scale(0.86);
+      transition: opacity 0.65s var(--ease-out), transform 0.7s var(--ease-out);
     }
-    .js-animate .section.s-in .section-label-pill {
-      opacity: 1; transform: none;
+    .js-animate .results-callout.ready.in-view { opacity: 1; transform: none; }
+
+    .js-animate .results-legend.ready {
+      opacity: 0; transform: translateX(40px);
+      transition: opacity 0.5s var(--ease-out) 0.08s, transform 0.55s var(--ease-out) 0.08s;
+    }
+    .js-animate .results-legend.ready.in-view { opacity: 1; transform: none; }
+
+    .js-animate .links-h2.ready {
+      opacity: 0; filter: blur(20px); transform: translateY(40px);
+      transition: opacity 0.8s var(--ease-out), filter 0.9s var(--ease-out), transform 0.75s var(--ease-out);
+      will-change: opacity, filter, transform;
+    }
+    .js-animate .links-h2.ready.in-view { opacity: 1; filter: blur(0px); transform: none; }
+
+    .js-animate .links-sub.ready {
+      opacity: 0; transform: translateY(24px) scale(0.96);
+      transition: opacity 0.6s var(--ease-out) 0.18s, transform 0.65s var(--ease-out) 0.18s;
+    }
+    .js-animate .links-sub.ready.in-view { opacity: 1; transform: none; }
+
+    .js-animate .results-player.ready {
+      opacity: 0; transform: translateX(-32px);
+      transition: opacity 0.55s var(--ease-out), transform 0.6s var(--ease-out);
+    }
+    .js-animate .results-player.ready.in-view { opacity: 1; transform: none; }
+    .js-animate .results-bar-fill { transform: scaleX(0) !important; transform-origin: left; transition: transform 0.72s var(--ease-out); }
+    .js-animate .results-player.ready.in-view .results-bar-fill {
+      transform: scaleX(1) !important;
+      transition-delay: calc(var(--ri, 0) * 0.08s + 0.12s);
     }
 
-    /* h2: clip-path wipe left → right, fires 70ms after label */
-    .js-animate .section-h2 {
-      clip-path: inset(0 102% 0 0);
-      transition: clip-path 0.75s var(--ease-out);
-      transition-delay: 0.07s;
-    }
-    .js-animate .section.s-in .section-h2 {
-      clip-path: inset(0 0% 0 0);
-    }
+    
 
-    /* Prose text: fade up, fires 200ms after label */
-    .js-animate .section-prose {
-      opacity: 0; transform: translateY(10px);
-      transition: opacity 0.52s var(--ease-out), transform 0.58s var(--ease-out);
-      transition-delay: 0.2s;
-    }
-    .js-animate .section.s-in .section-prose {
-      opacity: 1; transform: none;
-    }
-    /* Second prose block: slightly later */
-    .js-animate .section.s-in .section-prose + .section-prose {
-      transition-delay: 0.27s;
-    }
-
-    /* Overview stats: stagger up */
+    /* ── Overview stats — scale bloom, stagger ── */
     .js-animate .overview-stat {
-      opacity: 0; transform: translateY(16px);
-      transition: opacity 0.46s var(--ease-out), transform 0.52s var(--ease-out);
+      opacity: 0; transform: translateY(28px) scale(0.94);
+      transition: opacity 0.65s var(--ease-out), transform 0.7s var(--ease-out);
     }
-    .js-animate .section.s-in .overview-stat { opacity: 1; transform: none; }
-    .js-animate .section.s-in .overview-stat:nth-child(1) { transition-delay: 0.20s; }
-    .js-animate .section.s-in .overview-stat:nth-child(2) { transition-delay: 0.27s; }
-    .js-animate .section.s-in .overview-stat:nth-child(3) { transition-delay: 0.34s; }
-    .js-animate .section.s-in .overview-stat:nth-child(4) { transition-delay: 0.41s; }
+    .js-animate .overview-grid.revealed .overview-stat { opacity: 1; transform: none; }
+    .overview-grid.revealed .overview-stat:nth-child(1) { transition-delay: 0.00s; }
+    .overview-grid.revealed .overview-stat:nth-child(2) { transition-delay: 0.10s; }
+    .overview-grid.revealed .overview-stat:nth-child(3) { transition-delay: 0.20s; }
+    .overview-grid.revealed .overview-stat:nth-child(4) { transition-delay: 0.30s; }
+    /* Accent bars draw left→right with stats */
+    .js-animate .accent-bar { transform: scaleX(0); transform-origin: left; transition: transform 0.5s var(--ease-out); }
+    .overview-grid.revealed .overview-stat:nth-child(1) .accent-bar { transform: scaleX(1); transition-delay: 0.00s; }
+    .overview-grid.revealed .overview-stat:nth-child(2) .accent-bar { transform: scaleX(1); transition-delay: 0.10s; }
+    .overview-grid.revealed .overview-stat:nth-child(3) .accent-bar { transform: scaleX(1); transition-delay: 0.20s; }
+    .overview-grid.revealed .overview-stat:nth-child(4) .accent-bar { transform: scaleX(1); transition-delay: 0.30s; }
 
-    /* Accent bar: draws in left → right */
-    .js-animate .accent-bar {
-      transform: scaleX(0); transform-origin: left;
-      transition: transform 0.4s var(--ease-out);
+    /* ── Dataset cards — scale bloom, stagger ── */
+    .js-animate .dataset-card {
+      opacity: 0; transform: translateY(32px) scale(0.93);
+      transition: background 0.2s var(--ease-out), opacity 0.7s var(--ease-out), transform 0.75s var(--ease-out);
     }
-    .js-animate .section.s-in .overview-stat:nth-child(1) .accent-bar { transform: scaleX(1); transition-delay: 0.20s; }
-    .js-animate .section.s-in .overview-stat:nth-child(2) .accent-bar { transform: scaleX(1); transition-delay: 0.27s; }
-    .js-animate .section.s-in .overview-stat:nth-child(3) .accent-bar { transform: scaleX(1); transition-delay: 0.34s; }
-    .js-animate .section.s-in .overview-stat:nth-child(4) .accent-bar { transform: scaleX(1); transition-delay: 0.41s; }
+    .js-animate .datasets-grid.revealed .dataset-card { opacity: 1; transform: none; }
+    .datasets-grid.revealed .dataset-card:nth-child(1) { transition-delay: 0.00s; }
+    .datasets-grid.revealed .dataset-card:nth-child(2) { transition-delay: 0.11s; }
+    .datasets-grid.revealed .dataset-card:nth-child(3) { transition-delay: 0.22s; }
 
-    /* Features title: slides from left after prose */
-    .js-animate .features-title {
-      opacity: 0; transform: translateX(-12px);
-      transition: opacity 0.4s var(--ease-out) 0.22s, transform 0.46s var(--ease-out) 0.22s;
-    }
-    .js-animate .section.s-in .features-title { opacity: 1; transform: none; }
-
-    /* Feature pills: pop up in sequence */
+    /* ── Feature pills — pop up stagger ── */
     .js-animate .pill {
-      opacity: 0; transform: translateY(8px) scale(0.94);
-      transition: opacity 0.34s var(--ease-out), transform 0.38s var(--ease-out);
+      opacity: 0; transform: translateY(8px) scale(0.88);
+      transition: opacity 0.4s var(--ease-out), transform 0.45s var(--ease-out);
     }
-    .js-animate .section.s-in .pill { opacity: 1; transform: none; }
-    .js-animate .section.s-in .pill:nth-child(1)  { transition-delay: 0.30s; }
-    .js-animate .section.s-in .pill:nth-child(2)  { transition-delay: 0.33s; }
-    .js-animate .section.s-in .pill:nth-child(3)  { transition-delay: 0.36s; }
-    .js-animate .section.s-in .pill:nth-child(4)  { transition-delay: 0.39s; }
-    .js-animate .section.s-in .pill:nth-child(5)  { transition-delay: 0.42s; }
-    .js-animate .section.s-in .pill:nth-child(6)  { transition-delay: 0.45s; }
-    .js-animate .section.s-in .pill:nth-child(7)  { transition-delay: 0.48s; }
-    .js-animate .section.s-in .pill:nth-child(8)  { transition-delay: 0.51s; }
-    .js-animate .section.s-in .pill:nth-child(9)  { transition-delay: 0.54s; }
+    .js-animate .features-pills.revealed .pill { opacity: 1; transform: none; }
+    .features-pills.revealed .pill:nth-child(1)  { transition-delay: 0.00s; }
+    .features-pills.revealed .pill:nth-child(2)  { transition-delay: 0.04s; }
+    .features-pills.revealed .pill:nth-child(3)  { transition-delay: 0.08s; }
+    .features-pills.revealed .pill:nth-child(4)  { transition-delay: 0.12s; }
+    .features-pills.revealed .pill:nth-child(5)  { transition-delay: 0.16s; }
+    .features-pills.revealed .pill:nth-child(6)  { transition-delay: 0.20s; }
+    .features-pills.revealed .pill:nth-child(7)  { transition-delay: 0.24s; }
+    .features-pills.revealed .pill:nth-child(8)  { transition-delay: 0.28s; }
+    .features-pills.revealed .pill:nth-child(9)  { transition-delay: 0.32s; }
 
-    /* Feat importance title */
-    .js-animate .feat-importance-title {
-      opacity: 0; transform: translateX(-12px);
-      transition: opacity 0.4s var(--ease-out) 0.08s, transform 0.46s var(--ease-out) 0.08s;
+    /* ── Pipeline steps — slide from left, stagger ── */
+    .js-animate .pipeline-step {
+      opacity: 0; transform: translateX(-22px);
+      transition: opacity 0.6s var(--ease-out), transform 0.65s var(--ease-out);
     }
-    .js-animate .section.s-in .feat-importance-title { opacity: 1; transform: none; }
+    .js-animate .pipeline-steps.revealed .pipeline-step { opacity: 1; transform: none; }
+    .pipeline-steps.revealed .pipeline-step:nth-child(1) { transition-delay: 0.00s; }
+    .pipeline-steps.revealed .pipeline-step:nth-child(2) { transition-delay: 0.06s; }
+    .pipeline-steps.revealed .pipeline-step:nth-child(3) { transition-delay: 0.12s; }
+    .pipeline-steps.revealed .pipeline-step:nth-child(4) { transition-delay: 0.18s; }
+    .pipeline-steps.revealed .pipeline-step:nth-child(5) { transition-delay: 0.24s; }
+    .pipeline-steps.revealed .pipeline-step:nth-child(6) { transition-delay: 0.30s; }
+    .pipeline-steps.revealed .pipeline-step:nth-child(7) { transition-delay: 0.36s; }
+    .pipeline-steps.revealed .pipeline-step:nth-child(8) { transition-delay: 0.42s; }
+    .pipeline-steps.revealed .pipeline-step:nth-child(9) { transition-delay: 0.48s; }
 
-    /* Results callout: slides up after prose */
-    .js-animate .results-callout {
-      opacity: 0; transform: translateY(10px);
-      transition: opacity 0.5s var(--ease-out) 0.22s, transform 0.56s var(--ease-out) 0.22s;
+    /* ── Code block — scale bloom ── */
+    .js-animate .code-block {
+      opacity: 0; transform: translateY(28px) scale(0.97);
+      transition: opacity 0.7s var(--ease-out), transform 0.75s var(--ease-out);
     }
-    .js-animate .section.s-in .results-callout { opacity: 1; transform: none; }
+    .js-animate .code-block.revealed { opacity: 1; transform: none; }
 
-    /* Results legend: fade in */
-    .js-animate .results-legend {
-      opacity: 0;
-      transition: opacity 0.45s var(--ease-out) 0.26s;
+    /* ── Models grid + feat bars ── */
+    .js-animate .models-grid {
+      opacity: 0; transform: translateY(28px) scale(0.97);
+      transition: opacity 0.7s var(--ease-out), transform 0.75s var(--ease-out);
     }
-    .js-animate .section.s-in .results-legend { opacity: 1; }
+    .js-animate .models-grid.revealed { opacity: 1; transform: none; }
+    .js-animate .feat-bar-fill { transform: scaleX(0) !important; transform-origin: left; transition: transform 0.72s var(--ease-out); }
+    .js-animate .models-grid.revealed .feat-bar-fill { transform: scaleX(1) !important; transition-delay: var(--d, 0s); }
 
-    /* Season table thead: slide in from left */
-    .js-animate thead tr {
-      opacity: 0; transform: translateX(-10px);
-      transition: opacity 0.4s var(--ease-out) 0.2s, transform 0.46s var(--ease-out) 0.2s;
+    /* ── Results players — handled by .ready.in-view above ── */
+    .js-animate .results-bar-fill { transform: scaleX(0) !important; transform-origin: left; transition: transform 0.72s var(--ease-out); }
+    .js-animate .results-player.ready.in-view .results-bar-fill {
+      transform: scaleX(1) !important;
+      transition-delay: calc(var(--ri, 0) * 0.08s + 0.12s);
     }
-    .js-animate .section.s-in thead tr { opacity: 1; transform: none; }
 
-    /* Links CTA heading: clip-path wipe */
-    .js-animate .links-h2 {
-      clip-path: inset(0 102% 0 0);
-      transition: clip-path 0.72s var(--ease-out) 0.05s;
+    /* ── Ranking items — scale bloom stagger ── */
+    .js-animate .ranking-item {
+      opacity: 0; transform: translateY(18px) scale(0.92);
+      transition: opacity 0.5s var(--ease-out), transform 0.55s var(--ease-out);
     }
-    .js-animate .links-cta.s-in .links-h2 { clip-path: inset(0 0% 0 0); }
+    .js-animate .ranking-grid.revealed .ranking-item { opacity: 1; transform: none; }
+    .ranking-grid.revealed .ranking-item:nth-child(1) { transition-delay: 0.00s; }
+    .ranking-grid.revealed .ranking-item:nth-child(2) { transition-delay: 0.06s; }
+    .ranking-grid.revealed .ranking-item:nth-child(3) { transition-delay: 0.12s; }
+    .ranking-grid.revealed .ranking-item:nth-child(4) { transition-delay: 0.18s; }
+    .ranking-grid.revealed .ranking-item:nth-child(5) { transition-delay: 0.24s; }
+    .ranking-grid.revealed .ranking-item:nth-child(6) { transition-delay: 0.30s; }
+    .ranking-grid.revealed .ranking-item:nth-child(7) { transition-delay: 0.36s; }
 
-    /* Links sub: fades up */
-    .js-animate .links-sub {
-      opacity: 0; transform: translateY(8px);
-      transition: opacity 0.45s var(--ease-out) 0.18s, transform 0.5s var(--ease-out) 0.18s;
+    /* ── Season table rows — slide from left ── */
+    .js-animate tbody tr {
+      opacity: 0; transform: translateX(-14px);
+      transition: opacity 0.5s var(--ease-out), transform 0.55s var(--ease-out);
     }
-    .js-animate .links-cta.s-in .links-sub { opacity: 1; transform: none; }
+    .js-animate .season-table-wrap.revealed tbody tr { opacity: 1; transform: none; }
+    .season-table-wrap.revealed tbody tr:nth-child(1) { transition-delay: 0.00s; }
+    .season-table-wrap.revealed tbody tr:nth-child(2) { transition-delay: 0.07s; }
+    .season-table-wrap.revealed tbody tr:nth-child(3) { transition-delay: 0.14s; }
+    .season-table-wrap.revealed tbody tr:nth-child(4) { transition-delay: 0.21s; }
+    .season-table-wrap.revealed tbody tr:nth-child(5) { transition-delay: 0.28s; }
+    .season-table-wrap.revealed tbody tr:nth-child(6) { transition-delay: 0.35s; }
+    .season-table-wrap.revealed tbody tr:nth-child(7) { transition-delay: 0.42s; }
+    .season-table-wrap.revealed tbody tr:nth-child(8) { transition-delay: 0.49s; }
 
-    /* Hero is always visible */
-    .hero { opacity: 1 !important; transform: none !important; }
+    /* ── Takeaway items — slide from left ── */
+    .js-animate .takeaway-item {
+      opacity: 0; transform: translateX(-22px);
+      transition: opacity 0.65s var(--ease-out), transform 0.7s var(--ease-out);
+    }
+    .js-animate .takeaway-list.revealed .takeaway-item { opacity: 1; transform: none; }
+    .takeaway-list.revealed .takeaway-item:nth-child(1) { transition-delay: 0.00s; }
+    .takeaway-list.revealed .takeaway-item:nth-child(2) { transition-delay: 0.09s; }
+    .takeaway-list.revealed .takeaway-item:nth-child(3) { transition-delay: 0.18s; }
+    .takeaway-list.revealed .takeaway-item:nth-child(4) { transition-delay: 0.27s; }
+
+    /* ── Link buttons — rise up stagger ── */
+    .js-animate .link-btn {
+      opacity: 0; transform: translateY(18px);
+      transition: opacity 0.5s var(--ease-out), transform 0.55s var(--ease-out);
+    }
+    .js-animate .links-btns.revealed .link-btn { opacity: 1; transform: none; }
+    .links-btns.revealed .link-btn:nth-child(1) { transition-delay: 0.00s; }
+    .links-btns.revealed .link-btn:nth-child(2) { transition-delay: 0.09s; }
+    .links-btns.revealed .link-btn:nth-child(3) { transition-delay: 0.18s; }
 
     /* ─── Responsive ─── */
     @media (max-width: 900px) {
@@ -683,25 +647,9 @@
       .ranking-grid { grid-template-columns: repeat(3, 1fr); }
       .links-btns { flex-direction: column; }
     }
-    @media (prefers-reduced-motion: reduce) {
-      .js-animate .section, .js-animate .links-cta,
-      .js-animate .dataset-card, .js-animate .pipeline-step,
-      .js-animate .code-block, .js-animate .models-grid,
-      .js-animate .results-player, .js-animate .ranking-item,
-      .js-animate tbody tr, .js-animate .takeaway-item,
-      .js-animate .link-btn, .js-animate .section-label-pill,
-      .js-animate .section-h2, .js-animate .section-prose,
-      .js-animate .overview-stat, .js-animate .accent-bar,
-      .js-animate .features-title, .js-animate .pill,
-      .js-animate .feat-importance-title, .js-animate .results-callout,
-      .js-animate .results-legend, .js-animate thead tr,
-      .js-animate .links-h2, .js-animate .links-sub {
-        opacity: 1 !important; transform: none !important;
-        clip-path: none !important; transition: none !important;
-      }
-      .feat-bar-fill, .results-bar-fill { transform: none !important; transition: none !important; }
-    }
+    
   </style>
+  <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.14/dist/lenis.min.js"></script>
 </head>
 <body>
 
@@ -1212,57 +1160,98 @@
   document.documentElement.classList.add('js-animate');
 
   /* ─── Lenis smooth scroll ─── */
-  var lenis = new Lenis({ lerp: 0.08, smoothWheel: true });
-  function raf(t) { lenis.raf(t); requestAnimationFrame(raf); }
-  requestAnimationFrame(raf);
+  var lenis = null;
+  try {
+    if (typeof Lenis === 'function') {
+      lenis = new Lenis({ duration: 1.2, easing: function(t){ return 1-Math.pow(1-t,4); }, smoothWheel: true });
+      function raf(t){ lenis.raf(t); requestAnimationFrame(raf); }
+      requestAnimationFrame(raf);
+    }
+  } catch(e) { lenis = null; }
 
-  /* ─── Scroll progress bar ─── */
+  /* ─── Scroll progress bar (native) ─── */
   var pb = document.getElementById('progress-bar');
-  lenis.on('scroll', function(e) {
-    pb.style.transform = 'scaleX(' + e.progress + ')';
-  });
+  function updateProgress() {
+    var max = document.documentElement.scrollHeight - window.innerHeight;
+    pb.style.transform = max > 0 ? 'scaleX(' + (window.scrollY / max) + ')' : 'scaleX(0)';
+  }
 
   /* ─── Topbar scrolled state ─── */
   var topbar = document.getElementById('topbar');
-  window.addEventListener('scroll', function() {
-    topbar.classList.toggle('scrolled', window.scrollY > 8);
-  }, { passive: true });
 
   /* ─── Hero count-up ─── */
   var countEls = document.querySelectorAll('[data-count]');
   var targets  = Array.from(countEls).map(function(el) { return parseInt(el.getAttribute('data-count')); });
   var start = null, DURATION = 1300;
-  function easeOut(t) { return 1 - Math.pow(1 - t, 3); }
+  function easeOutCubic(t) { return 1 - Math.pow(1 - t, 3); }
   function countUp(ts) {
     if (!start) start = ts;
-    var p = Math.min((ts - start) / DURATION, 1), e = easeOut(p);
+    var p = Math.min((ts - start) / DURATION, 1), e = easeOutCubic(p);
     countEls.forEach(function(el, i) { el.textContent = Math.round(e * targets[i]); });
     if (p < 1) requestAnimationFrame(countUp);
     else countEls.forEach(function(el, i) { el.textContent = targets[i]; });
   }
   requestAnimationFrame(countUp);
 
-  /* ─── Section-level IO — ONE observer per section ─── */
-  document.querySelectorAll('.section, .links-cta').forEach(function(section) {
-    var obs = new IntersectionObserver(function(entries) {
-      if (entries[0].isIntersecting) {
-        section.classList.add('s-in');
-        obs.disconnect();
-      }
-    }, { threshold: 0.06, rootMargin: '0px 0px -60px 0px' });
-    obs.observe(section);
+  window.addEventListener('scroll', function() {
+    topbar.classList.toggle('scrolled', window.scrollY > 8);
+    updateProgress();
+  }, { passive: true });
+  requestAnimationFrame(updateProgress);
+
+  /* ─── Reveal system ─── */
+  var revealSels = ['.section-label-pill','.section-h2','.section-prose',
+                    '.results-callout','.results-legend','.links-h2','.links-sub','.results-player'];
+  var reveals = [];
+  revealSels.forEach(function(sel) {
+    Array.prototype.push.apply(reveals, Array.prototype.slice.call(document.querySelectorAll(sel)));
   });
+
+  if (reveals.length && window.IntersectionObserver) {
+    /* IO set up SYNCHRONOUSLY before any rAF */
+    var revealObs = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('in-view');
+          revealObs.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.05, rootMargin: '0px 0px -30px 0px' });
+    reveals.forEach(function(el) { revealObs.observe(el); });
+
+    /* rAF1: add .ready (CSS hides) → rAF2: immediately reveal in-viewport ones */
+    requestAnimationFrame(function() {
+      reveals.forEach(function(el) { el.classList.add('ready'); });
+      requestAnimationFrame(function() {
+        reveals.forEach(function(el) {
+          if (el.getBoundingClientRect().top < window.innerHeight * 0.95) {
+            el.classList.add('in-view');
+          }
+        });
+      });
+    });
+  }
+
+  /* ─── Container stagger (CSS class-based) ─── */
+  var containerObs = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) { entry.target.classList.add('revealed'); containerObs.unobserve(entry.target); }
+    });
+  }, { threshold: 0.04, rootMargin: '0px 0px -40px 0px' });
+  document.querySelectorAll(
+    '.overview-grid, .datasets-grid, .features-pills, .pipeline-steps, .code-block, .models-grid, .ranking-grid, .season-table-wrap, .takeaway-list, .links-btns'
+  ).forEach(function(el) { containerObs.observe(el); });
 
   /* ─── Model tabs ─── */
   document.querySelectorAll('.model-tab').forEach(function(tab) {
     tab.addEventListener('click', function() {
-      var t = tab.getAttribute('data-tab');
-      document.querySelectorAll('.model-tab').forEach(function(tb) { tb.classList.remove('active'); });
+      document.querySelectorAll('.model-tab').forEach(function(t) { t.classList.remove('active'); });
       document.querySelectorAll('.model-panel').forEach(function(p) { p.classList.remove('active'); });
       tab.classList.add('active');
-      document.getElementById('tab-' + t).classList.add('active');
+      document.getElementById('tab-' + tab.getAttribute('data-tab')).classList.add('active');
     });
   });
 </script>
 </body>
 </html>
+<!-- updated Mon Jul 20 21:09:35 PDT 2026 -->

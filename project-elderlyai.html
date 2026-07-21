@@ -180,9 +180,7 @@
       to   { opacity: 1; filter: blur(0px); transform: none; }
     }
   }
-  @media (prefers-reduced-motion: reduce) {
-    .js-animate .word-reveal { animation: none !important; opacity: 1 !important; filter: none !important; transform: none !important; transition: none !important; }
-  }
+  
 
   /* ── Mockup strip ── */
   .mockup-section { border-bottom: 1px solid var(--border); padding-bottom: 72px; }
@@ -416,9 +414,7 @@
       from { opacity: 0; transform: translateY(22px) scale(0.98); }
       to   { opacity: 1; transform: translateY(0) scale(1); }
     }
-    @media (prefers-reduced-motion: reduce) {
-      .reveal { animation: none !important; opacity: 1 !important; transform: none !important; }
-    }
+    
   }
 
   /* Feature cards — bloom: scale + gentle Y (scale is the signature, not just Y) */
