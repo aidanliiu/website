@@ -15,8 +15,11 @@
 <script>
 (function(){
   var m = localStorage.getItem('siteMode');
-  if (m === 'minimal' || m === 'animated') {
-    document.documentElement.classList.add('mode-' + m);
+  if (m === 'minimal') {
+    // Redirect returning minimal users straight to minimal.html
+    window.location.replace('minimal.html');
+  } else if (m === 'animated') {
+    document.documentElement.classList.add('mode-animated');
   } else {
     document.documentElement.classList.add('mode-choosing');
   }
@@ -199,19 +202,8 @@ html.mode-choosing .ms-half-content {
 #mode-toggle svg { flex-shrink: 0; }
 html.mode-choosing #mode-toggle { display: none; }
 
-/* ── Minimal Mode Cover (blank — to be designed) ──────── */
-#minimal-cover {
-  position: fixed; inset: 0; z-index: 9000;
-  background: #f8f8f6;
-  display: none;
-  align-items: center; justify-content: center;
-  font-family: 'Plus Jakarta Sans', sans-serif;
-}
-html.mode-minimal #minimal-cover { display: flex; }
-
-/* Hide loader until a mode is chosen, and skip entirely in minimal mode */
+/* Hide loader until a mode is chosen */
 html.mode-choosing #site-loader { display: none !important; }
-html.mode-minimal  #site-loader { display: none !important; }
 </style>
 
 <!-- ═══════════════════════════════════
@@ -348,10 +340,6 @@ html.mode-minimal  #site-loader { display: none !important; }
   <span id="mode-toggle-label">Minimalistic</span>
 </button>
 
-<!-- ── Minimal Mode Cover (blank — design TBD) ────────── -->
-<div id="minimal-cover" aria-label="Minimalistic mode">
-  <!-- content goes here -->
-</div>
 
 <!-- ═══════════════════════════════════
      PAGE LOADER
@@ -1292,57 +1280,48 @@ html.mode-minimal  #site-loader { display: none !important; }
 <script>
 // ── Mode System ───────────────────────────────────────────
 (function () {
-  function setMode(mode) {
-    localStorage.setItem('siteMode', mode);
-    document.documentElement.classList.remove('mode-minimal', 'mode-animated', 'mode-choosing');
-    document.documentElement.classList.add('mode-' + mode);
-    updateToggleLabel(mode);
-  }
-
-  function updateToggleLabel(mode) {
-    var lbl = document.getElementById('mode-toggle-label');
-    if (lbl) lbl.textContent = mode === 'animated' ? 'Minimalistic' : 'Animated';
-  }
+  var overlay = document.getElementById('mode-select');
 
   // Choice buttons in splash
-  var overlay = document.getElementById('mode-select');
   document.querySelectorAll('.ms-half[data-mode]').forEach(function (btn) {
     btn.addEventListener('click', function () {
       var chosen = this.dataset.mode;
-      // Fade the overlay out, then apply mode
+      if (chosen === 'minimal') {
+        // Navigate to separate minimal page
+        localStorage.setItem('siteMode', 'minimal');
+        window.location.href = 'minimal.html';
+        return;
+      }
+      // Animated path — fade splash, then start loader
+      localStorage.setItem('siteMode', 'animated');
       if (overlay) {
         overlay.classList.add('ms-exit');
         overlay.addEventListener('transitionend', function onDone() {
           overlay.removeEventListener('transitionend', onDone);
-          setMode(chosen);
+          document.documentElement.classList.remove('mode-choosing');
+          document.documentElement.classList.add('mode-animated');
           overlay.style.display = 'none';
           overlay.classList.remove('ms-exit');
-          /* Fire the loader only after the user actively chose Animated */
-          if (chosen === 'animated' && typeof window.__startLoader === 'function') {
+          if (typeof window.__startLoader === 'function') {
             window.__startLoader();
             window.__startLoader = null;
           }
         });
-      } else {
-        setMode(chosen);
       }
     });
   });
 
-  // Persistent toggle
+  // Persistent toggle — navigate to minimal.html
   var toggle = document.getElementById('mode-toggle');
   if (toggle) {
     toggle.addEventListener('click', function () {
-      var cur = localStorage.getItem('siteMode') || 'animated';
-      setMode(cur === 'animated' ? 'minimal' : 'animated');
+      localStorage.setItem('siteMode', 'minimal');
+      window.location.href = 'minimal.html';
     });
   }
-
-  // Init label on page load
-  var stored = localStorage.getItem('siteMode');
-  if (stored) updateToggleLabel(stored);
 })();
 </script>
+
 
 <script>
 // Scroll-position save/restore (project pages + gallery)

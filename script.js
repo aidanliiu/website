@@ -97,6 +97,17 @@ if (hero && scrollHint) {
   };
 
   window.addEventListener('wheel', (e) => {
+    // If a modal is open and the wheel event originates inside the scrollable
+    // modal card, let the browser handle it natively so the card can scroll.
+    const openModal = document.querySelector('.award-modal.is-open');
+    if (openModal) {
+      const card = openModal.querySelector('.award-modal-card');
+      if (card && card.contains(e.target)) return;
+      // Outside the card but modal is open: just block page scroll, don't custom-scroll.
+      e.preventDefault();
+      return;
+    }
+
     e.preventDefault();
     // Normalize delta across input devices/browsers (line vs pixel mode)
     // and cap it so a single large notch doesn't cause a visible jump —
@@ -773,17 +784,16 @@ if (linksHeading) {
       const relX = (e.clientX - cx) / (rect.width / 2);
       const relY = (e.clientY - cy) / (rect.height / 2);
 
-      btn.style.setProperty('--mx', `${(relX * 14).toFixed(1)}px`);
-      btn.style.setProperty('--my', `${(relY * 14).toFixed(1)}px`);
-      btn.style.setProperty('--mr', `${(relX * 2).toFixed(2)}deg`);
+      btn.style.setProperty('--mx', `${(relX * 6).toFixed(1)}px`);
+      btn.style.setProperty('--my', `${(relY * 6).toFixed(1)}px`);
+      btn.style.setProperty('--mr', `${(relX * 1).toFixed(2)}deg`);
 
-      btn.style.setProperty('--lx', `${(relX * 9).toFixed(1)}px`);
-      btn.style.setProperty('--ly', `${(relY * 9).toFixed(1)}px`);
+      btn.style.setProperty('--lx', `${(relX * 4).toFixed(1)}px`);
+      btn.style.setProperty('--ly', `${(relY * 4).toFixed(1)}px`);
 
-      // "Lean back" 3D tilt — top of the card tips away from the cursor,
-      // like the project cards on noteworthy.studio.
-      btn.style.setProperty('--rx', `${(relY * -28).toFixed(2)}deg`);
-      btn.style.setProperty('--ry', `${(relX * 28).toFixed(2)}deg`);
+      // Subtle 3D tilt — reduced from 28deg to keep it understated.
+      btn.style.setProperty('--rx', `${(relY * -10).toFixed(2)}deg`);
+      btn.style.setProperty('--ry', `${(relX * 10).toFixed(2)}deg`);
     });
 
     btn.addEventListener('mouseleave', () => {
@@ -822,7 +832,7 @@ if (linksHeading) {
 
       const maxDist = Math.max(gridRect.width, gridRect.height) * 0.6;
       const strength = Math.max(0, 1 - dist / maxDist);
-      const push = strength * 14 * depth;
+      const push = strength * 6 * depth;
 
       const px = (dx / dist) * push;
       const py = (dy / dist) * push;
@@ -1239,7 +1249,7 @@ if (linksHeading) {
 // Runs at full intensity for all visitors, regardless of prefers-reduced-motion —
 // it's a simple size change with no flashing or fast parallax.
 (() => {
-  const peakGrowth = 4.5; // 1× → ≈5.5× at peak, on wide-enough screens
+  const peakGrowth = 3.0; // 1× → ≈4× at peak, on wide-enough screens
   const T1 = 0.30; // scroll fraction where the peak is reached
   const T2 = 0.65; // scroll fraction where the hold ends and it starts shrinking
   const IDLE_FONT_SIZE = 13; // px — must match .name-full-wrap font-size in style.css
@@ -1395,14 +1405,17 @@ if (linksHeading) {
     bodyEl.style.setProperty('--modal-cat', cat);
     cardEl.scrollTop = 0;
 
-    // Identical to links modal — direct class add, no body lock, no RAF.
-    // The links modal is smooth for exactly this reason.
     modal.classList.add('is-open');
+    // Lock background scroll while modal is open (lock both html + body)
+    document.documentElement.style.overflow = 'hidden';
+    document.body.style.overflow = 'hidden';
     closeBtn.focus();
   }
 
   function closeModal() {
     modal.classList.remove('is-open');
+    document.documentElement.style.overflow = '';
+    document.body.style.overflow = '';
   }
 
   closeBtn.addEventListener('click', closeModal);

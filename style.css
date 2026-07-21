@@ -1681,12 +1681,18 @@ footer.site-footer {
   position: sticky;
   top: 0;
   height: 100dvh;
+  box-sizing: border-box;
+  /* padding-top reserves a clear zone for the topbar name-zoom overflow.
+     The name at peak awards growth is displayed at ~95px and starts from
+     ~22px (topbar padding), so its bottom edge reaches ~137px from the
+     viewport top. 150px gives a comfortable 13px buffer. */
+  padding-top: 150px;
   display: flex;
   flex-direction: column;
-  justify-content: flex-end; /* cards anchor to bottom; label is absolute */
+  justify-content: flex-start;
   overflow-x: clip;   /* prevent horizontal bleed from the scrolling track */
   overflow-y: visible; /* allow card bottom to breathe past the panel edge */
-  background: #fff;
+  background: #f3f3f3;
 }
 
 /* Header + hint removed — timeline is now a pure divider strip */
@@ -1719,14 +1725,14 @@ footer.site-footer {
   font-weight: 600;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--muted);
+  color: #999;
   white-space: nowrap;
 }
 
 .awards-label-line {
   flex: 1;
   height: 1px;
-  background: var(--border);
+  background: #ddd;
   transform-origin: left center;
   transform: scaleX(0);
   transition: transform 1s var(--ease-out);
@@ -1739,11 +1745,15 @@ footer.site-footer {
 .awards-caption {
   font-family: Georgia, "Times New Roman", serif;
   font-size: clamp(17px, 1.8vw, 21px);
-  color: var(--fg);
+  color: #111;
   margin: 0;
+  font-style: italic;
+  letter-spacing: -0.01em;
 }
 
 @media (max-width: 700px) {
+  /* On mobile the name-zoom is capped much smaller (~45px), so 80px padding is enough */
+  .awards-sticky { padding-top: 80px; }
   .awards-label-wrap { padding: 0 22px 12px; }
 }
 
@@ -1753,6 +1763,7 @@ footer.site-footer {
    cards far away from it. */
 .awards-belt {
   flex-shrink: 0;
+  margin-top: auto; /* push belt to bottom, label stays near top of clear zone */
   overflow-x: clip;
   overflow-y: visible;
   display: flex;
@@ -1780,25 +1791,30 @@ footer.site-footer {
   align-items: stretch;
 }
 
-/* Individual award card — Isa de Burgh timeline style.
-   No border/shadow. Large year, category label, full-bleed photo, inline desc.
+/* Individual award card — white with a slim category-color top accent.
    JS drives 3D tilt on hover; CSS provides the spring-back. */
 .award-card {
-  --cat: 17, 17, 17; /* neutral fallback */
+  --cat: 120, 120, 120; /* neutral gray fallback */
   width: 270px;
   height: 420px;
   flex-shrink: 0;
   background: #fff;
-  border-radius: 0;
+  border-radius: 2px;
   border: none;
+  border-top: 2px solid rgb(var(--cat));
   padding: 0;
   display: flex;
   flex-direction: column;
   cursor: pointer;
-  transition: transform 0.5s var(--ease-spring);
+  transition: transform 0.5s var(--ease-spring),
+              box-shadow 0.25s ease;
 }
 
-.award-card:hover { /* tilt handled by JS */ }
+.award-card:hover {
+  box-shadow: 0 4px 24px rgba(0,0,0,0.09);
+}
+
+/* .award-card:hover — tilt handled by JS; lift shadow in the rule above */
 
 .award-card:active {
   transform: scale(0.97) !important;
@@ -1965,10 +1981,10 @@ footer.site-footer {
 }
 
 /* ── Category colour tokens ── */
-.award-card--vex   { --cat: 34, 85, 204; }   /* VEX Robotics — electric blue */
-.award-card--vball { --cat: 196, 64, 0; }    /* Varsity + JV Basketball — burnt orange */
-.award-card--jv     { --cat: 26, 110, 92; }  /* reserved — dark teal, currently unused */
-.award-card--gold  { --cat: 155, 95, 0; }    /* Board Recognition — gold */
+.award-card--vex   { --cat: 34, 85, 204; }    /* VEX Robotics — electric blue */
+.award-card--vball { --cat: 196, 64, 0; }     /* Varsity Basketball — burnt orange */
+.award-card--jv    { --cat: 26, 110, 92; }    /* reserved — dark teal */
+.award-card--gold  { --cat: 155, 95, 0; }     /* Board Recognition — gold */
 
 .award-cat {
   font-size: 10px;
@@ -1988,18 +2004,18 @@ footer.site-footer {
   margin: 0;
   padding: 6px 22px 0;
   line-height: 1;
-  letter-spacing: -0.03em;
+  letter-spacing: -0.04em;
   white-space: nowrap; /* e.g. "2025–26" must stay on one line */
 }
 
 .award-name {
-  font-size: 10.5px;
-  font-weight: 700;
-  color: #222;
+  font-size: 11px;
+  font-weight: 600;
+  color: #333;
   margin: 0;
   padding: 6px 22px 0;
   line-height: 1.4;
-  letter-spacing: 0.10em;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
 }
 
@@ -2010,7 +2026,7 @@ footer.site-footer {
   overflow: hidden;
   margin: 14px 0 0;
   display: block;
-  background: #f0f0f0;
+  background: #f5f5f5;
 }
 
 .award-icon svg {
@@ -2036,13 +2052,13 @@ footer.site-footer {
 
 /* Inline description — injected from data-desc by JS */
 .award-desc {
-  font-size: 11.5px;
-  line-height: 1.65;
-  color: #666;
-  padding: 11px 22px 22px;
+  font-size: 11px;
+  line-height: 1.7;
+  color: #888;
+  padding: 10px 22px 20px;
   margin: 0;
   display: -webkit-box;
-  -webkit-line-clamp: 3;
+  -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
