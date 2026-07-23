@@ -49,8 +49,8 @@ html.mode-choosing #mode-select { display: flex; }
   text-transform: uppercase; color: #fff;
 }
 .ms-header-inst {
-  font-size: 12px; font-weight: 400; color: rgba(255,255,255,0.38);
-  letter-spacing: 0.02em;
+  font-size: 13px; font-weight: 400; color: rgba(255,255,255,0.72);
+  letter-spacing: 0.01em;
 }
 
 /* Halves row */
@@ -80,44 +80,106 @@ html.mode-choosing #mode-select { display: flex; }
 .ms-half:active { flex: 1.12; }
 .ms-half:focus-visible { outline: 2px solid rgba(128,128,128,0.5); outline-offset: -4px; }
 
-.ms-half--dark { background: #0a0a0a; }
+/* Dark half — dot-grid texture + ambient glow */
+.ms-half--dark {
+  background: #0a0a0a;
+  background-image: radial-gradient(rgba(255,255,255,0.07) 1px, transparent 1px);
+  background-size: 26px 26px;
+}
 .ms-half--dark::after {
   content: ''; position: absolute; inset: 0;
-  background: radial-gradient(ellipse 55% 50% at 45% 50%, rgba(255,255,255,0.03) 0%, transparent 70%);
+  background: radial-gradient(ellipse 65% 60% at 44% 50%, rgba(255,255,255,0.045) 0%, transparent 68%);
   pointer-events: none;
+  transition: opacity 0.6s ease-out;
 }
-.ms-half--light { background: #f5f4f1; }
+.ms-half--dark:hover::after { opacity: 1.5; }
+
+/* Light half — dot-grid texture */
+.ms-half--light {
+  background: #f5f4f2;
+  background-image: radial-gradient(rgba(0,0,0,0.055) 1px, transparent 1px);
+  background-size: 30px 30px;
+}
+
+/* Art containers — decorative background SVGs */
+.ms-art {
+  position: absolute; inset: 0;
+  pointer-events: none; overflow: hidden; z-index: 0;
+}
+.ms-art-orbit {
+  position: absolute;
+  width: 460px; height: 460px;
+  left: 50%; top: 50%;
+  transform: translate(-50%, -50%);
+  animation: ms-art-spin 32s linear infinite;
+}
+@keyframes ms-art-spin {
+  from { transform: translate(-50%, -50%) rotate(0deg); }
+  to   { transform: translate(-50%, -50%) rotate(360deg); }
+}
+.ms-art-rings {
+  position: absolute;
+  width: 480px; height: 480px;
+  left: -20px; bottom: -20px;
+}
 
 /* Content — never overlaps because it's inside the half, not absolute */
 .ms-half-content {
   display: flex; flex-direction: column;
-  align-items: flex-start; gap: 8px;
+  align-items: flex-start; gap: 0;
   padding: 0 52px; position: relative; z-index: 1;
   max-width: 320px;
 }
 
 .ms-mode-word {
-  font-size: clamp(34px, 4vw, 52px);
+  font-size: clamp(36px, 4.2vw, 56px);
   letter-spacing: -0.03em; line-height: 1; display: block;
+  margin-bottom: 12px;
 }
 .ms-half--dark .ms-mode-word { color: #fff; font-weight: 700; }
 .ms-half--light .ms-mode-word { color: #111; font-weight: 400; }
 
 .ms-mode-hint {
-  font-size: 13px; font-weight: 400; display: block;
-  margin-bottom: 4px;
+  font-size: 10px; font-weight: 600;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  display: inline-block; padding: 3px 10px;
+  border-radius: 99px; margin-bottom: 12px;
 }
-.ms-half--dark .ms-mode-hint { color: rgba(255,255,255,0.38); }
-.ms-half--light .ms-mode-hint { color: rgba(17,17,17,0.35); }
+.ms-half--dark .ms-mode-hint {
+  color: rgba(255,255,255,0.5);
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+}
+.ms-half--light .ms-mode-hint {
+  color: rgba(0,0,0,0.42);
+  background: rgba(0,0,0,0.04);
+  border: 1px solid rgba(0,0,0,0.09);
+}
 
-.ms-mode-desc { font-size: 13px; line-height: 1.65; max-width: 230px; display: block; margin-top: 8px; }
+.ms-mode-desc { font-size: 13px; line-height: 1.7; max-width: 240px; display: block; }
 .ms-half--dark .ms-mode-desc { color: rgba(255,255,255,0.44); }
-.ms-half--light .ms-mode-desc { color: rgba(17,17,17,0.42); }
+.ms-half--light .ms-mode-desc { color: rgba(17,17,17,0.45); }
+
+.ms-mode-rec {
+  display: inline-block; margin-top: 14px;
+  font-size: 10.5px; font-weight: 600; letter-spacing: 0.04em;
+  color: rgba(17,17,17,0.55);
+  border: 1px solid rgba(17,17,17,0.18);
+  border-radius: 99px; padding: 3px 10px;
+}
+
+/* Thin separator above Enter */
+.ms-mode-hr {
+  display: block; width: 32px; height: 1px;
+  margin: 20px 0 0;
+}
+.ms-half--dark .ms-mode-hr { background: rgba(255,255,255,0.15); }
+.ms-half--light .ms-mode-hr { background: rgba(0,0,0,0.12); }
 
 /* "Enter →" — always at low opacity so user sees it, full on hover */
 .ms-enter {
   display: inline-flex; align-items: center; gap: 5px;
-  margin-top: 20px;
+  margin-top: 12px;
   font-size: 11px; font-weight: 600;
   letter-spacing: 0.1em; text-transform: uppercase;
   opacity: 0.3;
@@ -174,9 +236,16 @@ html.mode-choosing .ms-half-content {
     width: auto; height: 1px;
   }
   .ms-half-content { padding: 0 28px; max-width: none; }
-  .ms-mode-word { font-size: clamp(26px, 7vw, 36px); }
+  .ms-mode-word { font-size: clamp(26px, 7vw, 36px); margin-bottom: 8px; }
   .ms-header { padding: 14px 20px; }
   .ms-header-inst { font-size: 11px; }
+  .ms-art-orbit { width: 260px; height: 260px; }
+  .ms-art-rings { width: 280px; height: 280px; left: -10px; bottom: -10px; }
+}
+
+/* ── Reduced motion ──────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .ms-art-orbit { animation: none; }
 }
 
 /* ── Mode Toggle Button ────────────────────────────────── */
@@ -310,20 +379,46 @@ html.mode-choosing #site-loader { display: none !important; }
   </div>
 
   <div class="ms-halves">
-    <button class="ms-half ms-half--dark" data-mode="animated" aria-label="Enter animated experience">
-      <div class="ms-half-content">
-        <span class="ms-mode-word">Animated</span>
-        <span class="ms-mode-hint">Motion &amp; depth</span>
-        <span class="ms-mode-desc">Scroll-triggered animations, a cinematic loading screen, and interactive visuals. The full experience as it was designed.</span>
-        <span class="ms-enter">Enter <span class="ms-enter-arrow">→</span></span>
-      </div>
-    </button>
-
     <button class="ms-half ms-half--light" data-mode="minimal" aria-label="Enter minimalistic experience">
+      <span class="ms-art" aria-hidden="true">
+        <!-- Arcs from bottom-left corner — radiate up-right, never touch the right divider -->
+        <svg class="ms-art-rings" viewBox="0 0 500 500" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="0" cy="500" r="100" stroke="black" stroke-width="0.9" opacity="0.1"/>
+          <circle cx="0" cy="500" r="192" stroke="black" stroke-width="0.8" opacity="0.07"/>
+          <circle cx="0" cy="500" r="290" stroke="black" stroke-width="0.8" opacity="0.05"/>
+          <circle cx="0" cy="500" r="393" stroke="black" stroke-width="0.7" opacity="0.035"/>
+        </svg>
+      </span>
       <div class="ms-half-content">
         <span class="ms-mode-word">Minimalistic</span>
         <span class="ms-mode-hint">Clean &amp; still</span>
         <span class="ms-mode-desc">No animations. Clean typography and focused layout — loads instantly and stays distraction-free.</span>
+        <span class="ms-mode-rec">✦ Recommended for a quick overview &amp; mobile</span>
+        <span class="ms-mode-hr"></span>
+        <span class="ms-enter">Enter <span class="ms-enter-arrow">→</span></span>
+      </div>
+    </button>
+
+    <button class="ms-half ms-half--dark" data-mode="animated" aria-label="Enter animated experience">
+      <span class="ms-art" aria-hidden="true">
+        <svg class="ms-art-orbit" viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Rings -->
+          <circle cx="200" cy="200" r="158" stroke="white" stroke-width="0.6" stroke-dasharray="5 13" opacity="0.13"/>
+          <circle cx="200" cy="200" r="112" stroke="white" stroke-width="0.5" opacity="0.07"/>
+          <circle cx="200" cy="200" r="70"  stroke="white" stroke-width="0.5" stroke-dasharray="2 7" opacity="0.1"/>
+          <!-- Orbiting dots — 3 on outer ring, 1 on middle, 1 on inner -->
+          <circle cx="200" cy="42"  r="2.8" fill="white" opacity="0.25"/>
+          <circle cx="337" cy="279" r="2"   fill="white" opacity="0.18"/>
+          <circle cx="63"  cy="279" r="1.5" fill="white" opacity="0.14"/>
+          <circle cx="312" cy="200" r="2"   fill="white" opacity="0.2"/>
+          <circle cx="200" cy="270" r="1.4" fill="white" opacity="0.16"/>
+        </svg>
+      </span>
+      <div class="ms-half-content">
+        <span class="ms-mode-word">Animated</span>
+        <span class="ms-mode-hint">Motion &amp; depth</span>
+        <span class="ms-mode-desc">Scroll-triggered animations, a cinematic loading screen, and interactive visuals. The full experience as it was designed.</span>
+        <span class="ms-mode-hr"></span>
         <span class="ms-enter">Enter <span class="ms-enter-arrow">→</span></span>
       </div>
     </button>
@@ -885,8 +980,16 @@ html.mode-choosing #site-loader { display: none !important; }
         <h2 class="reveal-zoom"><span class="intro-word intro-word-left"><span class="shimmer-text">My</span></span><span class="intro-word intro-word-right intro-cycle"><span class="intro-cycle-track"><span class="shimmer-text">works</span><span class="shimmer-text">projects</span><span class="shimmer-text">research</span><span class="shimmer-text">code</span></span></span></h2>
       </div>
 
+      <div class="stack-card stack-card--gutinstincts">
+        <div class="stack-tag">01 &middot; Stanford CARE Explorers Program</div>
+        <h3>Gut Instincts — GI Cancer Health Platform</h3>
+        <p>Built a <a href="https://drive.google.com/file/d/1r_uf-BEasEqU-OEc4j1W2h6ygV4J2gEK/view?usp=sharing" target="_blank" rel="noopener" style="color:inherit;text-decoration:underline;text-underline-offset:2px;text-decoration-color:rgba(255,255,255,0.3);">full-stack health web app</a> as the final deliverable for Stanford's CARE Explorers program. Features an AI chatbot, risk assessment, diet tracker, age-adaptive UI, and content focused on GI cancer disparities in Asian subpopulations.</p>
+        <div class="stack-date">Summer 2026</div>
+        <a href="project-gutinstincts.html" class="stack-read-more">See more <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 10L10 2M10 2H4M10 2v6"/></svg></a>
+      </div>
+
       <div class="stack-card stack-card--diabetes">
-        <div class="stack-tag">01 &middot; Delta Institute · AWS Work Experience Program</div>
+        <div class="stack-tag">02 &middot; Delta Institute · AWS Work Experience Program</div>
         <h3>Diabetes Risk Prediction with ML</h3>
         <p>Compared machine learning models to predict diabetes risk using the CDC Diabetes Health Indicators dataset. Published to <a href="https://github.com/vishnub0/AWS-WEP">GitHub</a>.</p>
         <div class="stack-date">Jul – Aug 2025</div>
@@ -894,7 +997,7 @@ html.mode-choosing #site-loader { display: none !important; }
       </div>
 
       <div class="stack-card stack-card--elderlyai">
-        <div class="stack-tag">02 &middot; App Developer &amp; UX Designer</div>
+        <div class="stack-tag">03 &middot; App Developer &amp; UX Designer</div>
         <h3>Elderly AI App</h3>
         <p>Developed, designed, and published an AI app for elderly care — live on the <a href="https://apps.apple.com/us/app/elderlyai/id6748717895">App Store</a>.</p>
         <div class="stack-date">Jun – Aug 2025</div>
@@ -902,7 +1005,7 @@ html.mode-choosing #site-loader { display: none !important; }
       </div>
 
       <div class="stack-card stack-card--crypto">
-        <div class="stack-tag">03 &middot; SVCSI</div>
+        <div class="stack-tag">04 &middot; SVCSI</div>
         <h3>Post-Quantum Cryptography Research</h3>
         <p>Dug into post-quantum cryptography, wrote and presented a <a href="https://drive.google.com/file/d/1NOyVyaduviVALRvGwEAmc7xIMiMfBltP/view?usp=sharing">research paper</a> on lattice-based algorithms.</p>
         <div class="stack-date">Jul – Aug 2024</div>
@@ -910,19 +1013,11 @@ html.mode-choosing #site-loader { display: none !important; }
       </div>
 
       <div class="stack-card stack-card--nba">
-        <div class="stack-tag">04 &middot; Inspirit AI</div>
+        <div class="stack-tag">05 &middot; Inspirit AI</div>
         <h3>NBA MVP Model Predictions</h3>
         <p>Published to <a href="https://www.curieuxreview.com/_files/ugd/60ed3c_e03ca30aedb840a7b4562ef1555d9e56.pdf">The Curieux Review</a> (Jan '26), <a href="https://github.com/aidanliiu/NBA-MVP-Model-Predictions">GitHub</a>, and Inspirit AI. Submitted to the Journal of Student Research — awaiting response.</p>
         <div class="stack-date">Jul – Sep 2023</div>
         <a href="project-nba.html" class="stack-read-more">See more <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 10L10 2M10 2H4M10 2v6"/></svg></a>
-      </div>
-
-      <div class="stack-card stack-card--gutinstincts">
-        <div class="stack-tag">05 &middot; Stanford CARE Explorers Program</div>
-        <h3>Gut Instincts — GI Cancer Health Platform</h3>
-        <p>Built a <a href="https://drive.google.com/file/d/1r_uf-BEasEqU-OEc4j1W2h6ygV4J2gEK/view?usp=sharing" target="_blank" rel="noopener" style="color:inherit;text-decoration:underline;text-underline-offset:2px;text-decoration-color:rgba(255,255,255,0.3);">full-stack health web app</a> as the final deliverable for Stanford's CARE Explorers program. Features an AI chatbot, risk assessment, diet tracker, age-adaptive UI, and content focused on GI cancer disparities in Asian subpopulations.</p>
-        <div class="stack-date">Summer 2026</div>
-        <a href="project-gutinstincts.html" class="stack-read-more">See more <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 10L10 2M10 2H4M10 2v6"/></svg></a>
       </div>
     </div>
     </div>

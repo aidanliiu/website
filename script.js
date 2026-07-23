@@ -367,30 +367,29 @@ floatCards.forEach((el) => floatObserver.observe(el));
       el.style.setProperty('--from-y', `${fromY.toFixed(1)}px`);
 
       // Full-circle random landing spot — any direction, varied distance.
+      // NOTE: --rot is intentionally NOT updated here. Each card's rotation
+      // is fixed in CSS (e.g. .float-card--vex { --rot: -6deg }). Changing
+      // --rot mid-cycle causes an immediate snap in the active keyframe
+      // (both 0% and 100% use rotate(var(--rot))) — that was the glitch.
       const setTo = () => {
         const angle = Math.random() * Math.PI * 2;
         const dist  = 120 + Math.random() * 260; // 120–380 px
         el.style.setProperty('--to-x', `${(Math.cos(angle) * dist).toFixed(1)}px`);
         el.style.setProperty('--to-y', `${(Math.sin(angle) * dist).toFixed(1)}px`);
-        el.style.setProperty('--rot',  `${((Math.random() * 24) - 12).toFixed(1)}deg`);
       };
 
       setTo(); // first cycle destination (set before animation even starts)
 
-      // Parse cycle duration and delay from the CSS custom properties.
-      // getPropertyValue returns e.g. ' 16s' — parseFloat handles the unit.
-      const style    = getComputedStyle(el);
-      const duration = (parseFloat(style.getPropertyValue('--cycle-duration')) || 14) * 1000;
-      const delay    = (parseFloat(style.getPropertyValue('--cycle-delay'))    ||  0) * 1000;
-
-      // Wait for the first cycle to actually start (after its stagger delay),
-      // then refresh the destination at the top of every subsequent cycle.
-      setTimeout(() => {
-        setTo();
-        setInterval(setTo, duration);
-      }, delay);
-
-      // Also update via animationiteration as a belt-and-suspenders backup.
+      // Update destination at every cycle boundary. animationiteration fires
+      // at the exact CSS loop point — where floatFade opacity is 0 — so the
+      // destination swap is always invisible.
+      //
+      // We previously used setInterval here, but it starts counting from JS
+      // run-time while the CSS animation starts counting from when .is-visible
+      // is added (IntersectionObserver fires asynchronously). That misalignment
+      // caused setInterval to fire mid-cycle while the card was visible, making
+      // --to-x/y change at e.g. 40% progress → instant position jump of
+      // 0.4 × ΔDestination. animationiteration has no such drift.
       el.addEventListener('animationiteration', (e) => {
         if (e.animationName === 'floatMove') setTo();
       });

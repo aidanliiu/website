@@ -146,10 +146,10 @@ body {
 .mc-proj-main {
   display: flex; align-items: baseline;
   gap: 10px; text-decoration: none; color: inherit;
-  transition: opacity 0.2s var(--ease);
   margin-bottom: 4px;
+  transition: opacity 0.2s var(--ease), transform 0.22s var(--ease);
 }
-.mc-proj-main:hover { opacity: 0.62; }
+.mc-proj-main:hover { opacity: 0.72; transform: translateX(3px); }
 .mc-proj-name {
   font-size: 13.5px; font-weight: 600; color: var(--ink);
   flex-shrink: 0; white-space: nowrap;
@@ -163,9 +163,10 @@ body {
 .mc-proj-arrow {
   font-size: 12px; color: var(--ink-3);
   flex-shrink: 0; margin-left: auto;
-  transition: transform 0.18s var(--ease);
+  opacity: 0.3;
+  transition: opacity 0.2s var(--ease), transform 0.22s var(--ease);
 }
-.mc-proj-main:hover .mc-proj-arrow { transform: translateX(3px); }
+.mc-proj-main:hover .mc-proj-arrow { opacity: 1; transform: translateX(3px); }
 .mc-proj-links { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 2px; }
 .mc-proj-ext {
   font-size: 11px; color: var(--ink-3); text-decoration: none;
@@ -177,12 +178,17 @@ body {
 /* ── Awards ── */
 .mc-award-list { display: flex; flex-direction: column; }
 .mc-award {
-  display: grid; grid-template-columns: 60px 1fr;
+  display: grid; grid-template-columns: 60px 1fr auto;
   gap: 0 14px; padding: 10px 0;
-  border-bottom: 1px solid var(--line); align-items: start;
+  border-bottom: 1px solid var(--line); align-items: center;
 }
 .mc-award:first-child { padding-top: 0; }
 .mc-award:last-child { border-bottom: none; padding-bottom: 0; }
+.mc-award[data-img] {
+  cursor: pointer;
+  transition: opacity 0.2s var(--ease), transform 0.22s var(--ease);
+}
+.mc-award[data-img]:hover { opacity: 0.72; transform: translateX(3px); }
 .mc-award-yr {
   font-size: 10.5px; color: var(--ink-3); font-weight: 500;
   padding-top: 2px; line-height: 1.4;
@@ -195,6 +201,54 @@ body {
 }
 .mc-award-name { font-size: 13px; font-weight: 600; color: var(--ink); line-height: 1.4; }
 .mc-award-sub { font-size: 11px; color: var(--ink-2); margin-top: 1px; display: block; }
+.mc-award-photo-icon {
+  width: 14px; height: 14px; flex-shrink: 0; opacity: 0.28;
+  transition: opacity 0.18s var(--ease);
+}
+.mc-award[data-img]:hover .mc-award-photo-icon { opacity: 0.7; }
+
+/* ── Award lightbox ── */
+.mc-lightbox {
+  position: fixed; inset: 0; z-index: 9500;
+  display: flex; align-items: center; justify-content: center;
+  visibility: hidden;
+  transition: visibility 0s 0.28s;
+}
+.mc-lightbox.is-open { visibility: visible; transition: visibility 0s; }
+.mc-lightbox-backdrop {
+  position: absolute; inset: 0;
+  background: rgba(0,0,0,0.62);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  opacity: 0; transition: opacity 0.26s var(--ease);
+}
+.mc-lightbox.is-open .mc-lightbox-backdrop { opacity: 1; }
+.mc-lightbox-frame {
+  position: relative; z-index: 1;
+  max-width: min(90vw, 680px);
+  max-height: calc(100dvh - 60px);
+  opacity: 0; transform: scale(0.96);
+  transition: opacity 0.26s var(--ease), transform 0.28s var(--ease);
+}
+.mc-lightbox.is-open .mc-lightbox-frame { opacity: 1; transform: scale(1); }
+.mc-lightbox-img {
+  display: block; width: 100%; height: auto;
+  max-height: calc(100dvh - 60px);
+  object-fit: contain;
+  border-radius: 10px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+}
+.mc-lightbox-close {
+  position: absolute; top: -14px; right: -14px;
+  width: 30px; height: 30px;
+  display: flex; align-items: center; justify-content: center;
+  background: #fff; border: none; border-radius: 50%;
+  font-size: 14px; line-height: 1; cursor: pointer;
+  color: #333;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+  transition: transform 0.16s var(--ease);
+}
+.mc-lightbox-close:hover { transform: scale(1.1); }
 .mc-award-more { display: none; flex-direction: column; }
 .mc-award-more.is-open { display: flex; }
 .mc-awards-toggle {
@@ -238,10 +292,10 @@ body {
 .mc-link-item::after {
   content: '→'; font-size: 11px; color: var(--ink-3);
   margin-left: auto; flex-shrink: 0;
-  opacity: 0; transform: translateX(-5px);
+  opacity: 0.3; transform: translateX(0);
   transition: opacity 0.2s var(--ease), transform 0.22s var(--ease);
 }
-.mc-link-item:hover::after { opacity: 1; transform: translateX(0); }
+.mc-link-item:hover::after { opacity: 1; transform: translateX(3px); }
 .mc-link-initial {
   width: 30px; height: 30px; border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
@@ -303,6 +357,39 @@ body::before {
   background-size: 180px;
 }
 
+/* ── Entry & stagger animations ── */
+@keyframes mcFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes mcFadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes mcItemIn {
+  from { transform: translateY(8px); }
+  to   { transform: none; }
+}
+
+/* Nav fades in on load */
+.mc-nav { animation: mcFadeIn 0.5s var(--ease) both; }
+
+/* Intro hero — children sequence in */
+.mc-intro-h1   { animation: mcFadeUp 0.68s var(--ease) 0.06s both; }
+.mc-intro-sub  { animation: mcFadeUp 0.62s var(--ease) 0.18s both; }
+.mc-bio        { animation: mcFadeUp 0.60s var(--ease) 0.28s both; }
+.mc-social-row { animation: mcFadeUp 0.56s var(--ease) 0.38s both; }
+
+/* List rows stagger up when section scrolls into view */
+.mc-stagger-item {
+  animation: mcItemIn 0.52s var(--ease) var(--stagger-delay, 0ms) both;
+  animation-play-state: paused;
+}
+.mc-stagger-item.is-staggered { animation-play-state: running; }
+
+/* Hidden awards skip stagger — they appear on toggle */
+.mc-award-more .mc-stagger-item { animation: none !important; }
+
 /* ── Mobile ── */
 @media (max-width: 520px) {
   .mc-nav { padding: 16px 20px 10px; max-width: none; }
@@ -331,6 +418,8 @@ body::before {
 @media (prefers-reduced-motion: reduce) {
   .mc-reveal { opacity: 1 !important; transform: none !important; transition: none !important; }
   *, *::before, *::after { transition-duration: 0ms !important; animation-duration: 0ms !important; }
+  .mc-nav, .mc-intro-h1, .mc-intro-sub, .mc-bio, .mc-social-row { animation: none !important; }
+  .mc-stagger-item { animation: none !important; }
 }
 
 /* ── Info Modal ── */
@@ -442,7 +531,7 @@ body::before {
 <main class="mc-main">
 
   <!-- ── Intro ── -->
-  <section class="mc-intro mc-reveal">
+  <section class="mc-intro">
     <h1 class="mc-intro-h1">hi, i'm aidan.</h1>
     <p class="mc-intro-sub">rising senior · saratoga high · class of 2027</p>
     <p class="mc-bio">Rising senior at Saratoga High. Spent the last few years building robots, running ML experiments, and playing basketball — sometimes all at once. Team Captain &amp; Mechanical Lead for VEX Robotics Team 95071V. Developer of ElderlyAI, an AI app for elderly care on the App Store. Two-time all-league. Open to summer research, robotics, and leadership opportunities.</p>
@@ -467,7 +556,7 @@ body::before {
     <h2 class="mc-sh">work.</h2>
 
     <div class="mc-proj-list">
-      <div class="mc-proj-row">
+      <div class="mc-proj-row mc-stagger-item">
         <a class="mc-proj-main" href="project-gutinstincts.html">
           <span class="mc-proj-name">Gut Instincts</span>
           <span class="mc-proj-dot">·</span>
@@ -479,7 +568,7 @@ body::before {
         </div>
       </div>
 
-      <div class="mc-proj-row">
+      <div class="mc-proj-row mc-stagger-item">
         <a class="mc-proj-main" href="project-diabetes.html">
           <span class="mc-proj-name">Diabetes Risk Prediction</span>
           <span class="mc-proj-dot">·</span>
@@ -491,7 +580,7 @@ body::before {
         </div>
       </div>
 
-      <div class="mc-proj-row">
+      <div class="mc-proj-row mc-stagger-item">
         <a class="mc-proj-main" href="project-elderlyai.html">
           <span class="mc-proj-name">ElderlyAI</span>
           <span class="mc-proj-dot">·</span>
@@ -503,7 +592,7 @@ body::before {
         </div>
       </div>
 
-      <div class="mc-proj-row">
+      <div class="mc-proj-row mc-stagger-item">
         <a class="mc-proj-main" href="project-crypto.html">
           <span class="mc-proj-name">Post-Quantum Cryptography</span>
           <span class="mc-proj-dot">·</span>
@@ -515,7 +604,7 @@ body::before {
         </div>
       </div>
 
-      <div class="mc-proj-row">
+      <div class="mc-proj-row mc-stagger-item">
         <a class="mc-proj-main" href="project-nba.html">
           <span class="mc-proj-name">NBA MVP Model Predictions</span>
           <span class="mc-proj-dot">·</span>
@@ -536,112 +625,125 @@ body::before {
 
     <div class="mc-award-list">
       <!-- top 5 always visible -->
-      <div class="mc-award">
+      <div class="mc-award mc-stagger-item" data-img="awards/mar26nationalstourney.jpg">
         <span class="mc-award-yr">Mar '26</span>
         <span>
           <span class="mc-award-cat">VEX Robotics</span>
           <span class="mc-award-name">Nationals Tournament Champion</span>
           <span class="mc-award-sub">Division (Red) Champion · Team 95071V</span>
         </span>
+        <svg class="mc-award-photo-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="15" rx="2"/><circle cx="12" cy="13.5" r="3.5"/><path d="M8 6l1.5-3h5L16 6"/></svg>
       </div>
-      <div class="mc-award">
+      <div class="mc-award mc-stagger-item" data-img="awards/25-2695071vworldsqualify.jpg">
         <span class="mc-award-yr">2025–26</span>
         <span>
           <span class="mc-award-cat">VEX Robotics</span>
           <span class="mc-award-name">Worlds, Nationals &amp; States Qualified</span>
           <span class="mc-award-sub">Team 95071V</span>
         </span>
+        <svg class="mc-award-photo-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="15" rx="2"/><circle cx="12" cy="13.5" r="3.5"/><path d="M8 6l1.5-3h5L16 6"/></svg>
       </div>
-      <div class="mc-award">
+      <div class="mc-award mc-stagger-item" data-img="awards/25-262ndteamallleague.jpeg">
         <span class="mc-award-yr">2025–26</span>
         <span>
           <span class="mc-award-cat">Varsity Basketball</span>
           <span class="mc-award-name">2nd Team All-League</span>
           <span class="mc-award-sub">SCVAL El Camino Division</span>
         </span>
+        <svg class="mc-award-photo-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="15" rx="2"/><circle cx="12" cy="13.5" r="3.5"/><path d="M8 6l1.5-3h5L16 6"/></svg>
       </div>
-      <div class="mc-award">
+      <div class="mc-award mc-stagger-item" data-img="awards/dec25roaringandsoaring.jpeg">
         <span class="mc-award-yr">Dec '25</span>
         <span>
           <span class="mc-award-cat">Board Recognition</span>
           <span class="mc-award-name">Roaring &amp; Soaring Honoree</span>
           <span class="mc-award-sub">Los Gatos-Saratoga UHSD Board of Trustees</span>
         </span>
+        <svg class="mc-award-photo-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="15" rx="2"/><circle cx="12" cy="13.5" r="3.5"/><path d="M8 6l1.5-3h5L16 6"/></svg>
       </div>
-      <div class="mc-award">
+      <div class="mc-award mc-stagger-item" data-img="awards/feb25createaward.JPG">
         <span class="mc-award-yr">Feb '25</span>
         <span>
           <span class="mc-award-cat">VEX Robotics</span>
           <span class="mc-award-name">Create Award Winner</span>
           <span class="mc-award-sub">NorthCal Silicon Valley Signature Event</span>
         </span>
+        <svg class="mc-award-photo-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="15" rx="2"/><circle cx="12" cy="13.5" r="3.5"/><path d="M8 6l1.5-3h5L16 6"/></svg>
       </div>
 
       <!-- remaining 8 — hidden until toggled -->
       <div class="mc-award-more" id="award-more">
-        <div class="mc-award">
+        <div class="mc-award mc-stagger-item" data-img="awards/25-26ccsschoalasticaward.jpeg">
           <span class="mc-award-yr">2025–26</span>
           <span>
             <span class="mc-award-cat">Varsity Basketball</span>
             <span class="mc-award-name">CCS Scholastic Award</span>
             <span class="mc-award-sub">CIF Central Coast Section</span>
           </span>
+          <svg class="mc-award-photo-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="15" rx="2"/><circle cx="12" cy="13.5" r="3.5"/><path d="M8 6l1.5-3h5L16 6"/></svg>
         </div>
-        <div class="mc-award">
+        <div class="mc-award mc-stagger-item" data-img="awards/25-26alltournamentsanmarinmustangs.jpeg">
           <span class="mc-award-yr">2025–26</span>
           <span>
             <span class="mc-award-cat">Varsity Basketball</span>
             <span class="mc-award-name">All Tournament Award</span>
             <span class="mc-award-sub">San Marin Mustangs Invitational</span>
           </span>
+          <svg class="mc-award-photo-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="15" rx="2"/><circle cx="12" cy="13.5" r="3.5"/><path d="M8 6l1.5-3h5L16 6"/></svg>
         </div>
-        <div class="mc-award">
+        <div class="mc-award mc-stagger-item" data-img="awards/24-25nationalsstates95071v.JPG">
           <span class="mc-award-yr">2024–25</span>
           <span>
             <span class="mc-award-cat">VEX Robotics</span>
             <span class="mc-award-name">Nationals &amp; States Qualified</span>
             <span class="mc-award-sub">Team 95071V</span>
           </span>
+          <svg class="mc-award-photo-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="15" rx="2"/><circle cx="12" cy="13.5" r="3.5"/><path d="M8 6l1.5-3h5L16 6"/></svg>
         </div>
-        <div class="mc-award">
+        <div class="mc-award mc-stagger-item" data-img="awards/24-25leaguechampion.JPG">
           <span class="mc-award-yr">2024–25</span>
           <span>
             <span class="mc-award-cat">Varsity Basketball</span>
             <span class="mc-award-name">League Champion</span>
             <span class="mc-award-sub">SCVAL El Camino Division</span>
           </span>
+          <svg class="mc-award-photo-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="15" rx="2"/><circle cx="12" cy="13.5" r="3.5"/><path d="M8 6l1.5-3h5L16 6"/></svg>
         </div>
-        <div class="mc-award">
+        <div class="mc-award mc-stagger-item" data-img="awards/24-252ndteamallleague.JPG">
           <span class="mc-award-yr">2024–25</span>
           <span>
             <span class="mc-award-cat">Varsity Basketball</span>
             <span class="mc-award-name">2nd Team All-League</span>
             <span class="mc-award-sub">SCVAL El Camino Division</span>
           </span>
+          <svg class="mc-award-photo-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="15" rx="2"/><circle cx="12" cy="13.5" r="3.5"/><path d="M8 6l1.5-3h5L16 6"/></svg>
         </div>
-        <div class="mc-award">
+        <div class="mc-award mc-stagger-item" data-img="awards/24-25mvpawardjameslick.jpg">
           <span class="mc-award-yr">2024–25</span>
           <span>
             <span class="mc-award-cat">Varsity Basketball</span>
             <span class="mc-award-name">MVP Award</span>
             <span class="mc-award-sub">James Lick Tournament</span>
           </span>
+          <svg class="mc-award-photo-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="15" rx="2"/><circle cx="12" cy="13.5" r="3.5"/><path d="M8 6l1.5-3h5L16 6"/></svg>
         </div>
-        <div class="mc-award">
+        <div class="mc-award mc-stagger-item" data-img="awards/23-24worlds95071h.jpg">
           <span class="mc-award-yr">2023–24</span>
           <span>
             <span class="mc-award-cat">VEX Robotics</span>
             <span class="mc-award-name">Worlds, Nationals &amp; States Qualified</span>
             <span class="mc-award-sub">Team 95071H · Debut season</span>
           </span>
+          <svg class="mc-award-photo-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="15" rx="2"/><circle cx="12" cy="13.5" r="3.5"/><path d="M8 6l1.5-3h5L16 6"/></svg>
         </div>
-        <div class="mc-award" style="border-bottom: none; padding-bottom: 0;">
+        <div class="mc-award mc-stagger-item" data-img="awards/23-242ndteamallleague.jpeg" style="border-bottom: none; padding-bottom: 0;">
           <span class="mc-award-yr">2023–24</span>
           <span>
             <span class="mc-award-cat">JV Basketball</span>
             <span class="mc-award-name">3rd Team All-League</span>
             <span class="mc-award-sub">SCVAL El Camino Division</span>
           </span>
+          <svg class="mc-award-photo-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="15" rx="2"/><circle cx="12" cy="13.5" r="3.5"/><path d="M8 6l1.5-3h5L16 6"/></svg>
         </div>
       </div>
     </div>
@@ -659,7 +761,7 @@ body::before {
     <p class="mc-interests-text">Outside academics and sports I keep a lot going. I volunteer with <a href="https://www.instagram.com/art4hearts" target="_blank" rel="noopener">Art4Hearts</a>, a nonprofit connecting art and community. I train PPL at the gym, keep my Wordle and Connections streaks alive, read when I can, and know too many good restaurants in the South Bay.</p>
 
     <div class="mc-links-grid">
-      <a class="mc-link-item" href="#" data-info="art4hearts">
+      <a class="mc-link-item mc-stagger-item" href="#" data-info="art4hearts">
         <span class="mc-link-initial" style="background:#7a2860;">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
             <path d="M12 20.5c-4-3-7.5-6.2-7.5-10A4.5 4.5 0 0 1 12 7a4.5 4.5 0 0 1 7.5 3.5c0 3.8-3.5 7-7.5 10z"/>
@@ -670,7 +772,7 @@ body::before {
           <span class="mc-link-sub">A nonprofit I volunteer with</span>
         </span>
       </a>
-      <a class="mc-link-item" href="#" data-info="wordle">
+      <a class="mc-link-item mc-stagger-item" href="#" data-info="wordle">
         <span class="mc-link-initial" style="background:#286028;">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" stroke="none">
             <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
@@ -681,7 +783,7 @@ body::before {
           <span class="mc-link-sub">I play daily to keep my streak</span>
         </span>
       </a>
-      <a class="mc-link-item" href="#" data-info="books">
+      <a class="mc-link-item mc-stagger-item" href="#" data-info="books">
         <span class="mc-link-initial" style="background:#1a3a5c;">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" stroke="none">
             <path d="M4 4.5A1.5 1.5 0 0 1 5.5 3H11v17H5.5A1.5 1.5 0 0 1 4 18.5z"/><path d="M13 3h5.5A1.5 1.5 0 0 1 20 4.5v14a1.5 1.5 0 0 1-1.5 1.5H13z"/><rect x="10.5" y="3" width="3" height="17" fill="rgba(255,255,255,0.2)"/>
@@ -692,7 +794,7 @@ body::before {
           <span class="mc-link-sub">What I've been reading</span>
         </span>
       </a>
-      <a class="mc-link-item" href="#" data-info="food">
+      <a class="mc-link-item mc-stagger-item" href="#" data-info="food">
         <span class="mc-link-initial" style="background:#8b3a1a;">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" stroke="none">
             <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5z"/>
@@ -703,7 +805,7 @@ body::before {
           <span class="mc-link-sub">My go-to spots, on the map</span>
         </span>
       </a>
-      <a class="mc-link-item" href="#" data-info="lift">
+      <a class="mc-link-item mc-stagger-item" href="#" data-info="lift">
         <span class="mc-link-initial" style="background:#363636;">
           <svg width="15" height="10" viewBox="0 0 24 14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
             <path d="M2 7h20M5 4v6M19 4v6"/>
@@ -718,7 +820,7 @@ body::before {
           <span class="mc-link-sub">My PPL routine</span>
         </span>
       </a>
-      <a class="mc-link-item" href="#" data-info="write">
+      <a class="mc-link-item mc-stagger-item" href="#" data-info="write">
         <span class="mc-link-initial" style="background:#2a3050;">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" stroke="none">
             <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
@@ -763,6 +865,15 @@ body::before {
   <div class="mc-info-modal-card" role="dialog" aria-modal="true">
     <button class="mc-info-modal-close" id="mc-info-modal-close" aria-label="Close">&times;</button>
     <div id="mc-info-modal-body"></div>
+  </div>
+</div>
+
+<!-- Award photo lightbox -->
+<div id="award-lightbox" class="mc-lightbox" role="dialog" aria-modal="true" aria-label="Award photo" aria-hidden="true">
+  <div id="award-lightbox-backdrop" class="mc-lightbox-backdrop"></div>
+  <div class="mc-lightbox-frame">
+    <img id="award-lightbox-img" class="mc-lightbox-img" src="" alt="Award photo">
+    <button id="award-lightbox-close" class="mc-lightbox-close" aria-label="Close">✕</button>
   </div>
 </div>
 
@@ -931,6 +1042,69 @@ body::before {
   }, { threshold: 0.06, rootMargin: '-20px 0px' });
   els.forEach(function(el) { obs.observe(el); });
 })();
+
+// ── Scroll stagger for list rows ──
+(function () {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if (!('IntersectionObserver' in window)) {
+    document.querySelectorAll('.mc-stagger-item').forEach(function(el) {
+      el.classList.add('is-staggered');
+    });
+    return;
+  }
+  var obs = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (!entry.isIntersecting) return;
+      var items = Array.from(entry.target.querySelectorAll('.mc-stagger-item'));
+      items.forEach(function(el, i) {
+        el.style.setProperty('--stagger-delay', (i * 42) + 'ms');
+        el.classList.add('is-staggered');
+        // Clear animation after it finishes so hover transitions can take over
+        el.addEventListener('animationend', function() {
+          el.style.animation = 'none';
+        }, { once: true });
+      });
+      obs.unobserve(entry.target);
+    });
+  }, { threshold: 0.05, rootMargin: '-10px 0px' });
+  document.querySelectorAll('.mc-section').forEach(function(s) { obs.observe(s); });
+})();
+
+// ── Award photo lightbox ──
+(function () {
+  var lb = document.getElementById('award-lightbox');
+  var lbImg = document.getElementById('award-lightbox-img');
+  var lbClose = document.getElementById('award-lightbox-close');
+  var lbBack = document.getElementById('award-lightbox-backdrop');
+
+  function openLightbox(src) {
+    lbImg.src = src;
+    lb.classList.add('is-open');
+    lb.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+    lbClose.focus();
+  }
+
+  function closeLightbox() {
+    lb.classList.remove('is-open');
+    lb.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+    lbImg.src = '';
+  }
+
+  lbClose.addEventListener('click', closeLightbox);
+  lbBack.addEventListener('click', closeLightbox);
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && lb.classList.contains('is-open')) closeLightbox();
+  });
+
+  document.querySelectorAll('.mc-award[data-img]').forEach(function(el) {
+    el.addEventListener('click', function() {
+      openLightbox(el.getAttribute('data-img'));
+    });
+  });
+})();
 </script>
+
 </body>
 </html>
