@@ -304,6 +304,60 @@ body {
 .mc-link-label { font-size: 13.5px; font-weight: 600; color: var(--ink); display: block; line-height: 1.3; }
 .mc-link-sub { font-size: 11.5px; color: var(--ink-2); display: block; }
 
+/* ── Bookshelf ── */
+.mc-bookshelf {
+  margin-top: 34px;
+}
+.mc-bookshelf-label {
+  font-size: 11px; font-weight: 600; letter-spacing: 0.06em;
+  text-transform: uppercase; color: var(--ink-3);
+  margin-bottom: 14px;
+}
+.mc-bookshelf-stack {
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+}
+.mc-book-card {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 18px; padding: 12px 18px;
+  border-radius: 6px; max-width: 100%;
+  transition: opacity 0.2s var(--ease);
+  text-decoration: none;
+}
+.mc-book-card { cursor: default; }
+.mc-book-card:hover { opacity: 0.82; }
+.mc-book-info { display: flex; flex-direction: column; gap: 3px; flex: 1; min-width: 0; }
+.mc-book-title {
+  font-size: 13px; font-weight: 600; line-height: 1.3;
+}
+.mc-book-author {
+  font-size: 11.5px; font-style: italic; opacity: 0.72;
+  font-family: Georgia, 'Times New Roman', serif;
+}
+.mc-book-year {
+  font-size: 10.5px; opacity: 0.45; margin-top: 5px;
+  letter-spacing: 0.03em;
+}
+.mc-book-cover {
+  height: 62px; width: auto; border-radius: 3px;
+  flex-shrink: 0; object-fit: cover;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.35);
+}
+.mc-bookshelf-footer {
+  display: flex; justify-content: flex-end;
+  margin-top: 11px;
+}
+.mc-bookshelf-more {
+  font-size: 12px; color: var(--ink-2); text-decoration: none;
+  transition: color 0.2s var(--ease);
+}
+.mc-bookshelf-more:hover { color: var(--ink); }
+@media (max-width: 480px) {
+  .mc-book-card { padding: 10px 14px; gap: 12px; }
+  .mc-book-cover { height: 50px; }
+  .mc-book-title { font-size: 12px; }
+  .mc-book-author { font-size: 11px; }
+}
+
 /* ── Contact ── */
 .mc-contact-sub {
   font-size: 14px; color: var(--ink-2); line-height: 1.65;
@@ -831,6 +885,40 @@ body::before {
           <span class="mc-link-sub">A few pieces of mine</span>
         </span>
       </a>
+    </div>
+
+    <!-- Bookshelf -->
+    <div class="mc-bookshelf mc-reveal">
+      <div class="mc-bookshelf-label">bookshelf</div>
+      <div class="mc-bookshelf-stack">
+        <div class="mc-book-card" style="background:#2d0a00; color:#f8ddd8; width:345px;">
+          <div class="mc-book-info">
+            <span class="mc-book-title">Beloved</span>
+            <span class="mc-book-author">Toni Morrison</span>
+            <span class="mc-book-year">read 2025</span>
+          </div>
+          <img class="mc-book-cover" src="https://covers.openlibrary.org/b/isbn/9781400033416-M.jpg" alt="Beloved" loading="lazy"/>
+        </div>
+        <div class="mc-book-card" style="background:#001635; color:#d8eaf8; width:373px;">
+          <div class="mc-book-info">
+            <span class="mc-book-title">All the Light We Cannot See</span>
+            <span class="mc-book-author">Anthony Doerr</span>
+            <span class="mc-book-year">read 2026</span>
+          </div>
+          <img class="mc-book-cover" src="https://covers.openlibrary.org/b/isbn/9781476746586-M.jpg" alt="All the Light We Cannot See" loading="lazy"/>
+        </div>
+        <div class="mc-book-card" style="background:#0d1a40; color:#d8e4f8; width:401px;">
+          <div class="mc-book-info">
+            <span class="mc-book-title">Slaughterhouse-Five</span>
+            <span class="mc-book-author">Kurt Vonnegut</span>
+            <span class="mc-book-year">read 2026</span>
+          </div>
+          <img class="mc-book-cover" src="https://covers.openlibrary.org/b/isbn/9780385333849-M.jpg" alt="Slaughterhouse-Five" loading="lazy"/>
+        </div>
+      </div>
+      <div class="mc-bookshelf-footer">
+        <a class="mc-bookshelf-more" href="books.html">More books ↗</a>
+      </div>
     </div>
   </section>
 

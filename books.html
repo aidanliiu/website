@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Books — Aidan Liu</title>
+<meta name="description" content="Aidan Liu's reading list.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap" rel="stylesheet">
+<style>
+/* ── Reset ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+::selection { background: rgba(0,0,0,0.07); }
+
+:root {
+  --ease: cubic-bezier(0.23, 1, 0.32, 1);
+  --ink:   #0d0d0d;
+  --ink-2: rgba(0,0,0,0.46);
+  --ink-3: rgba(0,0,0,0.26);
+  --line:  rgba(0,0,0,0.09);
+  --bg:    #ffffff;
+}
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 15px;
+  line-height: 1.65;
+  min-height: 100dvh;
+}
+
+/* ── Nav ── */
+.mc-nav {
+  position: sticky; top: 0; z-index: 50;
+  display: flex; align-items: center; justify-content: space-between;
+  max-width: 660px; margin: 0 auto;
+  padding: 20px 28px 14px;
+  background: rgba(255,255,255,0.88);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+.mc-nav-name {
+  font-size: 13px; font-weight: 700; letter-spacing: -0.01em;
+  color: var(--ink); text-decoration: none;
+}
+.mc-nav-links { display: flex; gap: 20px; }
+.mc-nav-links a {
+  font-size: 12.5px; color: var(--ink-2); text-decoration: none;
+  transition: color 0.2s var(--ease);
+}
+.mc-nav-links a:hover { color: var(--ink); }
+
+/* ── Mode toggle ── */
+#mode-toggle {
+  position: fixed; bottom: 22px; right: 22px; z-index: 9500;
+  display: flex; align-items: center; gap: 7px;
+  padding: 9px 15px 9px 12px;
+  background: rgba(0,0,0,0.06);
+  border: 1px solid rgba(0,0,0,0.1);
+  border-radius: 99px;
+  color: rgba(0,0,0,0.5);
+  font-size: 12px; font-weight: 500; letter-spacing: 0.03em;
+  text-decoration: none; font-family: inherit; cursor: pointer;
+  transition: background 0.2s var(--ease), border-color 0.2s var(--ease),
+              color 0.2s var(--ease), transform 0.16s var(--ease);
+}
+#mode-toggle:hover {
+  background: rgba(0,0,0,0.09); border-color: rgba(0,0,0,0.22);
+  color: var(--ink); transform: translateY(-1px);
+}
+#mode-toggle:active { transform: scale(0.97); }
+
+/* ── Page header ── */
+.books-header {
+  max-width: 660px;
+  margin: 56px auto 0;
+  padding: 0 28px;
+}
+.books-title {
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  color: var(--ink);
+}
+.books-meta {
+  font-size: 12.5px;
+  color: var(--ink-2);
+  margin-top: 5px;
+}
+
+/* ── Shelf ── */
+.shelf-outer {
+  position: relative;
+  margin-top: 44px;
+}
+
+/* Right fade hint */
+.shelf-outer::after {
+  content: '';
+  position: absolute;
+  right: 0; top: 0; bottom: 44px;
+  width: 72px;
+  background: linear-gradient(to right, transparent, var(--bg));
+  pointer-events: none;
+  z-index: 3;
+}
+
+.shelf-track {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;
+  gap: 4px;
+  overflow-x: auto;
+  overflow-y: visible;
+  padding: 0 28px 0 28px;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  cursor: grab;
+  user-select: none;
+  -webkit-overflow-scrolling: touch;
+}
+.shelf-track::-webkit-scrollbar { display: none; }
+.shelf-track.dragging { cursor: grabbing; }
+
+/* The wooden shelf plank */
+.shelf-plank {
+  height: 14px;
+  margin: 0 28px;
+  background: #d8c9a8;
+  border-radius: 0 0 4px 4px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+}
+
+/* ── Book Spine ── */
+.book-spine {
+  flex-shrink: 0;
+  height: 340px;
+  border-radius: 3px 5px 5px 3px;
+
+  /* writing-mode: sideways-lr makes inline direction = bottom-to-top */
+  writing-mode: sideways-lr;
+
+  /* flex-direction: row in sideways-lr = children stack bottom-to-top */
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+
+  padding: 20px 11px;
+  cursor: default;
+  position: relative;
+  transition: transform 0.28s var(--ease), box-shadow 0.28s var(--ease);
+
+  /* Spine edge shadow */
+  box-shadow:
+    inset -3px 0 8px rgba(0,0,0,0.22),
+    2px 0 0 rgba(0,0,0,0.08),
+    3px 4px 18px rgba(0,0,0,0.20);
+}
+.book-spine:hover {
+  transform: translateY(-11px);
+  box-shadow:
+    inset -3px 0 8px rgba(0,0,0,0.22),
+    2px 0 0 rgba(0,0,0,0.08),
+    4px 14px 28px rgba(0,0,0,0.28);
+}
+
+/* Text info block — stacks bottom-to-top (flex-direction: row in sideways-lr) */
+.spine-info {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 5px;
+}
+.spine-author {
+  font-size: 9.5px;
+  font-style: italic;
+  font-family: Georgia, 'Times New Roman', serif;
+  opacity: 0.72;
+  line-height: 1;
+  white-space: nowrap;
+}
+.spine-title {
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1;
+  white-space: nowrap;
+}
+.spine-year {
+  font-size: 9px;
+  font-weight: 500;
+  opacity: 0.50;
+  line-height: 1;
+  letter-spacing: 0.03em;
+}
+
+/* Cover — counteracts parent writing-mode */
+.spine-cover {
+  writing-mode: horizontal-tb;
+  flex-shrink: 0;
+}
+.spine-cover img {
+  display: block;
+  width: 38px;
+  height: 52px;
+  object-fit: cover;
+  border-radius: 2px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.35);
+}
+
+/* ── Scroll hint ── */
+.scroll-hint {
+  max-width: 660px;
+  margin: 18px auto 80px;
+  padding: 0 28px;
+  font-size: 11.5px;
+  color: var(--ink-3);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.scroll-hint svg { flex-shrink: 0; }
+
+/* ── Animations ── */
+@keyframes mcFadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.mc-nav    { animation: mcFadeIn 0.5s var(--ease) both; }
+.books-header { animation: mcFadeIn 0.5s 0.08s var(--ease) both; }
+.shelf-outer  { animation: mcFadeIn 0.55s 0.16s var(--ease) both; }
+
+@media (prefers-reduced-motion: reduce) {
+  .mc-nav, .books-header, .shelf-outer { animation: none; }
+}
+
+/* ── Mobile ── */
+@media (max-width: 520px) {
+  .mc-nav { padding: 16px 20px 10px; max-width: none; }
+  .books-header { margin-top: 40px; padding: 0 20px; }
+  .shelf-track { padding: 0 20px; }
+  .shelf-plank { margin: 0 20px; }
+  .scroll-hint { padding: 0 20px; margin-bottom: 60px; }
+  .book-spine { height: 300px; }
+  #mode-toggle { bottom: 14px; right: 14px; }
+}
+</style>
+</head>
+<body>
+
+<!-- Nav -->
+<nav class="mc-nav">
+  <a href="minimal.html" class="mc-nav-name">Aidan Liu</a>
+  <div class="mc-nav-links">
+    <a href="gallery.html">Gallery</a>
+  </div>
+</nav>
+
+<!-- Mode toggle -->
+<a href="index.html" id="mode-toggle" aria-label="Switch to animated experience" onclick="localStorage.setItem('siteMode','animated')">
+  <svg width="13" height="13" viewBox="0 0 13 13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+    <circle cx="6.5" cy="6.5" r="5.5"/>
+    <path d="M6.5 1v11M1 6.5h11" opacity="0.5"/>
+  </svg>
+  Animated
+</a>
+
+<!-- Page header -->
+<header class="books-header">
+  <h1 class="books-title">Reading</h1>
+  <p class="books-meta">12 books · 2023 – 2026</p>
+</header>
+
+<!-- Shelf -->
+<div class="shelf-outer">
+  <div class="shelf-track" id="shelfTrack">
+
+    <!-- 1. The Great Gatsby -->
+    <div class="book-spine" style="width:84px; background:#B8852A; color:#F7EAC8;">
+      <div class="spine-info">
+        <span class="spine-author">F. Scott Fitzgerald</span>
+        <span class="spine-title">The Great Gatsby</span>
+        <span class="spine-year">2026</span>
+      </div>
+      <div class="spine-cover">
+        <img src="https://covers.openlibrary.org/b/isbn/9780743273565-M.jpg" alt="The Great Gatsby" onerror="this.parentElement.style.display='none'">
+      </div>
+    </div>
+
+    <!-- 2. Beloved -->
+    <div class="book-spine" style="width:80px; background:#3A0A0A; color:#F5D4CC;">
+      <div class="spine-info">
+        <span class="spine-author">Toni Morrison</span>
+        <span class="spine-title">Beloved</span>
+        <span class="spine-year">2025</span>
+      </div>
+      <div class="spine-cover">
+        <img src="https://covers.openlibrary.org/b/isbn/9781400033416-M.jpg" alt="Beloved" onerror="this.parentElement.style.display='none'">
+      </div>
+    </div>
+
+    <!-- 3. The Things They Carried -->
+    <div class="book-spine" style="width:76px; background:#293A1C; color:#CFE0BB;">
+      <div class="spine-info">
+        <span class="spine-author">Tim O'Brien</span>
+        <span class="spine-title">The Things They Carried</span>
+        <span class="spine-year">2026</span>
+      </div>
+      <div class="spine-cover">
+        <img src="https://covers.openlibrary.org/b/isbn/9780618706419-M.jpg" alt="The Things They Carried" onerror="this.parentElement.style.display='none'">
+      </div>
+    </div>
+
+    <!-- 4. This Boy's Life -->
+    <div class="book-spine" style="width:72px; background:#162840; color:#C0D8EF;">
+      <div class="spine-info">
+        <span class="spine-author">Tobias Wolff</span>
+        <span class="spine-title">This Boy's Life</span>
+        <span class="spine-year">2026</span>
+      </div>
+      <div class="spine-cover">
+        <img src="https://covers.openlibrary.org/b/isbn/9780802136688-M.jpg" alt="This Boy's Life" onerror="this.parentElement.style.display='none'">
+      </div>
+    </div>
+
+    <!-- 5. All the Light We Cannot See -->
+    <div class="book-spine" style="width:96px; background:#0C1E40; color:#BAD2F0;">
+      <div class="spine-info">
+        <span class="spine-author">Anthony Doerr</span>
+        <span class="spine-title">All the Light We Cannot See</span>
+        <span class="spine-year">2026</span>
+      </div>
+      <div class="spine-cover">
+        <img src="https://covers.openlibrary.org/b/isbn/9781476746586-M.jpg" alt="All the Light We Cannot See" onerror="this.parentElement.style.display='none'">
+      </div>
+    </div>
+
+    <!-- 6. Slaughterhouse-Five -->
+    <div class="book-spine" style="width:68px; background:#12102E; color:#CCCAF8;">
+      <div class="spine-info">
+        <span class="spine-author">Kurt Vonnegut</span>
+        <span class="spine-title">Slaughterhouse-Five</span>
+        <span class="spine-year">2026</span>
+      </div>
+      <div class="spine-cover">
+        <img src="https://covers.openlibrary.org/b/isbn/9780385333849-M.jpg" alt="Slaughterhouse-Five" onerror="this.parentElement.style.display='none'">
+      </div>
+    </div>
+
+    <!-- 7. Ender's Game -->
+    <div class="book-spine" style="width:84px; background:#08101E; color:#7AB0E8;">
+      <div class="spine-info">
+        <span class="spine-author">Orson Scott Card</span>
+        <span class="spine-title">Ender's Game</span>
+        <span class="spine-year">2023</span>
+      </div>
+      <div class="spine-cover">
+        <img src="https://covers.openlibrary.org/b/isbn/9780812550702-M.jpg" alt="Ender's Game" onerror="this.parentElement.style.display='none'">
+      </div>
+    </div>
+
+    <!-- 8. The Tombs of Atuan -->
+    <div class="book-spine" style="width:72px; background:#1C0828; color:#D4B8EE;">
+      <div class="spine-info">
+        <span class="spine-author">Ursula K. Le Guin</span>
+        <span class="spine-title">The Tombs of Atuan</span>
+        <span class="spine-year">2023</span>
+      </div>
+      <div class="spine-cover">
+        <img src="https://covers.openlibrary.org/b/isbn/9781442459915-M.jpg" alt="The Tombs of Atuan" onerror="this.parentElement.style.display='none'">
+      </div>
+    </div>
+
+    <!-- 9. A Wizard of Earthsea -->
+    <div class="book-spine" style="width:72px; background:#041E28; color:#7CD0DC;">
+      <div class="spine-info">
+        <span class="spine-author">Ursula K. Le Guin</span>
+        <span class="spine-title">A Wizard of Earthsea</span>
+        <span class="spine-year">2023</span>
+      </div>
+      <div class="spine-cover">
+        <img src="https://covers.openlibrary.org/b/isbn/9780547773742-M.jpg" alt="A Wizard of Earthsea" onerror="this.parentElement.style.display='none'">
+      </div>
+    </div>
+
+    <!-- 10. The Adventures of Tom Sawyer -->
+    <div class="book-spine" style="width:80px; background:#241206; color:#EED2A0;">
+      <div class="spine-info">
+        <span class="spine-author">Mark Twain</span>
+        <span class="spine-title">The Adventures of Tom Sawyer</span>
+        <span class="spine-year">2024</span>
+      </div>
+      <div class="spine-cover">
+        <img src="https://covers.openlibrary.org/b/isbn/9780486400778-M.jpg" alt="The Adventures of Tom Sawyer" onerror="this.parentElement.style.display='none'">
+      </div>
+    </div>
+
+    <!-- 11. Adventures of Huckleberry Finn -->
+    <div class="book-spine" style="width:88px; background:#061422; color:#9ABFDA;">
+      <div class="spine-info">
+        <span class="spine-author">Mark Twain</span>
+        <span class="spine-title">Adventures of Huckleberry Finn</span>
+        <span class="spine-year">2024</span>
+      </div>
+      <div class="spine-cover">
+        <img src="https://covers.openlibrary.org/b/isbn/9780486280615-M.jpg" alt="Adventures of Huckleberry Finn" onerror="this.parentElement.style.display='none'">
+      </div>
+    </div>
+
+    <!-- 12. The Grapes of Wrath -->
+    <div class="book-spine" style="width:92px; background:#3C1208; color:#ECCCA0;">
+      <div class="spine-info">
+        <span class="spine-author">John Steinbeck</span>
+        <span class="spine-title">The Grapes of Wrath</span>
+        <span class="spine-year">2025</span>
+      </div>
+      <div class="spine-cover">
+        <img src="https://covers.openlibrary.org/b/isbn/9780143039433-M.jpg" alt="The Grapes of Wrath" onerror="this.parentElement.style.display='none'">
+      </div>
+    </div>
+
+  </div><!-- /shelf-track -->
+
+  <!-- Shelf plank -->
+  <div class="shelf-plank"></div>
+
+</div><!-- /shelf-outer -->
+
+<!-- Scroll hint -->
+<p class="scroll-hint">
+  <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+    <path d="M2 6h8M7 3l3 3-3 3"/>
+  </svg>
+  drag to explore all 12 books
+</p>
+
+<script>
+  // ── Drag-to-scroll ──
+  const track = document.getElementById('shelfTrack');
+  let dragging = false, startX = 0, startScroll = 0;
+
+  track.addEventListener('mousedown', e => {
+    dragging = true;
+    startX = e.pageX - track.offsetLeft;
+    startScroll = track.scrollLeft;
+    track.classList.add('dragging');
+    e.preventDefault();
+  });
+  document.addEventListener('mouseup', () => {
+    dragging = false;
+    track.classList.remove('dragging');
+  });
+  document.addEventListener('mousemove', e => {
+    if (!dragging) return;
+    const x = e.pageX - track.offsetLeft;
+    track.scrollLeft = startScroll - (x - startX) * 1.4;
+  });
+
+  // Prevent accidental text selection during drag
+  track.addEventListener('selectstart', e => { if (dragging) e.preventDefault(); });
+</script>
+</body>
+</html>
