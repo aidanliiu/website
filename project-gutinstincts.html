@@ -1,0 +1,1320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gut Instincts — Stanford CARE Explorers · Aidan Liu</title>
+<meta name="description" content="Gut Instincts: A GI cancer health platform built as the final deliverable for Stanford's CARE Explorers Program.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.14/dist/lenis.min.js" onerror="window.__lenisOk=false"></script>
+<style>
+  :root {
+    --bg:         #070f09;
+    --bg-hero:    #0a1410;
+    --surface:    #0f1c12;
+    --surface-hi: #172619;
+    --fg:         #eaf2ec;
+    --fg-sec:     #b8d8be;
+    --fg-ter:     rgba(184,216,190,0.40);
+    --muted:      #90b898;
+    --border:     rgba(34,197,94,0.16);
+    --accent:     #22c55e;
+    --accent-mid: #4ade80;
+    --accent-dim: rgba(34,197,94,0.10);
+    --ease-out:   cubic-bezier(0.23, 1, 0.32, 1);
+    --ease-io:    cubic-bezier(0.77, 0, 0.175, 1);
+    --ease-expo:  cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-padding-top: 80px; }
+
+  /* ── Scroll progress ── */
+  #scroll-progress {
+    position: fixed; top: 0; left: 0; height: 2px; width: 0%;
+    background: linear-gradient(90deg, var(--accent), var(--accent-mid));
+    z-index: 200; transition: width 0.06s linear;
+    box-shadow: 0 0 10px rgba(34,197,94,0.5), 0 0 20px rgba(34,197,94,0.2);
+  }
+
+  body {
+    background: var(--bg); color: var(--fg);
+    font-family: 'Plus Jakarta Sans', -apple-system, 'Helvetica Neue', Arial, sans-serif;
+    font-size: 15px; line-height: 1.65;
+    -webkit-font-smoothing: antialiased; overflow-x: hidden;
+  }
+
+  /* ── Topbar ── */
+  .topbar {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 20px 40px;
+    background: rgba(7,15,9,0.82);
+    backdrop-filter: blur(22px) saturate(180%); -webkit-backdrop-filter: blur(22px) saturate(180%);
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.3s var(--ease-out), box-shadow 0.3s var(--ease-out);
+  }
+  .topbar.scrolled { border-color: var(--border); box-shadow: 0 1px 24px rgba(0,0,0,0.55); }
+  .back-link {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 13px; font-weight: 600; color: var(--fg);
+    text-decoration: none; letter-spacing: 0.01em;
+    transition: gap 0.22s var(--ease-out), opacity 0.22s var(--ease-out);
+  }
+  .back-link:hover { gap: 13px; opacity: 0.5; }
+  .back-link svg { width: 14px; height: 14px; flex-shrink: 0; }
+  .topbar-name {
+    font-size: 13px; font-weight: 700; color: var(--fg);
+    text-decoration: none; opacity: 0.45; transition: opacity 0.22s var(--ease-out);
+  }
+  .topbar-name:hover { opacity: 1; }
+
+  /* ── Hero ── */
+  .hero-shell {
+    background: var(--bg-hero); border-bottom: 1px solid var(--border);
+    position: relative; overflow: hidden; min-height: 280px;
+  }
+  /* Scanning line */
+  .hero-shell::before {
+    content: ''; position: absolute; left: 0; right: 0; height: 1px;
+    background: linear-gradient(90deg, transparent 0%, rgba(34,197,94,0.35) 40%, rgba(74,222,128,0.55) 50%, rgba(34,197,94,0.35) 60%, transparent 100%);
+    z-index: 1; pointer-events: none;
+    animation: scan-line 8s ease-in-out infinite;
+  }
+  @keyframes scan-line {
+    0%   { top: 5%;  opacity: 0; }
+    5%   { opacity: 1; }
+    95%  { opacity: 0.6; }
+    100% { top: 95%; opacity: 0; }
+  }
+  /* Ambient grid overlay */
+  .hero-shell::after {
+    content: ''; position: absolute; inset: 0; pointer-events: none; z-index: 0;
+    background-image:
+      linear-gradient(rgba(34,197,94,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(34,197,94,0.04) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+  /* Floating orbs */
+  .hero-orb {
+    position: absolute; border-radius: 50%; pointer-events: none; z-index: 0; will-change: transform;
+  }
+  .hero-orb-1 {
+    width: 500px; height: 500px;
+    background: radial-gradient(circle, rgba(34,197,94,0.12) 0%, transparent 65%);
+    bottom: -180px; left: 50%; margin-left: -250px;
+    animation: orb-pulse 8s ease-in-out infinite;
+  }
+  .hero-orb-2 {
+    width: 280px; height: 280px;
+    background: radial-gradient(circle, rgba(74,222,128,0.09) 0%, transparent 60%);
+    top: 10%; right: 0%;
+    animation: orb-pulse 11s ease-in-out 3s infinite;
+  }
+  .hero-orb-3 {
+    width: 180px; height: 180px;
+    background: radial-gradient(circle, rgba(34,197,94,0.08) 0%, transparent 60%);
+    top: 60%; left: 5%;
+    animation: orb-pulse 6s ease-in-out 1.5s infinite;
+  }
+  @keyframes orb-pulse {
+    0%, 100% { opacity: 0.6; transform: translateY(0) scale(1); }
+    50%       { opacity: 1;   transform: translateY(-18px) scale(1.06); }
+  }
+  .hero {
+    padding: 130px 40px 64px; max-width: 800px; margin: 0 auto; position: relative; z-index: 2;
+  }
+  .tag {
+    font-size: 10px; font-weight: 700; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--accent); margin-bottom: 18px; display: inline-block;
+  }
+  .title {
+    font-family: Georgia, "Times New Roman", serif;
+    font-weight: normal; font-size: clamp(28px, 4.5vw, 48px);
+    line-height: 1.14; letter-spacing: -0.02em; margin-bottom: 18px;
+    color: var(--fg); text-wrap: balance;
+  }
+  .hero-meta { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+  .date { font-size: 12px; color: var(--muted); letter-spacing: 0.05em; }
+  .hero-dot { width: 3px; height: 3px; border-radius: 50%; background: rgba(34,197,94,0.35); }
+
+  /* Hero sequential entrance */
+  .js-animate .tag {
+    opacity: 0;
+    animation: tag-slide 0.55s var(--ease-expo) 0.12s both;
+  }
+  .js-animate .title {
+    opacity: 0;
+    animation: hero-blur-up 0.85s var(--ease-expo) 0.32s both;
+  }
+  .js-animate .hero-meta {
+    opacity: 0;
+    animation: fade-up 0.55s var(--ease-out) 0.62s both;
+  }
+
+  @keyframes tag-slide {
+    from { opacity: 0; transform: translateX(-14px); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
+  @keyframes hero-blur-up {
+    from { opacity: 0; transform: translateY(20px); filter: blur(6px); }
+    to   { opacity: 1; transform: translateY(0);    filter: blur(0); }
+  }
+  @keyframes fade-up {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── Body ── */
+  .body { max-width: 800px; margin: 0 auto; padding: 56px 40px 120px; }
+
+  /* ── Base reveal (fade+translate) ── */
+  .reveal { transition: opacity 0.72s var(--ease-out), transform 0.8s var(--ease-out); }
+  .js-animate .reveal.ready          { opacity: 0; transform: translateY(40px); }
+  .js-animate .reveal.ready.in-view  { opacity: 1; transform: translateY(0); }
+  .js-animate .reveal.ready.in-view.reveal-d1 { transition-delay: 0.10s; }
+  .js-animate .reveal.ready.in-view.reveal-d2 { transition-delay: 0.20s; }
+  .js-animate .reveal.ready.in-view.reveal-d3 { transition-delay: 0.30s; }
+
+  /* ── Section label clip-path sweep ── */
+  .section-label {
+    font-size: 10px; font-weight: 700; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--accent); margin-bottom: 20px; opacity: 0.9;
+    display: inline-block;
+  }
+  .js-animate .lbl {
+    clip-path: inset(0 100% 0 0);
+    transition: clip-path 0.6s var(--ease-expo);
+  }
+  .js-animate .lbl.lbl-in { clip-path: inset(0 0% 0 0); }
+
+  /* ── Section h2 reveal ── */
+  h2.section-h2 {
+    font-family: Georgia, "Times New Roman", serif;
+    font-weight: normal; font-size: clamp(22px, 3vw, 30px);
+    line-height: 1.22; letter-spacing: -0.015em;
+    color: var(--fg); margin-bottom: 16px; text-wrap: balance;
+  }
+  .js-animate .h2-reveal {
+    opacity: 0; transform: translateY(16px);
+    transition: opacity 0.65s var(--ease-out) 0.14s, transform 0.7s var(--ease-out) 0.14s;
+  }
+  .js-animate .h2-reveal.h2-in { opacity: 1; transform: translateY(0); }
+
+  /* ── Prose ── */
+  .prose {
+    font-size: 15px; line-height: 1.8; color: var(--fg-sec);
+    max-width: 62ch; margin-bottom: 14px;
+  }
+  .prose a {
+    color: var(--fg); text-decoration: underline;
+    text-decoration-color: rgba(234,242,236,0.28); text-underline-offset: 3px;
+    transition: text-decoration-color 0.18s;
+  }
+  .prose a:hover { text-decoration-color: var(--fg); }
+  .js-animate .prose-reveal {
+    opacity: 0; transform: translateY(14px);
+    transition: opacity 0.6s var(--ease-out), transform 0.65s var(--ease-out);
+  }
+  .js-animate .prose-reveal.pr-in { opacity: 1; transform: translateY(0); }
+  .js-animate .prose-reveal.pr-d1 { transition-delay: 0.08s; }
+  .js-animate .prose-reveal.pr-d2 { transition-delay: 0.16s; }
+
+  /* ── Section ── */
+  .section { margin-bottom: 64px; }
+
+  /* ── Stats row ── */
+  .stat-row {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 1px; background: var(--border); border: 1px solid var(--border);
+    border-radius: 14px; overflow: hidden; margin-bottom: 64px;
+  }
+  .stat {
+    background: var(--surface); padding: 28px 22px;
+    display: flex; flex-direction: column; gap: 6px;
+    transition: background 0.22s var(--ease-out);
+  }
+  .stat:hover { background: var(--surface-hi); }
+  .stat-num {
+    font-size: clamp(22px, 2.8vw, 32px); font-weight: 800;
+    letter-spacing: -0.035em; line-height: 1; color: var(--accent);
+    font-variant-numeric: tabular-nums;
+    transition: transform 0.22s var(--ease-out);
+  }
+  .stat:hover .stat-num { transform: translateY(-2px); }
+  .stat-label { font-size: 11px; color: var(--muted); letter-spacing: 0.02em; line-height: 1.4; }
+
+  /* Stat stagger */
+  .js-animate .stats-stagger .stat {
+    opacity: 0; transform: translateY(20px);
+    transition: opacity 0.5s var(--ease-out), transform 0.55s var(--ease-out);
+  }
+  .js-animate .stats-stagger.ss-in .stat { opacity: 1; transform: translateY(0); }
+  .js-animate .stats-stagger.ss-in .stat:nth-child(1) { transition-delay: 0.00s; }
+  .js-animate .stats-stagger.ss-in .stat:nth-child(2) { transition-delay: 0.08s; }
+  .js-animate .stats-stagger.ss-in .stat:nth-child(3) { transition-delay: 0.16s; }
+  .js-animate .stats-stagger.ss-in .stat:nth-child(4) { transition-delay: 0.24s; }
+
+  /* ── Pills ── */
+  .pills { display: flex; flex-wrap: wrap; gap: 7px; }
+  .pill {
+    padding: 5px 13px; font-size: 12px; font-weight: 600; border-radius: 999px;
+    background: var(--surface); color: var(--fg-sec); border: 1px solid var(--border);
+    transition: border-color 0.18s var(--ease-out), background 0.18s var(--ease-out), transform 0.18s var(--ease-out);
+    cursor: default;
+  }
+  .pill:hover { border-color: rgba(34,197,94,0.38); transform: translateY(-1px); background: var(--surface-hi); }
+  .pill--accent { background: rgba(34,197,94,0.12); color: var(--accent-mid); border-color: rgba(34,197,94,0.30); }
+  .pill--accent:hover { background: rgba(34,197,94,0.20); border-color: rgba(34,197,94,0.55); }
+
+  .js-animate .animate-pills .pill {
+    opacity: 0; transform: translateY(10px) scale(0.95);
+    transition: opacity 0.38s var(--ease-out), transform 0.42s var(--ease-out),
+                border-color 0.18s var(--ease-out), background 0.18s var(--ease-out);
+  }
+  .js-animate .animate-pills.pills-visible .pill { opacity: 1; transform: none; }
+  .js-animate .animate-pills.pills-visible .pill:nth-child(1) { transition-delay: 0.00s; }
+  .js-animate .animate-pills.pills-visible .pill:nth-child(2) { transition-delay: 0.05s; }
+  .js-animate .animate-pills.pills-visible .pill:nth-child(3) { transition-delay: 0.10s; }
+  .js-animate .animate-pills.pills-visible .pill:nth-child(4) { transition-delay: 0.15s; }
+  .js-animate .animate-pills.pills-visible .pill:nth-child(5) { transition-delay: 0.20s; }
+  .js-animate .animate-pills.pills-visible .pill:nth-child(6) { transition-delay: 0.25s; }
+  .js-animate .animate-pills.pills-visible .pill:nth-child(7) { transition-delay: 0.30s; }
+  .js-animate .animate-pills.pills-visible .pill:nth-child(8) { transition-delay: 0.35s; }
+  .js-animate .animate-pills.pills-visible .pill:nth-child(n+9) { transition-delay: 0.40s; }
+
+  /* ── Feature grid ── */
+  .feature-grid {
+    display: grid; grid-template-columns: repeat(2, 1fr);
+    gap: 1px; background: var(--border); border: 1px solid var(--border);
+    border-radius: 14px; overflow: hidden; margin-top: 24px;
+  }
+  .feature-card {
+    background: var(--surface); padding: 24px 22px;
+    transition: background 0.22s var(--ease-out), box-shadow 0.22s var(--ease-out);
+  }
+  .feature-card:hover {
+    background: var(--surface-hi);
+    box-shadow: inset 0 0 0 1px rgba(34,197,94,0.18);
+  }
+  .feature-icon {
+    width: 36px; height: 36px; border-radius: 9px;
+    background: var(--accent-dim); border: 1px solid rgba(34,197,94,0.24);
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 14px; color: var(--accent);
+    transition: background 0.22s var(--ease-out), border-color 0.22s var(--ease-out), transform 0.22s var(--ease-out);
+  }
+  .feature-card:hover .feature-icon {
+    background: rgba(34,197,94,0.18); border-color: rgba(34,197,94,0.4);
+    transform: scale(1.08);
+  }
+  .feature-icon svg { width: 16px; height: 16px; }
+  .feature-title { font-size: 13px; font-weight: 700; color: var(--fg); margin-bottom: 7px; }
+  .feature-desc { font-size: 13px; line-height: 1.68; color: var(--fg-sec); }
+
+  /* Feature card stagger */
+  .js-animate .fc-grid .feature-card {
+    opacity: 0; transform: translateY(24px);
+    transition: opacity 0.5s var(--ease-out), transform 0.55s var(--ease-out),
+                background 0.22s var(--ease-out), box-shadow 0.22s var(--ease-out);
+  }
+  .js-animate .fc-grid.fc-in .feature-card { opacity: 1; transform: translateY(0); }
+  .js-animate .fc-grid.fc-in .feature-card:nth-child(1) { transition-delay: 0.00s; }
+  .js-animate .fc-grid.fc-in .feature-card:nth-child(2) { transition-delay: 0.07s; }
+  .js-animate .fc-grid.fc-in .feature-card:nth-child(3) { transition-delay: 0.14s; }
+  .js-animate .fc-grid.fc-in .feature-card:nth-child(4) { transition-delay: 0.21s; }
+  .js-animate .fc-grid.fc-in .feature-card:nth-child(5) { transition-delay: 0.28s; }
+  .js-animate .fc-grid.fc-in .feature-card:nth-child(6) { transition-delay: 0.35s; }
+  .js-animate .fc-grid.fc-in .feature-card:nth-child(7) { transition-delay: 0.42s; }
+  .js-animate .fc-grid.fc-in .feature-card:nth-child(8) { transition-delay: 0.49s; }
+
+  /* ── Day cards ── */
+  .day-list { display: flex; flex-direction: column; gap: 10px; }
+  .day-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; overflow: hidden;
+    transition: background 0.22s var(--ease-out), border-color 0.22s var(--ease-out);
+  }
+  .day-card:hover { border-color: rgba(34,197,94,0.25); }
+  .day-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 16px 22px; cursor: pointer;
+    transition: background 0.18s var(--ease-out);
+    user-select: none;
+  }
+  .day-header:hover { background: var(--surface-hi); }
+  .day-header-left { display: flex; align-items: center; gap: 14px; }
+  .day-num {
+    font-size: 10px; font-weight: 700; letter-spacing: 0.10em;
+    text-transform: uppercase; color: var(--accent); opacity: 0.85; min-width: 46px;
+  }
+  .day-title { font-size: 14px; font-weight: 600; color: var(--fg); }
+  .day-chevron { color: var(--muted); transition: transform 0.28s var(--ease-out); flex-shrink: 0; }
+  .day-card.is-open .day-chevron { transform: rotate(180deg); }
+  .day-body {
+    padding: 0 22px; max-height: 0; overflow: hidden;
+    transition: max-height 0.45s var(--ease-out), padding 0.3s var(--ease-out);
+  }
+  .day-card.is-open .day-body { max-height: 900px; padding: 0 22px 22px; }
+  .day-topics { display: flex; flex-direction: column; gap: 16px; }
+  .day-topic-name {
+    font-size: 10px; font-weight: 700; letter-spacing: 0.10em;
+    text-transform: uppercase; color: var(--accent); margin-bottom: 7px; opacity: 0.8;
+  }
+  .day-bullets { list-style: none; display: flex; flex-direction: column; gap: 7px; }
+  .day-bullets li {
+    font-size: 13px; line-height: 1.68; color: var(--fg-sec);
+    padding-left: 18px; position: relative;
+  }
+  .day-bullets li::before {
+    content: ''; position: absolute; left: 0; top: 8px;
+    width: 5px; height: 5px; border-radius: 50%; background: var(--accent); opacity: 0.55;
+  }
+  .day-bullets li strong { color: var(--fg); font-weight: 600; }
+  .day-bullets li a { color: var(--accent-mid); text-decoration: none; }
+  .day-bullets li a:hover { text-decoration: underline; }
+  .day-bullets li code {
+    font-family: 'SF Mono', 'Fira Mono', monospace; font-size: 11.5px;
+    background: rgba(34,197,94,0.10); border: 1px solid rgba(34,197,94,0.20);
+    border-radius: 4px; padding: 1px 5px; color: var(--accent-mid);
+  }
+  .day-divider { border: none; border-top: 1px solid var(--border); margin: 14px 0; }
+
+  /* ── Research table ── */
+  .data-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+  .data-table th {
+    font-size: 10px; font-weight: 700; letter-spacing: 0.10em;
+    text-transform: uppercase; color: var(--muted); text-align: left;
+    padding: 10px 16px; border-bottom: 1px solid var(--border);
+  }
+  .data-table td {
+    font-size: 13px; color: var(--fg-sec); padding: 13px 16px;
+    border-bottom: 1px solid rgba(34,197,94,0.07); vertical-align: top;
+    transition: background 0.18s var(--ease-out);
+  }
+  .data-table tr:last-child td { border-bottom: none; }
+  .data-table tr:hover td { background: var(--surface); }
+  .data-table .td-group { font-weight: 600; color: var(--fg); }
+  .data-table .td-accent { color: var(--accent-mid); font-weight: 600; }
+
+  /* Table row stagger */
+  .js-animate .tbl-stagger tbody tr {
+    opacity: 0; transform: translateX(-12px);
+    transition: opacity 0.45s var(--ease-out), transform 0.5s var(--ease-out);
+  }
+  .js-animate .tbl-stagger.tbl-in tbody tr { opacity: 1; transform: translateX(0); }
+  .js-animate .tbl-stagger.tbl-in tbody tr:nth-child(1) { transition-delay: 0.00s; }
+  .js-animate .tbl-stagger.tbl-in tbody tr:nth-child(2) { transition-delay: 0.07s; }
+  .js-animate .tbl-stagger.tbl-in tbody tr:nth-child(3) { transition-delay: 0.14s; }
+  .js-animate .tbl-stagger.tbl-in tbody tr:nth-child(4) { transition-delay: 0.21s; }
+  .js-animate .tbl-stagger.tbl-in tbody tr:nth-child(5) { transition-delay: 0.28s; }
+  .js-animate .tbl-stagger.tbl-in tbody tr:nth-child(6) { transition-delay: 0.35s; }
+
+  /* ── Prompt blocks ── */
+  .prompt-block {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; padding: 20px 24px; margin-bottom: 14px;
+    position: relative; overflow: hidden;
+    transition: border-color 0.22s var(--ease-out), background 0.22s var(--ease-out);
+  }
+  .prompt-block:hover { border-color: rgba(34,197,94,0.30); background: var(--surface-hi); }
+  .prompt-block::before {
+    content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+    background: linear-gradient(180deg, var(--accent) 0%, rgba(34,197,94,0.2) 100%);
+    transition: background 0.22s;
+  }
+  .prompt-block:hover::before {
+    background: linear-gradient(180deg, var(--accent-mid) 0%, var(--accent) 100%);
+  }
+  .prompt-label {
+    font-size: 10px; font-weight: 700; letter-spacing: 0.10em;
+    text-transform: uppercase; color: var(--accent); margin-bottom: 9px; opacity: 0.85;
+  }
+  .prompt-text { font-size: 13px; line-height: 1.75; color: var(--fg-sec); }
+
+  /* Prompt slide from left */
+  .js-animate .reveal-left {
+    opacity: 0; transform: translateX(-22px);
+    transition: opacity 0.58s var(--ease-out), transform 0.65s var(--ease-out);
+  }
+  .js-animate .reveal-left.rl-in { opacity: 1; transform: translateX(0); }
+  .js-animate .reveal-left.rl-d1 { transition-delay: 0.10s; }
+  .js-animate .reveal-left.rl-d2 { transition-delay: 0.20s; }
+
+  /* ── Callout ── */
+  .callout {
+    background: rgba(34,197,94,0.07); border: 1px solid rgba(34,197,94,0.22);
+    border-radius: 12px; padding: 20px 24px; margin-bottom: 20px;
+    transition: background 0.22s, border-color 0.22s;
+  }
+  .callout:hover { background: rgba(34,197,94,0.10); border-color: rgba(34,197,94,0.30); }
+  .callout-title { font-size: 13px; font-weight: 700; color: var(--accent-mid); margin-bottom: 7px; }
+  .callout p { font-size: 13.5px; line-height: 1.75; color: var(--fg-sec); }
+
+  .js-animate .callout-animate {
+    opacity: 0; transform: scale(0.97) translateY(12px);
+    transition: opacity 0.55s var(--ease-out), transform 0.6s var(--ease-out);
+  }
+  .js-animate .callout-animate.ca-in { opacity: 1; transform: none; }
+
+  /* ── Divider wipe ── */
+  .section-divider {
+    border: none; height: 1px; background: var(--border); margin-bottom: 64px;
+    transform-origin: left;
+  }
+  .js-animate .divider-wipe { transform: scaleX(0); transition: transform 0.85s var(--ease-expo); }
+  .js-animate .divider-wipe.dw-in { transform: scaleX(1); }
+
+  /* ── Link buttons ── */
+  .link-btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 12px 22px; border-radius: 999px;
+    background: var(--accent); color: #070f09;
+    font-size: 13px; font-weight: 700; text-decoration: none;
+    transition: transform 0.22s var(--ease-out), box-shadow 0.22s var(--ease-out), background 0.18s;
+  }
+  .link-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 14px 32px -8px rgba(34,197,94,0.55);
+    background: var(--accent-mid);
+  }
+  .link-btn:active { transform: scale(0.97); }
+  .link-btn--ghost {
+    background: transparent; color: var(--fg);
+    border: 1px solid var(--border);
+  }
+  .link-btn--ghost:hover { background: var(--surface-hi); box-shadow: none; border-color: rgba(34,197,94,0.38); color: var(--fg); }
+  .btn-row { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 24px; }
+
+  /* ── Mobile ── */
+  @media (max-width: 600px) {
+    .topbar { padding: 16px 20px; }
+    .hero { padding: 100px 20px 48px; }
+    .body { padding: 40px 20px 80px; }
+    .stat-row { grid-template-columns: repeat(2, 1fr); }
+    .feature-grid { grid-template-columns: 1fr; }
+    .data-table { font-size: 12px; }
+    .data-table th, .data-table td { padding: 9px 10px; }
+    .hero-orb-2, .hero-orb-3 { display: none; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { transition-duration: 0ms !important; animation-duration: 0ms !important; animation-delay: 0ms !important; }
+    .js-animate .tag, .js-animate .title, .js-animate .hero-meta { opacity: 1 !important; }
+    .js-animate .lbl { clip-path: none !important; }
+    .js-animate .h2-reveal { opacity: 1 !important; transform: none !important; }
+    .js-animate .fc-grid .feature-card { opacity: 1 !important; transform: none !important; }
+    .js-animate .stats-stagger .stat { opacity: 1 !important; transform: none !important; }
+    .js-animate .reveal-left { opacity: 1 !important; transform: none !important; }
+    .js-animate .divider-wipe { transform: scaleX(1) !important; }
+    .js-animate .tbl-stagger tbody tr { opacity: 1 !important; transform: none !important; }
+    .js-animate .callout-animate { opacity: 1 !important; transform: none !important; }
+    .hero-shell::before { display: none; }
+    .hero-orb { animation: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<div id="scroll-progress"></div>
+
+<header class="topbar" id="topbar">
+  <a href="index.html" class="back-link">
+    <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M11 7H3M3 7l4-4M3 7l4 4"/>
+    </svg>
+    Back
+  </a>
+  <a href="index.html" class="topbar-name">Aidan Liu</a>
+</header>
+
+<!-- ── Hero ── -->
+<div class="hero-shell">
+  <div class="hero-orb hero-orb-1" aria-hidden="true"></div>
+  <div class="hero-orb hero-orb-2" aria-hidden="true"></div>
+  <div class="hero-orb hero-orb-3" aria-hidden="true"></div>
+  <div class="hero">
+    <div class="tag">Stanford CARE Explorers Program · Summer 2026</div>
+    <h1 class="title">Gut Instincts: A GI Cancer<br>Health Platform for Asian Americans</h1>
+    <div class="hero-meta">
+      <span class="date">9-DAY INTENSIVE</span>
+      <span class="hero-dot"></span>
+      <span class="date">GASTROINTESTINAL CANCER RESEARCH</span>
+      <span class="hero-dot"></span>
+      <span class="date">WEB PLATFORM · FINAL DELIVERABLE</span>
+    </div>
+  </div>
+</div>
+
+<main class="body">
+
+  <!-- ── Stats ── -->
+  <div class="stat-row stats-stagger">
+    <div class="stat">
+      <span class="stat-num" data-count="9">9</span>
+      <span class="stat-label">Days of instruction</span>
+    </div>
+    <div class="stat">
+      <span class="stat-num" data-count="8" data-suffix="+">8+</span>
+      <span class="stat-label">Stanford speakers</span>
+    </div>
+    <div class="stat">
+      <span class="stat-num" data-count="6">6</span>
+      <span class="stat-label">Prompt iterations</span>
+    </div>
+    <div class="stat">
+      <span class="stat-num" data-count="1">1</span>
+      <span class="stat-label">Live web deliverable</span>
+    </div>
+  </div>
+
+  <!-- ── Program Overview ── -->
+  <section class="section">
+    <div class="section-label lbl">About the Program</div>
+    <h2 class="section-h2 h2-reveal">Stanford's Center for Asian Health Research and Education</h2>
+    <p class="prose prose-reveal">Stanford CARE (Center for Asian Health Research and Education) Explorers is a 9-day intensive program that brings together high school students to explore health disparities affecting Asian American communities. The curriculum combines epidemiology, data science, clinical medicine, and AI — with a focus on how research translates into real-world community health impact.</p>
+    <p class="prose prose-reveal pr-d1">Each day featured lectures, workshops, and talks from Stanford faculty and clinicians working at the intersection of Asian health, AI, and medicine. Our group was assigned gastrointestinal cancer as our research topic. The final deliverable: build a functional website that communicates our research and provides a health tool for the community.</p>
+
+    <div class="btn-row reveal ready">
+      <a href="https://drive.google.com/file/d/1r_uf-BEasEqU-OEc4j1W2h6ygV4J2gEK/view?usp=sharing" target="_blank" rel="noopener" class="link-btn">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="7" r="5.5"/><path d="M7 4v3l2 1"/></svg>
+        View Live Site Demo
+      </a>
+    </div>
+  </section>
+
+  <hr class="section-divider divider-wipe">
+
+  <!-- ── Final Deliverable: Features ── -->
+  <section class="section">
+    <div class="section-label lbl">Final Deliverable</div>
+    <h2 class="section-h2 h2-reveal">Gut Instincts — What We Built</h2>
+    <p class="prose prose-reveal">Gut Instincts is a full-stack gastrointestinal cancer information and risk assessment platform specifically designed for Asian American populations. It features seven distinct sections, an AI assistant, and an adaptive interface that changes based on the user's age group — all built to address the gap in GI cancer awareness and health literacy in Asian communities.</p>
+
+    <div class="callout callout-animate">
+      <div class="callout-title">Key Design Goal</div>
+      <p>Most health platforms treat "Asian American" as a single category — hiding the vastly different cancer risk profiles across Korean, Vietnamese, Chinese, Japanese, South Asian, and Filipino populations. Gut Instincts disaggregates by subgroup throughout its risk assessment, educational content, and data visualizations.</p>
+    </div>
+
+    <div class="feature-grid fc-grid">
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v4l2.5 1.5"/><circle cx="8" cy="9" r="5.5"/></svg>
+        </div>
+        <div class="feature-title">AI Chatbot (Ask the Guide)</div>
+        <div class="feature-desc">An AI assistant trained on GI cancer literature. Responses include source citations and explicit disclaimers to consult a medical professional. Never makes assumptions from hypotheticals.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h10M3 4h10M3 12h6"/></svg>
+        </div>
+        <div class="feature-title">Risk Profile Assessment</div>
+        <div class="feature-desc">A personalized questionnaire collecting age, ethnicity (with full Asian subgroup disaggregation), diet, family history, smoking habits, and H. pylori exposure — producing a risk estimate per cancer type.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12V8M8 12V4M12 12v-3"/></svg>
+        </div>
+        <div class="feature-title">Diet Tracker + Streak</div>
+        <div class="feature-desc">Users log meals to balance GI-protective foods against high-risk dietary patterns. A daily streak tracker encourages consistent logging, with progress saved per account.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="12" height="12" rx="2"/><path d="M5 8h6M5 11h4"/></svg>
+        </div>
+        <div class="feature-title">Progress Dashboard</div>
+        <div class="feature-desc">A personal dashboard showing past assessments (click to expand each), diet streak, and health progress over time. Accessible after creating an account.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5l5 5 5-5"/><path d="M3 9l5 5 5-5" opacity=".4"/></svg>
+        </div>
+        <div class="feature-title">Age-Adaptive UI (3 Modes)</div>
+        <div class="feature-desc">Under 16: gamified interface with quests, badges, XP, and a parent dashboard. 17–65: the full standard UI. 65+: larger text, simplified layout, elderly-friendly interactions. Users can switch modes freely.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="5.5"/><path d="M8 5v3l1.5 1.5"/></svg>
+        </div>
+        <div class="feature-title">Education Hub (Learn)</div>
+        <div class="feature-desc">Plain-language explainers of each GI cancer type with inline clickable citations. Data visualizations compare Asian subgroup incidence rates against national averages — with scroll animations throughout.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2C4.7 2 2 4.7 2 8s2.7 6 6 6 6-2.7 6-6-2.7-6-6-6z"/><path d="M8 5v3l2 1" opacity=".5"/></svg>
+        </div>
+        <div class="feature-title">User Accounts + Data Persistence</div>
+        <div class="feature-desc">Create an account to save assessment history, streaks, and diet logs across sessions. Guest mode available, but all data resets on refresh. Users can clear their own data at any time.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2 10l4-4 3 3 5-5"/></svg>
+        </div>
+        <div class="feature-title">Multilingual + Subgroup Focus</div>
+        <div class="feature-desc">Educational content available in multiple languages (Mandarin, Vietnamese, Tagalog). All risk data disaggregated by Asian subgroup — Korean, Japanese, Vietnamese, Chinese, Filipino, South Asian — not treated as one group.</div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="section-divider divider-wipe">
+
+  <!-- ── Tech / Prompts ── -->
+  <section class="section">
+    <div class="section-label lbl">How We Built It</div>
+    <h2 class="section-h2 h2-reveal">Vibe Coding — From Research to Product</h2>
+    <p class="prose prose-reveal">The website was built using vibe coding — describing software in plain English and having AI build it iteratively. As we learned on Day 6, the key is being specific, providing context, working one task at a time, and iterating. Below are the core prompt iterations that shaped the final product.</p>
+
+    <div class="pills animate-pills reveal ready reveal-d1">
+      <span class="pill--accent pill">React / Replit</span>
+      <span class="pill">Vibe Coding</span>
+      <span class="pill">Iterative Prompting</span>
+      <span class="pill">AI Chatbot</span>
+      <span class="pill">Data Visualization</span>
+      <span class="pill">Responsive Design</span>
+    </div>
+
+    <div style="margin-top: 28px;">
+      <div class="prompt-block reveal-left">
+        <div class="prompt-label">Prompt 1 — Foundation</div>
+        <div class="prompt-text">Create a comprehensive, responsive gastrointestinal (GI) cancer informational and risk assessment website for ordinary English-speaking people that explicitly focuses on Asian subgroups and ethnic disaggregation. Include a multi-page UI, interactive AI chatbot, personalized diet tracker, streak tracker, and progress dashboard. Responses should be based on sources with disclaimers to talk to a medical professional.</div>
+      </div>
+      <div class="prompt-block reveal-left rl-d1">
+        <div class="prompt-label">Prompt 2 — Age-Adaptive UI + Visuals</div>
+        <div class="prompt-text">Ask for user's age first before accessing the website — under 16 gets a gamified/child-friendly UI, 17–65 stays as-is, 65+ gets an elderly-tailored UI. Add a button to switch age groups. Add more visualizations comparing Asians vs. other races. Add scroll animations and purposeful color. Include all races in the ethnicity dropdown. Move assessment history into the dashboard tab.</div>
+      </div>
+      <div class="prompt-block reveal-left rl-d2">
+        <div class="prompt-label">Prompt 3 — Teen Features + Accounts + Polish</div>
+        <div class="prompt-text">Make the 3 age UIs more distinct in text, visuals, and interaction. Add specific game features for under 16: quests, daily points, missions, XP, badges, streaks. Add a parent dashboard tracking teenager data. Add create account / login so user data persists — without an account, streaks and trackers reset on refresh. Add a clear/reset button. Assessment results should be formatted differently per age group. Add clickable inline citations on the Learn page. Title: Gut Instincts.</div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="section-divider divider-wipe">
+
+  <!-- ── Speaker Notes ── -->
+  <section class="section">
+    <div class="section-label lbl">Speaker Notes</div>
+    <h2 class="section-h2 h2-reveal">9 Days of Lectures, Research &amp; Clinicians</h2>
+    <p class="prose prose-reveal">Every day covered a different slice of AI, medicine, and public health. Here are my notes from each session.</p>
+
+    <div class="day-list" style="margin-top: 28px;">
+
+      <!-- Day 1 -->
+      <div class="day-card reveal ready">
+        <div class="day-header" onclick="toggleDay(this)">
+          <div class="day-header-left">
+            <span class="day-num">Day 01</span>
+            <span class="day-title">Large Language Models · Prompt Engineering · Python</span>
+          </div>
+          <svg class="day-chevron" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 6l4 4 4-4"/></svg>
+        </div>
+        <div class="day-body">
+          <div class="day-topics">
+            <div>
+              <div class="day-topic-name">Large Language Models</div>
+              <ul class="day-bullets">
+                <li>Learn language patterns from millions of texts; predict word-by-word</li>
+                <li>Evolution: rule-based AI → traditional ML → deep learning → LLMs</li>
+                <li>GPT divides words into tokens to read and process text</li>
+                <li>Opportunity to improve Asian healthcare — Asians are 60% of global pop but only 10% of medical researchers</li>
+                <li>Hallucination: a model that is confidently producing something false</li>
+              </ul>
+            </div>
+            <hr class="day-divider">
+            <div>
+              <div class="day-topic-name">Prompt Engineering + Fact Checking</div>
+              <ul class="day-bullets">
+                <li>Prompt engineering: design/refine instructions so AI gives a better response</li>
+                <li>Key elements: task clarity, context, constraints, success criteria, iteration</li>
+                <li>LLMs are unreliable due to hallucinations, overconfidence, outdated knowledge, bias, and vagueness</li>
+              </ul>
+            </div>
+            <hr class="day-divider">
+            <div>
+              <div class="day-topic-name">Python Basics</div>
+              <ul class="day-bullets">
+                <li>Lists: <code>[]</code>, for loops: <code>for i in range(3):</code>, while loops: <code>while i &lt; 5:</code></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Day 2 -->
+      <div class="day-card reveal ready reveal-d1">
+        <div class="day-header" onclick="toggleDay(this)">
+          <div class="day-header-left">
+            <span class="day-num">Day 02</span>
+            <span class="day-title">EDA · Disease Risk Measures · Dr. Palaniappan</span>
+          </div>
+          <svg class="day-chevron" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 6l4 4 4-4"/></svg>
+        </div>
+        <div class="day-body">
+          <div class="day-topics">
+            <div>
+              <div class="day-topic-name">Exploratory Data Analysis</div>
+              <ul class="day-bullets">
+                <li>Analyze/investigate datasets before applying formal models; summarize using visuals, stats, patterns</li>
+                <li>Data stored as tabular data / dataframes; use the pandas library in Python</li>
+              </ul>
+            </div>
+            <hr class="day-divider">
+            <div>
+              <div class="day-topic-name">Measures of Disease Risk</div>
+              <ul class="day-bullets">
+                <li><strong>Prevalence:</strong> (Total cases / Total Population) × 100 — e.g., 7.5% asthma prevalence</li>
+                <li><strong>Incidence:</strong> new cases over time — e.g., 9.11 COVID cases per 100 person-years</li>
+                <li><strong>Relative Risk (RR):</strong> RR &lt; 1 = protective, RR = 1 = no association, RR &gt; 1 = increased risk</li>
+                <li><strong>Odds Ratio (OR):</strong> OR &gt; 1 = positive association — e.g., smokers are 1.62× more likely to be cases</li>
+                <li><strong>P-value:</strong> probability of observed results if null hypothesis is true; reject H₀ if p &lt; 0.05</li>
+                <li>Chi-square test: tests if two categorical variables are associated by chance</li>
+              </ul>
+            </div>
+            <hr class="day-divider">
+            <div>
+              <div class="day-topic-name">Dr. Palaniappan — Asian Health Disparities</div>
+              <ul class="day-bullets">
+                <li>Asians are 7% of U.S., 30% of Bay Area, but receive only 0.17% of NIH funding</li>
+                <li>Europeans are overrepresented in research 10×; Asians underrepresented 6× — decisions made from non-Asian data</li>
+                <li>CVD: mortality rates vary sharply — 24% Korea, 32% U.S., 43% China; stroke risk rises as Asians move to the U.S.</li>
+                <li>Cancer: 2% liver cancer in Vietnam → 16% in Vietnamese Americans</li>
+                <li>Diabetes: people with normal-weight diabetes have 2× the mortality of overweight/obese; strength training is best for Asians</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Day 3 -->
+      <div class="day-card reveal ready reveal-d2">
+        <div class="day-header" onclick="toggleDay(this)">
+          <div class="day-header-left">
+            <span class="day-num">Day 03</span>
+            <span class="day-title">Statistics · Dr. Ravi · Dr. Jison Hong (Alcohol &amp; ALDH2)</span>
+          </div>
+          <svg class="day-chevron" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 6l4 4 4-4"/></svg>
+        </div>
+        <div class="day-body">
+          <div class="day-topics">
+            <div>
+              <div class="day-topic-name">Statistics Fundamentals</div>
+              <ul class="day-bullets">
+                <li>Variables: categorical (distinct groups) vs. continuous (infinite values on a scale)</li>
+                <li>Central tendency: mean (symmetric data), median (skewed data / outliers)</li>
+                <li>Spread: range (sensitive to outliers), standard deviation (deviation from the mean)</li>
+              </ul>
+            </div>
+            <hr class="day-divider">
+            <div>
+              <div class="day-topic-name">Dr. Ravi — Digital Health</div>
+              <ul class="day-bullets">
+                <li>Projects: <a href="http://smcatalyst.stanford.edu" target="_blank" rel="noopener">smcatalyst.stanford.edu</a>, <a href="http://arise-ai.org" target="_blank" rel="noopener">arise-ai.org</a>, <a href="http://bdh.stanford.edu" target="_blank" rel="noopener">bdh.stanford.edu</a></li>
+                <li>Quantitative Digitography (QDG) and Stanford SPIRA pharmacogenomics</li>
+                <li>Stanford AIMI summer research: <a href="https://aimi.stanford.edu/education/summer-research-internship" target="_blank" rel="noopener">aimi.stanford.edu</a></li>
+              </ul>
+            </div>
+            <hr class="day-divider">
+            <div>
+              <div class="day-topic-name">Dr. Jison Hong — Alcohol &amp; Asian Health</div>
+              <ul class="day-bullets">
+                <li>WHO: alcohol → 3 million deaths globally; drinking can cause gastrointestinal and hepatic diseases, neurologic disorders, immunologic issues, sleep disorders</li>
+                <li>ALDH2 deficiency (Asian flush): causes accumulation of toxic acetaldehyde, raising cancer risk — distinct from alcohol allergy (hives, wheezing, reaction to ethanol itself)</li>
+                <li>Community outreach: alcohol patch tests, educational materials via AICAP program</li>
+                <li>My question: Do you think AI should be integrated into patient education or clinical prescriptions? — Varies by LLM type; Open Evidence is an example; responses vary significantly by model</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Day 4 -->
+      <div class="day-card reveal ready">
+        <div class="day-header" onclick="toggleDay(this)">
+          <div class="day-header-left">
+            <span class="day-num">Day 04</span>
+            <span class="day-title">Correlation · Data Visualization · Dr. Chen (AI in Medicine)</span>
+          </div>
+          <svg class="day-chevron" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 6l4 4 4-4"/></svg>
+        </div>
+        <div class="day-body">
+          <div class="day-topics">
+            <div>
+              <div class="day-topic-name">Correlation</div>
+              <ul class="day-bullets">
+                <li>Correlation coefficient r: -1 to +1; 0 = uncorrelated, +1 = perfect positive, -1 = perfect negative</li>
+                <li>Key rule: correlation doesn't imply causation, but causation always implies correlation</li>
+              </ul>
+            </div>
+            <hr class="day-divider">
+            <div>
+              <div class="day-topic-name">Data Visualization Principles</div>
+              <ul class="day-bullets">
+                <li>Distribution → Histogram; Change over time → Line chart; Comparison → Bar chart; Relationships → Scatterplot</li>
+                <li>Accurately conveys the message; labeled axes/titles; minimized clutter; meaningful colors; legends when needed</li>
+              </ul>
+            </div>
+            <hr class="day-divider">
+            <div>
+              <div class="day-topic-name">Dr. Chen — AI in Clinical Practice</div>
+              <ul class="day-bullets">
+                <li>Clinician = competence (knowledge → judgment), communication (empathy → influence), character (liability → responsibility)</li>
+                <li>LLM accuracy: 90% on multiple choice; diagnostic reasoning: physicians + GPT &lt; GPT alone &lt; o1-preview</li>
+                <li>Management cases: physicians &lt; physicians + GPT — AI augments human judgment</li>
+                <li>RAG (retrieval-augmented generation) + multi-agent perspectives significantly reduce hallucination harm</li>
+                <li>AI scored higher on empathy and patient confidence vs. humans in remote settings</li>
+                <li>Use AI in high-stakes conversations in low-stakes simulated environments first</li>
+                <li>My question: With RAG/cross-checking, would diagnostic reasoning studies show different results?</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Day 5 -->
+      <div class="day-card reveal ready reveal-d1">
+        <div class="day-header" onclick="toggleDay(this)">
+          <div class="day-header-left">
+            <span class="day-num">Day 05</span>
+            <span class="day-title">Medical School &amp; Residency Panel</span>
+          </div>
+          <svg class="day-chevron" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 6l4 4 4-4"/></svg>
+        </div>
+        <div class="day-body">
+          <div class="day-topics">
+            <div>
+              <ul class="day-bullets">
+                <li>Pre-med is not a major — you choose your major and take pre-med requirements on top</li>
+                <li>Residency (2–7 years) requires applications with interviews, similar to college admissions</li>
+                <li>Intern year = first year of residency; resident / senior resident = 2+ years</li>
+                <li>Specialties vary widely: surgery vs. non-surgery, pediatrics vs. geriatrics, patient-facing vs. radiology</li>
+                <li>Advice: don't focus on kicking the can down the road — be present and stay in the moment</li>
+                <li>My questions: What's your most impactful research? Advice for high schoolers considering biology/medicine? Habits for stress?</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Day 6 -->
+      <div class="day-card reveal ready reveal-d2">
+        <div class="day-header" onclick="toggleDay(this)">
+          <div class="day-header-left">
+            <span class="day-num">Day 06</span>
+            <span class="day-title">Vibe Coding · Dr. Bryant Lin (Lung Cancer &amp; Anemos)</span>
+          </div>
+          <svg class="day-chevron" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 6l4 4 4-4"/></svg>
+        </div>
+        <div class="day-body">
+          <div class="day-topics">
+            <div>
+              <div class="day-topic-name">Vibe Coding</div>
+              <ul class="day-bullets">
+                <li>Describing software in plain English and having AI build it for you</li>
+                <li>Keys: be specific, give context, one task at a time, iterate</li>
+                <li>Best for: data analysis, visualizations, health datasets, Python work</li>
+                <li>Critiques: confidently wrong (runs fine, gives incorrect results); missing edge cases; insecure (never paste real patient data into public AI)</li>
+              </ul>
+            </div>
+            <hr class="day-divider">
+            <div>
+              <div class="day-topic-name">Dr. Bryant Lin — Lung Cancer &amp; Patient Perspective</div>
+              <ul class="day-bullets">
+                <li>Lung cancer is the #1 cause of cancer-related deaths; often not diagnosed until advanced stage</li>
+                <li>Chemotherapy targets all rapidly dividing cells — can kill nerves, causing numbness</li>
+                <li>Anemos Atlas: a large cell bank combined with AI/in silico models addressing idealized cell models that don't reflect real-world patients with diverse disease biology</li>
+                <li>Dr. Lin was diagnosed with never-smoker lung cancer — the exact disease he was researching; teaches From Diagnosis to Dialogue sharing his experience</li>
+                <li>My question: How to balance efficiency of AI with the need for physical patient–doctor interaction?</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Day 7 -->
+      <div class="day-card reveal ready">
+        <div class="day-header" onclick="toggleDay(this)">
+          <div class="day-header-left">
+            <span class="day-num">Day 07</span>
+            <span class="day-title">Dr. Natalie Lui (Lung Screening) · Dr. Lisa Quach (Free Clinics)</span>
+          </div>
+          <svg class="day-chevron" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 6l4 4 4-4"/></svg>
+        </div>
+        <div class="day-body">
+          <div class="day-topics">
+            <div>
+              <div class="day-topic-name">Dr. Natalie Lui — Lung Cancer Screening</div>
+              <ul class="day-bullets">
+                <li>LDCT (low-dose CT) is used to detect lung cancer early, before symptoms appear</li>
+                <li>Eligibility: 20+ pack-years of smoking history</li>
+                <li>Only 18% of eligible people are actually screened; over 70% don't know it's available</li>
+                <li>Taiwan TALENT Study: family history is the single biggest risk factor (2.7% detection rate)</li>
+                <li>Risk factors: secondhand smoke, occupational exposures, air pollution, cooking fumes, genetic factors</li>
+                <li>Adenocarcinoma is more common in non-smokers; ground-glass nodules are particularly common in Asian women</li>
+                <li>Currently working on the LUNA study at Stanford</li>
+              </ul>
+            </div>
+            <hr class="day-divider">
+            <div>
+              <div class="day-topic-name">Dr. Lisa Quach — Cardinal Free Clinics</div>
+              <ul class="day-bullets">
+                <li>Free clinics fill gaps for the medically underinsured — privately funded, run by volunteers, free tests and medications</li>
+                <li>Cardinal Free Clinics serves high schoolers and above; proactive (not reactive) model</li>
+                <li>PFC structure: health assessment interview (undergrad/med student) + universal screening</li>
+                <li>AI role: help identify trends over time systematically across patient populations</li>
+                <li>Advice: follow your gut; it's okay to slightly digress from your general direction</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Day 8 -->
+      <div class="day-card reveal ready reveal-d1">
+        <div class="day-header" onclick="toggleDay(this)">
+          <div class="day-header-left">
+            <span class="day-num">Day 08</span>
+            <span class="day-title">Dr. Fanglin Zhang — Stroke, Brain Science &amp; AI Imaging</span>
+          </div>
+          <svg class="day-chevron" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 6l4 4 4-4"/></svg>
+        </div>
+        <div class="day-body">
+          <div class="day-topics">
+            <div>
+              <ul class="day-bullets">
+                <li>Stroke: blood supply to the brain is cut off; #2 cause of death globally, #1 cause of long-term disability</li>
+                <li>A stroke occurs every 40 seconds in the U.S.; someone dies from stroke every ~3.5 minutes</li>
+                <li>Types: ischemic (clot, 85%) — thrombotic or embolic; hemorrhagic (bleed, 15%) — intracerebral hemorrhage</li>
+                <li>AAPI populations: 2× the bleeding stroke rate of Western populations; 18.9% of AAPI strokes are hemorrhagic bleeds</li>
+                <li>Health disparity: language barriers, limited access to specialists, cultural factors affect treatment timing</li>
+                <li>BEFAST: Balance, Eyes, Face, Arm, Speech, Time — signs of stroke</li>
+                <li>AI saves ~52 minutes reading CT scans; brain imaging and EEG analysis for seizure detection</li>
+                <li>Treatment that fits one community may completely miss another — disaggregation matters</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Day 9 -->
+      <div class="day-card reveal ready reveal-d2">
+        <div class="day-header" onclick="toggleDay(this)">
+          <div class="day-header-left">
+            <span class="day-num">Day 09</span>
+            <span class="day-title">Dr. Robert Huang — GI Cancer, Screening &amp; Career Advice</span>
+          </div>
+          <svg class="day-chevron" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 6l4 4 4-4"/></svg>
+        </div>
+        <div class="day-body">
+          <div class="day-topics">
+            <div>
+              <div class="day-topic-name">GI Cancer Research</div>
+              <ul class="day-bullets">
+                <li>Why GI cancer for Asian Americans: different cancer burden distribution, unique risk factors, and effective interventions exist through therapy and early detection</li>
+                <li>Asian flush = ALDH2 deficiency: alcohol (ADH) is broken down quickly into acetate by ALDH2, but deficiency causes toxic acetaldehyde accumulation — raises cancer risk</li>
+                <li>South Korea's national gastric cancer screening program has improved outcomes in Korea but screening hasn't been adopted in the U.S. — similar high-risk populations go unscreened</li>
+              </ul>
+            </div>
+            <hr class="day-divider">
+            <div>
+              <div class="day-topic-name">Career Advice</div>
+              <ul class="day-bullets">
+                <li>English and communication skills matter as much or more than statistics</li>
+                <li>You are your own best investment — develop a unique skill that makes you marketable</li>
+                <li>Importance of communication: their success is your success; the best bosses could do your job</li>
+                <li>Make the job you have a more perfect job — add a little risk</li>
+                <li>A disproportionate amount of the spoils go to the top 1% in creative fields — create value which perpetuates value</li>
+                <li>My question: What strategies did you use to find mentors who furthered your interest in Asian health disparities? — Find people who have achieved what you want and who are motivated to stay for the long run</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- end day-list -->
+  </section>
+
+  <hr class="section-divider divider-wipe">
+
+  <!-- ── Group Research ── -->
+  <section class="section">
+    <div class="section-label lbl">Group Research</div>
+    <h2 class="section-h2 h2-reveal">GI Cancer in Asian American Populations</h2>
+    <p class="prose prose-reveal">Our group was assigned gastrointestinal cancer. GI cancer is a group of cancers affecting the digestive system — including stomach, liver, colon, esophagus, pancreas, and gallbladder. It's the third most-diagnosed cancer type, and one of the hardest to detect early because symptoms can seem minor.</p>
+
+    <div class="callout callout-animate">
+      <div class="callout-title">Key Finding: The Aggregation Problem</div>
+      <p>Most U.S. health surveillance reports cancer statistics for "Asian Americans" as one aggregate category. Because East Asian, Southeast Asian, and South Asian subgroups have radically different risk profiles, this aggregation both hides the highest-risk groups and creates a false impression that Asian Americans are a low-risk population for cancer screening funding.</p>
+    </div>
+
+    <table class="data-table tbl-stagger">
+      <thead>
+        <tr>
+          <th>Subgroup</th>
+          <th>Primary GI Cancer Risk</th>
+          <th>Key Risk Factor</th>
+          <th>Relative Risk vs. White Americans</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="td-group">Korean Americans</td>
+          <td>Gastric (stomach) cancer</td>
+          <td>H. pylori + salty/preserved diet</td>
+          <td class="td-accent">13.3× higher gastric incidence</td>
+        </tr>
+        <tr>
+          <td class="td-group">Vietnamese Americans</td>
+          <td>Gastric + liver cancer</td>
+          <td>H. pylori + Hepatitis B prevalence</td>
+          <td class="td-accent">6.5× higher gastric; 5–7× liver</td>
+        </tr>
+        <tr>
+          <td class="td-group">Japanese Americans</td>
+          <td>Gastric cancer</td>
+          <td>H. pylori; diet; ALDH2 gene</td>
+          <td class="td-accent">5.2× higher gastric incidence</td>
+        </tr>
+        <tr>
+          <td class="td-group">Chinese Americans</td>
+          <td>Gastric + liver cancer</td>
+          <td>H. pylori + Hepatitis B; hot beverage intake</td>
+          <td class="td-accent">4.8× higher gastric; 5–7× liver</td>
+        </tr>
+        <tr>
+          <td class="td-group">South Asians (Indian/Pakistani)</td>
+          <td>Gallbladder + esophageal</td>
+          <td>Gallstones; betel quid chewing</td>
+          <td class="td-accent">2.1× higher gastric incidence</td>
+        </tr>
+        <tr>
+          <td class="td-group">Filipino Americans</td>
+          <td>Gastric cancer</td>
+          <td>Diet + smoking (M: 20.6%)</td>
+          <td class="td-accent">1.8× higher gastric; late-stage dx</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div style="margin-top: 44px;">
+      <div class="section-label lbl" style="margin-bottom: 16px;">Incidence + Mortality</div>
+      <div class="stat-row stats-stagger">
+        <div class="stat">
+          <span class="stat-num">45–60</span>
+          <span class="stat-label">GI cancer cases per 100,000 Asian Americans / year</span>
+        </div>
+        <div class="stat">
+          <span class="stat-num">0.20%</span>
+          <span class="stat-label">Prevalence of GI cancer among Asian Americans</span>
+        </div>
+        <div class="stat">
+          <span class="stat-num">12–18</span>
+          <span class="stat-label">Deaths per 100,000 Asian Americans annually</span>
+        </div>
+        <div class="stat">
+          <span class="stat-num">~60%</span>
+          <span class="stat-label">5-year mortality rate among diagnosed Asian Americans</span>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top: 44px;">
+      <div class="section-label lbl" style="margin-bottom: 14px;">What Can Be Done</div>
+      <p class="prose prose-reveal">South Korea's national gastric cancer screening program (endoscopy every 2 years for adults 40+, since 1999) has measurably reduced gastric cancer mortality. Japan has documented that H. pylori eradication is a cost-effective national strategy — driving an estimated 98% of gastric cancers there. For U.S. Asian American communities, targeted H. pylori test-and-treat programs (lower cost, more scalable than universal endoscopic screening) are the strongest evidence-backed lever.</p>
+      <p class="prose prose-reveal pr-d1">Organized screening outreach — automatic mailed FIT kits, patient navigators, reminder calls, in-language materials — has closed almost the entire subgroup gap in integrated health systems, while opportunistic referral-based screening did not. Scaling that model to Korean, Filipino, and South Asian communities is the clearest next step.</p>
+    </div>
+  </section>
+
+  <hr class="section-divider divider-wipe">
+
+  <!-- ── Tech stack pills ── -->
+  <section class="section">
+    <div class="section-label lbl">Technologies &amp; Skills</div>
+    <div class="pills animate-pills" style="margin-top: 10px;">
+      <span class="pill--accent pill">Epidemiology</span>
+      <span class="pill--accent pill">Biostatistics</span>
+      <span class="pill--accent pill">Vibe Coding</span>
+      <span class="pill">Python / pandas</span>
+      <span class="pill">Prompt Engineering</span>
+      <span class="pill">Data Visualization</span>
+      <span class="pill">AI / LLMs</span>
+      <span class="pill">Public Health Research</span>
+      <span class="pill">Web Development</span>
+      <span class="pill">Health Disparities</span>
+    </div>
+
+    <div class="btn-row reveal ready" style="margin-top: 36px;">
+      <a href="https://drive.google.com/file/d/1r_uf-BEasEqU-OEc4j1W2h6ygV4J2gEK/view?usp=sharing" target="_blank" rel="noopener" class="link-btn">
+        View Gut Instincts Demo
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 10L10 2M10 2H4M10 2v6"/></svg>
+      </a>
+      <a href="https://asianhealth.stanford.edu/" target="_blank" rel="noopener" class="link-btn link-btn--ghost">Stanford CARE ↗</a>
+      <a href="index.html" class="link-btn link-btn--ghost">← Back to portfolio</a>
+    </div>
+  </section>
+
+</main>
+
+<script>
+/* ── Boot ── */
+document.body.classList.add('js-animate');
+
+/* ── Topbar scroll state ── */
+var topbar = document.getElementById('topbar');
+window.addEventListener('scroll', function() {
+  topbar.classList.toggle('scrolled', window.scrollY > 10);
+}, { passive: true });
+
+/* ── Scroll progress bar ── */
+var progressBar = document.getElementById('scroll-progress');
+function updateProgress() {
+  var scrolled = window.scrollY;
+  var total = document.documentElement.scrollHeight - window.innerHeight;
+  progressBar.style.width = (total > 0 ? (scrolled / total) * 100 : 0) + '%';
+}
+window.addEventListener('scroll', updateProgress, { passive: true });
+
+/* ── Hero orb parallax ── */
+var heroOrb1 = document.querySelector('.hero-orb-1');
+var heroOrb2 = document.querySelector('.hero-orb-2');
+var heroOrb3 = document.querySelector('.hero-orb-3');
+var parallaxTicking = false;
+function updateParallax() {
+  var y = window.scrollY;
+  if (heroOrb1) heroOrb1.style.transform = 'translateX(-50%) translateY(' + (y * 0.28) + 'px)';
+  if (heroOrb2) heroOrb2.style.transform = 'translateY(' + (y * -0.15) + 'px)';
+  if (heroOrb3) heroOrb3.style.transform = 'translateY(' + (y * 0.20) + 'px)';
+  parallaxTicking = false;
+}
+window.addEventListener('scroll', function() {
+  if (!parallaxTicking) { requestAnimationFrame(updateParallax); parallaxTicking = true; }
+}, { passive: true });
+
+/* ── Lenis smooth scroll ── */
+try {
+  if (typeof Lenis !== 'undefined') {
+    var lenis = new Lenis({ duration: 1.25, easing: function(t){ return 1 - Math.pow(1 - t, 4); }, smoothWheel: true });
+    function raf(t) { lenis.raf(t); requestAnimationFrame(raf); }
+    requestAnimationFrame(raf);
+    lenis.on('scroll', updateProgress);
+  }
+} catch(e) {}
+
+/* ── Count-up animation ── */
+function animateCount(el) {
+  var orig = el.getAttribute('data-count');
+  var suffix = el.getAttribute('data-suffix') || '';
+  var target = parseFloat(orig);
+  if (isNaN(target)) return;
+  var duration = 900;
+  var startTime = null;
+  function step(ts) {
+    if (!startTime) startTime = ts;
+    var progress = Math.min((ts - startTime) / duration, 1);
+    var eased = 1 - Math.pow(1 - progress, 3);
+    var val = Math.round(target * eased);
+    el.textContent = val + suffix;
+    if (progress < 1) requestAnimationFrame(step);
+    else el.textContent = orig + suffix;
+  }
+  requestAnimationFrame(step);
+}
+
+/* ── IntersectionObserver factory ── */
+function makeObs(cb, opts) {
+  return new IntersectionObserver(function(entries) {
+    entries.forEach(function(e) { if (e.isIntersecting) cb(e.target); });
+  }, opts || { threshold: 0.12, rootMargin: '0px 0px -30px 0px' });
+}
+
+/* ── Base reveal (fade+translate) ── */
+var revealObs = makeObs(function(el) {
+  el.classList.add('in-view');
+  revealObs.unobserve(el);
+});
+document.querySelectorAll('.reveal.ready').forEach(function(el) { revealObs.observe(el); });
+
+/* ── Section labels (clip-path sweep) ── */
+var lblObs = makeObs(function(el) {
+  el.classList.add('lbl-in');
+  lblObs.unobserve(el);
+}, { threshold: 0.4, rootMargin: '0px 0px -20px 0px' });
+document.querySelectorAll('.lbl').forEach(function(el) { lblObs.observe(el); });
+
+/* ── H2 reveals ── */
+var h2Obs = makeObs(function(el) {
+  el.classList.add('h2-in');
+  h2Obs.unobserve(el);
+}, { threshold: 0.3 });
+document.querySelectorAll('.h2-reveal').forEach(function(el) { h2Obs.observe(el); });
+
+/* ── Prose reveals ── */
+var prObs = makeObs(function(el) {
+  el.classList.add('pr-in');
+  prObs.unobserve(el);
+}, { threshold: 0.2 });
+document.querySelectorAll('.prose-reveal').forEach(function(el) { prObs.observe(el); });
+
+/* ── Stats stagger + count-up ── */
+var ssObs = makeObs(function(el) {
+  el.classList.add('ss-in');
+  /* count-up for simple int stats */
+  el.querySelectorAll('[data-count]').forEach(function(num, i) {
+    setTimeout(function() { animateCount(num); }, i * 80);
+  });
+  ssObs.unobserve(el);
+}, { threshold: 0.25 });
+document.querySelectorAll('.stats-stagger').forEach(function(el) { ssObs.observe(el); });
+
+/* ── Feature card cascade ── */
+var fcObs = makeObs(function(el) {
+  el.classList.add('fc-in');
+  fcObs.unobserve(el);
+}, { threshold: 0.10 });
+document.querySelectorAll('.fc-grid').forEach(function(el) { fcObs.observe(el); });
+
+/* ── Prompt blocks slide-from-left ── */
+var rlObs = makeObs(function(el) {
+  el.classList.add('rl-in');
+  rlObs.unobserve(el);
+}, { threshold: 0.25 });
+document.querySelectorAll('.reveal-left').forEach(function(el) { rlObs.observe(el); });
+
+/* ── Divider wipe ── */
+var dwObs = makeObs(function(el) {
+  el.classList.add('dw-in');
+  dwObs.unobserve(el);
+}, { threshold: 0.5 });
+document.querySelectorAll('.divider-wipe').forEach(function(el) { dwObs.observe(el); });
+
+/* ── Table row stagger ── */
+var tblObs = makeObs(function(el) {
+  el.classList.add('tbl-in');
+  tblObs.unobserve(el);
+}, { threshold: 0.15 });
+document.querySelectorAll('.tbl-stagger').forEach(function(el) { tblObs.observe(el); });
+
+/* ── Callout animate ── */
+var caObs = makeObs(function(el) {
+  el.classList.add('ca-in');
+  caObs.unobserve(el);
+}, { threshold: 0.20 });
+document.querySelectorAll('.callout-animate').forEach(function(el) { caObs.observe(el); });
+
+/* ── Pill animations ── */
+var pillObs = makeObs(function(el) {
+  el.classList.add('pills-visible');
+  pillObs.unobserve(el);
+}, { threshold: 0.20 });
+document.querySelectorAll('.animate-pills').forEach(function(el) { pillObs.observe(el); });
+
+/* ── Day accordion ── */
+function toggleDay(header) {
+  var card = header.parentElement;
+  var wasOpen = card.classList.contains('is-open');
+  document.querySelectorAll('.day-card.is-open').forEach(function(c) { c.classList.remove('is-open'); });
+  if (!wasOpen) card.classList.add('is-open');
+}
+</script>
+</body>
+</html>
