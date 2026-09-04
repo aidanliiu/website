@@ -15,14 +15,8 @@
 <script>
 (function(){
   var m = localStorage.getItem('siteMode');
-  if (m === 'minimal') {
-    // Redirect returning minimal users straight to minimal.html
-    window.location.replace('minimal.html');
-  } else if (m === 'animated') {
-    document.documentElement.classList.add('mode-animated');
-  } else {
-    document.documentElement.classList.add('mode-choosing');
-  }
+  // Always go to minimal — animated side is archived
+  window.location.replace('minimal.html');
 })();
 </script>
 
@@ -953,9 +947,9 @@ html.mode-choosing #site-loader { display: none !important; }
     <div class="section-inner reveal-zoom">
       <h1 class="word-reveal">Hi, I'm Aidan.</h1>
       <p class="word-reveal">
-        Senior at Saratoga High. I captain a VEX robotics team — we won nationals and
-        went to Worlds this year — am ASB Secretary, and photograph everything I eat.
-        Right now I'm deep in college apps and trying not to let my Wordle streak die.
+        Senior at Saratoga High. Led a VEX robotics team that won nationals and went to
+        Worlds, am now ASB Secretary and president of Stanford CARE Explorers, and teach
+        robotics at IRA. Photograph everything I eat and refuse to let my Wordle streak die.
       </p>
       <p class="intro-hint">Click any card to visit the gallery.</p>
       <a href="gallery.html" class="gallery-cta" aria-label="View photo gallery">
@@ -1016,7 +1010,7 @@ html.mode-choosing #site-loader { display: none !important; }
       <div class="stack-card stack-card--nba">
         <div class="stack-tag">05 &middot; Inspirit AI</div>
         <h3>NBA MVP Model Predictions</h3>
-        <p>Published to <a href="https://www.curieuxreview.com/_files/ugd/60ed3c_e03ca30aedb840a7b4562ef1555d9e56.pdf">The Curieux Review</a> (Jan '26), <a href="https://github.com/aidanliiu/NBA-MVP-Model-Predictions">GitHub</a>, and Inspirit AI. Submitted to the Journal of Student Research — awaiting response.</p>
+        <p>Published to <a href="https://www.curieuxreview.com/_files/ugd/60ed3c_e03ca30aedb840a7b4562ef1555d9e56.pdf">The Curieux Review</a> (Jan '26), <a href="https://github.com/aidanliiu/NBA-MVP-Model-Predictions">GitHub</a>, and Inspirit AI.</p>
         <div class="stack-date">Jul – Sep 2023</div>
         <a href="project-nba.html" class="stack-read-more">See more <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 10L10 2M10 2H4M10 2v6"/></svg></a>
       </div>
@@ -1370,13 +1364,7 @@ html.mode-choosing #site-loader { display: none !important; }
     setTimeout(dismiss, 4800); /* hard safety fallback */
   }
 
-  /* When mode-choosing is shown, defer the loader until user picks Animated.
-     Otherwise auto-start immediately (returning visitor with saved mode). */
-  if (document.documentElement.classList.contains('mode-choosing')) {
-    window.__startLoader = startLoader;
-  } else {
-    startLoader();
-  }
+  startLoader();
 })();
 </script>
 

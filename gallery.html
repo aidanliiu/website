@@ -613,11 +613,11 @@
      — inspired by OH Architecture's momentum-drag feel:
        canvas lags behind pointer, overshoots bounds, springs back.
   ════════════════════════════════════ */
-  var DRAG_LERP   = 0.10;  // how quickly canvas chases pointer (lower = more lag)
-  var FRICTION    = 0.968; // velocity decay each frame — higher = longer glide
-  var SPRING_K    = 0.011; // spring force — very gentle, canvas drifts lazily back
-  var SPRING_DAMP = 0.96;  // tiny extra friction when out of bounds (0.968*0.96≈0.93/frame — barely more than in-bounds)
-  var MAX_VEL     = 42;    // px/frame cap on throw velocity
+  var DRAG_LERP   = 0.20;  // how quickly canvas chases pointer — snappier drag
+  var FRICTION    = 0.92;  // velocity decay each frame — shorter coast/glide
+  var SPRING_K    = 0.04;  // spring force at edge — firm, minimal bounce
+  var SPRING_DAMP = 0.75;  // strong damping — kills bounce quickly
+  var MAX_VEL     = 28;    // px/frame cap — less throw overshoot
 
   /* ── Canvas physics state ── */
   var px = 0, py = 0;           // actual canvas position (lerped)

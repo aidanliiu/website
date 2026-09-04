@@ -696,6 +696,77 @@ body::after {
 
 /* Footer links — accent on hover */
 .mc-foot a:hover { color: var(--accent); }
+
+/* ── Gallery CTA ── */
+.mc-gallery-cta {
+  display: inline-flex; align-items: center; gap: 7px;
+  margin-top: 22px;
+  font-size: 11.5px; font-weight: 600; letter-spacing: 0.07em;
+  text-transform: uppercase; text-decoration: none;
+  color: var(--ink);
+  border: 1px solid rgba(0,0,0,0.16);
+  border-radius: 99px;
+  padding: 9px 16px 9px 18px;
+  transition: border-color 0.2s var(--ease), color 0.2s var(--ease), transform 0.18s var(--ease);
+}
+.mc-gallery-cta:hover { border-color: var(--accent); color: var(--accent); transform: translateY(-1px); }
+.mc-gallery-cta:active { transform: scale(0.97); }
+.mc-gallery-cta svg { transition: transform 0.2s var(--ease); }
+.mc-gallery-cta:hover svg { transform: translateX(3px); }
+
+/* ── Works divider ── */
+.mc-works-divider {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 28px 0 0;
+}
+.mc-works-label {
+  font-size: 12.5px; color: var(--ink-2);
+  display: inline-flex; align-items: center; gap: 7px;
+}
+.mc-arrow-down {
+  display: inline-block;
+  animation: mcBob 1.8s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+@keyframes mcBob {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(5px); }
+}
+.mc-page-timer {
+  font-size: 10.5px; font-weight: 500; font-variant-numeric: tabular-nums;
+  color: var(--ink-3); letter-spacing: 0.04em;
+}
+
+/* ── Cycling heading ── */
+.mc-sh--cycle {
+  display: flex; align-items: baseline; gap: 9px; overflow: visible;
+}
+.mc-cycle-wrap {
+  overflow: hidden; height: 1.25em;
+  display: inline-flex; align-items: flex-start;
+}
+.mc-cycle-track {
+  display: flex; flex-direction: column;
+  animation: mcCycleWords 10s cubic-bezier(0.77, 0, 0.175, 1) infinite;
+}
+.mc-cycle-track span {
+  height: 1.25em; display: block; flex-shrink: 0;
+  font-size: 19px; font-weight: 700; letter-spacing: -0.022em;
+}
+@keyframes mcCycleWords {
+  0%   { transform: translateY(0); }
+  18%  { transform: translateY(0); }
+  25%  { transform: translateY(-1.25em); }
+  43%  { transform: translateY(-1.25em); }
+  50%  { transform: translateY(-2.5em); }
+  68%  { transform: translateY(-2.5em); }
+  75%  { transform: translateY(-3.75em); }
+  93%  { transform: translateY(-3.75em); }
+  100% { transform: translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .mc-arrow-down { animation: none !important; }
+  .mc-cycle-track { animation: none !important; }
+}
 </style>
 </head>
 <body>
@@ -707,13 +778,6 @@ body::after {
   </div>
 </nav>
 
-<a href="index.html" id="mode-toggle" aria-label="Switch to animated experience" onclick="localStorage.setItem('siteMode','animated')">
-  <svg width="13" height="13" viewBox="0 0 13 13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
-    <circle cx="6.5" cy="6.5" r="5.5"/>
-    <path d="M6.5 1v11M1 6.5h11" opacity="0.5"/>
-  </svg>
-  Animated
-</a>
 
 <main class="mc-main">
 
@@ -723,7 +787,7 @@ body::after {
       <div class="mc-intro-content">
         <h1 class="mc-intro-h1">hi, i'm aidan.</h1>
         <p class="mc-intro-sub">senior · saratoga high · class of 2027</p>
-        <p class="mc-bio">Senior at Saratoga High. I captain a VEX robotics team (we won nationals and went to Worlds this year), am ASB Secretary, and built ElderlyAI on the App Store. Most of my time goes toward things I'm obsessed with. Right now that means college apps, robotics, and keeping my Wordle streak alive.</p>
+        <p class="mc-bio">Senior at Saratoga High. Led a VEX robotics team that won nationals and went to Worlds, am ASB Secretary and president of Stanford CARE Explorers, and built ElderlyAI on the App Store. Most of my time goes toward things I'm obsessed with — right now that means research, teaching robotics, and keeping my Wordle streak alive.</p>
         <div class="mc-social-row">
       <a href="mailto:aidanliu2008@gmail.com">
         <svg class="mc-social-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>Email
@@ -738,6 +802,10 @@ body::after {
         <svg class="mc-social-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="0.5" fill="currentColor" stroke-width="3"/></svg>Instagram
       </a>
         </div>
+        <a href="gallery.html" class="mc-gallery-cta" aria-label="View photo gallery">
+          Explore the gallery
+          <svg width="13" height="13" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7h8M7 3l4 4-4 4"/></svg>
+        </a>
       </div>
       <div class="mc-intro-photo">
         <picture>
@@ -748,9 +816,15 @@ body::after {
     </div>
   </section>
 
+  <!-- ── Works divider ── -->
+  <div class="mc-works-divider">
+    <span class="mc-works-label">Some things I've worked on <span class="mc-arrow-down">↓</span></span>
+    <span class="mc-page-timer" id="mc-page-timer">00:00</span>
+  </div>
+
   <!-- ── Work ── -->
   <section class="mc-section mc-reveal">
-    <h2 class="mc-sh">work.</h2>
+    <h2 class="mc-sh mc-sh--cycle">My <span class="mc-cycle-wrap"><span class="mc-cycle-track"><span>works</span><span>projects</span><span>research</span><span>code</span></span></span></h2>
 
     <div class="mc-proj-list">
       <div class="mc-proj-row mc-stagger-item">
@@ -1076,7 +1150,6 @@ body::after {
 
 <footer class="mc-foot">
   <span>&copy; Aidan Liu 2026</span>
-  <a href="index.html" onclick="localStorage.setItem('siteMode','animated')">Animated version →</a>
 </footer>
 
 <!-- Info Modal -->
@@ -1098,6 +1171,19 @@ body::after {
 </div>
 
 <script>
+// ── Page timer ──
+(function () {
+  var el = document.getElementById('mc-page-timer');
+  if (!el) return;
+  var start = Date.now();
+  setInterval(function () {
+    var s  = Math.floor((Date.now() - start) / 1000);
+    var mm = String(Math.floor(s / 60)).padStart(2, '0');
+    var ss = String(s % 60).padStart(2, '0');
+    el.textContent = mm + ':' + ss;
+  }, 1000);
+})();
+
 // ── Awards toggle ──
 (function () {
   var btn  = document.getElementById('awards-toggle');
@@ -1199,7 +1285,7 @@ body::after {
     var links = data.links || [];
     var linksHtml = links.length
       ? '<div class="mc-info-modal-links">' + links.map(function(l, i) {
-          return '<a class="mc-info-modal-link' + (i > 0 ? ' mc-info-modal-link--secondary' : '') + '" href="' + l.href + '" target="_blank" rel="noopener">' + l.text + '</a>';
+          return '<a class="mc-info-modal-link" href="' + l.href + '" target="_blank" rel="noopener">' + l.text + '</a>';
         }).join('') + '</div>'
       : '';
     var listHtml = data.list
