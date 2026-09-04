@@ -12,15 +12,18 @@
 /* ── Reset ── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
-::selection { background: rgba(0,0,0,0.07); }
+::selection { background: rgba(53, 102, 214, 0.14); }
 
 :root {
-  --ease: cubic-bezier(0.23, 1, 0.32, 1);
-  --ink:   #0d0d0d;
-  --ink-2: rgba(0,0,0,0.46);
-  --ink-3: rgba(0,0,0,0.26);
-  --line:  rgba(0,0,0,0.09);
-  --bg:    #ffffff;
+  --ease:        cubic-bezier(0.23, 1, 0.32, 1);
+  --ink:         #0d0d0d;
+  --ink-2:       rgba(0,0,0,0.46);
+  --ink-3:       rgba(0,0,0,0.26);
+  --line:        rgba(0,0,0,0.09);
+  --bg:          #ffffff;
+  --accent:      #3566d6;
+  --accent-soft: rgba(53, 102, 214, 0.08);
+  --accent-dim:  rgba(53, 102, 214, 0.24);
 }
 
 body {
@@ -84,8 +87,37 @@ body {
 .mc-intro {
   padding: 60px 0 66px;
 }
+
+/* Two-column intro: text left, photo right */
+.mc-intro-wrap {
+  display: flex;
+  align-items: flex-start;
+  gap: 28px;
+}
+.mc-intro-content { flex: 1; min-width: 0; }
+.mc-intro-photo {
+  width: 250px;
+  height: 380px;
+  flex-shrink: 0;
+  border-radius: 7px;
+  overflow: hidden;
+  margin-top: 10px;
+  box-shadow: 0 2px 18px rgba(0,0,0,0.10), 0 0 0 1px rgba(0,0,0,0.05);
+}
+.mc-intro-photo picture {
+  display: block;
+  width: 148%;
+  margin-left: -24%;
+  margin-top: 0;
+}
+.mc-intro-photo img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
 .mc-intro-h1 {
-  font-size: clamp(40px, 9vw, 58px);
+  font-size: clamp(36px, 8vw, 48px);
   font-weight: 700;
   letter-spacing: -0.034em;
   line-height: 1.04;
@@ -433,6 +465,7 @@ body::before {
 .mc-intro-sub  { animation: mcFadeUp 0.62s var(--ease) 0.18s both; }
 .mc-bio        { animation: mcFadeUp 0.60s var(--ease) 0.28s both; }
 .mc-social-row { animation: mcFadeUp 0.56s var(--ease) 0.38s both; }
+.mc-intro-photo { animation: mcFadeUp 0.72s var(--ease) 0.10s both; }
 
 /* List rows stagger up when section scrolls into view */
 .mc-stagger-item {
@@ -450,6 +483,8 @@ body::before {
   .mc-main { padding: 0 20px 80px; }
   .mc-intro { padding: 44px 0 52px; }
   .mc-intro-h1 { font-size: clamp(34px, 11vw, 44px); }
+  .mc-intro-wrap { gap: 24px; }
+  .mc-intro-photo { width: 150px; height: 230px; margin-top: 6px; }
   .mc-section { padding: 40px 0; }
   .mc-proj-meta { display: none; }
   .mc-proj-dot { display: none; }
@@ -472,7 +507,7 @@ body::before {
 @media (prefers-reduced-motion: reduce) {
   .mc-reveal { opacity: 1 !important; transform: none !important; transition: none !important; }
   *, *::before, *::after { transition-duration: 0ms !important; animation-duration: 0ms !important; }
-  .mc-nav, .mc-intro-h1, .mc-intro-sub, .mc-bio, .mc-social-row { animation: none !important; }
+  .mc-nav, .mc-intro-h1, .mc-intro-sub, .mc-bio, .mc-social-row, .mc-intro-photo { animation: none !important; }
   .mc-stagger-item { animation: none !important; }
 }
 
@@ -563,6 +598,104 @@ body::before {
   border: 1px solid var(--line);
 }
 .mc-info-modal-link--secondary:hover { border-color: rgba(0,0,0,0.3); opacity: 1; }
+
+/* ── Accent color layer ── */
+
+/* Thin accent bar at very top of page */
+body::after {
+  content: '';
+  position: fixed;
+  top: 0; left: 0; right: 0; height: 2.5px;
+  background: var(--accent);
+  opacity: 0.55;
+  z-index: 9998;
+  pointer-events: none;
+}
+
+/* Nav name & links use accent on hover */
+.mc-nav-name { transition: color 0.2s var(--ease); }
+.mc-nav-name:hover { color: var(--accent); }
+.mc-nav-links a:hover { color: var(--accent); }
+
+/* Mode toggle accent on hover */
+#mode-toggle:hover { color: var(--accent); border-color: var(--accent-dim); }
+
+/* Section headings — left accent bar */
+.mc-sh {
+  border-left: 2.5px solid var(--accent);
+  padding-left: 11px;
+}
+
+/* Project rows — accent name + arrow on hover */
+.mc-proj-main:hover .mc-proj-name { color: var(--accent); transition: color 0.2s var(--ease); }
+.mc-proj-main:hover .mc-proj-arrow { color: var(--accent); opacity: 0.85; }
+.mc-proj-main:active { transform: translateX(3px) scale(0.98); }
+
+/* "New" badge style */
+.mc-proj-badge {
+  display: inline-block;
+  font-size: 9px; font-weight: 700; letter-spacing: 0.06em;
+  text-transform: uppercase;
+  background: var(--accent); color: #fff;
+  padding: 2px 6px;
+  border-radius: 99px;
+  vertical-align: middle;
+  margin-left: 6px;
+  position: relative; top: -1px;
+  flex-shrink: 0;
+}
+
+/* External project links — accent on hover */
+.mc-proj-ext:hover {
+  color: var(--accent);
+  border-color: var(--accent-dim);
+}
+
+/* Award category labels — accent colored */
+.mc-award-cat { color: var(--accent); opacity: 0.85; }
+
+/* Awards toggle — accent on hover */
+.mc-awards-toggle:hover { color: var(--accent); }
+
+/* Link items — accent label + arrow on hover */
+.mc-link-item:hover .mc-link-label { color: var(--accent); transition: color 0.2s var(--ease); }
+.mc-link-item:hover::after { color: var(--accent); }
+.mc-link-item:active { transform: translateX(3px) scale(0.98); }
+
+/* Interest text links — accent on hover */
+.mc-interests-text a:hover {
+  color: var(--accent);
+  text-decoration-color: var(--accent-dim);
+}
+
+/* Bookshelf label — accent tint */
+.mc-bookshelf-label { color: var(--accent); opacity: 0.7; }
+.mc-bookshelf-more:hover { color: var(--accent); }
+
+/* Book cards — slight slide on hover */
+.mc-book-card {
+  cursor: pointer;
+  transition: opacity 0.2s var(--ease), transform 0.22s var(--ease);
+}
+.mc-book-card:hover { opacity: 0.9; transform: translateX(3px); }
+.mc-book-card:active { transform: translateX(3px) scale(0.99); }
+
+/* Contact email — accent on hover */
+.mc-email:hover { color: var(--accent); opacity: 1; border-color: var(--accent-dim); }
+
+/* Contact socials — accent on hover */
+.mc-socials a:hover { color: var(--accent); }
+
+/* Photo — subtle accent ring */
+.mc-intro-photo {
+  box-shadow: 0 4px 24px rgba(0,0,0,0.11), 0 0 0 1.5px var(--accent-dim);
+}
+
+/* Primary modal button — accent */
+.mc-info-modal-link { background: var(--accent); }
+
+/* Footer links — accent on hover */
+.mc-foot a:hover { color: var(--accent); }
 </style>
 </head>
 <body>
@@ -586,10 +719,12 @@ body::before {
 
   <!-- ── Intro ── -->
   <section class="mc-intro">
-    <h1 class="mc-intro-h1">hi, i'm aidan.</h1>
-    <p class="mc-intro-sub">rising senior · saratoga high · class of 2027</p>
-    <p class="mc-bio">Rising senior at Saratoga High. Spent the last few years building robots, running ML experiments, and playing basketball — sometimes all at once. Team Captain &amp; Mechanical Lead for VEX Robotics Team 95071V. Developer of ElderlyAI, an AI app for elderly care on the App Store. Two-time all-league. Open to summer research, robotics, and leadership opportunities.</p>
-    <div class="mc-social-row">
+    <div class="mc-intro-wrap">
+      <div class="mc-intro-content">
+        <h1 class="mc-intro-h1">hi, i'm aidan.</h1>
+        <p class="mc-intro-sub">senior · saratoga high · class of 2027</p>
+        <p class="mc-bio">Senior at Saratoga High. I captain a VEX robotics team (we won nationals and went to Worlds this year), am ASB Secretary, and built ElderlyAI on the App Store. Most of my time goes toward things I'm obsessed with. Right now that means college apps, robotics, and keeping my Wordle streak alive.</p>
+        <div class="mc-social-row">
       <a href="mailto:aidanliu2008@gmail.com">
         <svg class="mc-social-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>Email
       </a>
@@ -602,6 +737,14 @@ body::before {
       <a href="https://www.instagram.com/aidanliiu/" target="_blank" rel="noopener">
         <svg class="mc-social-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="0.5" fill="currentColor" stroke-width="3"/></svg>Instagram
       </a>
+        </div>
+      </div>
+      <div class="mc-intro-photo">
+        <picture>
+          <source srcset="aidan-stanford.webp" type="image/webp">
+          <img src="aidan-stanford.jpg" alt="Aidan at Stanford" loading="eager" decoding="sync">
+        </picture>
+      </div>
     </div>
   </section>
 
@@ -612,7 +755,7 @@ body::before {
     <div class="mc-proj-list">
       <div class="mc-proj-row mc-stagger-item">
         <a class="mc-proj-main" href="project-gutinstincts.html">
-          <span class="mc-proj-name">Gut Instincts</span>
+          <span class="mc-proj-name">Gut Instincts</span><span class="mc-proj-badge">New</span>
           <span class="mc-proj-dot">·</span>
           <span class="mc-proj-meta">Stanford CARE Explorers · GI cancer health platform · Summer 2026</span>
           <span class="mc-proj-arrow">→</span>
@@ -812,7 +955,7 @@ body::before {
   <section class="mc-section mc-reveal">
     <h2 class="mc-sh">more.</h2>
 
-    <p class="mc-interests-text">Outside academics and sports I keep a lot going. I volunteer with <a href="https://www.instagram.com/art4hearts" target="_blank" rel="noopener">Art4Hearts</a>, a nonprofit connecting art and community. I train PPL at the gym, keep my Wordle and Connections streaks alive, read when I can, and know too many good restaurants in the South Bay.</p>
+    <p class="mc-interests-text">Outside academics and sports I keep a lot going. I'm Chapter Director of <a href="https://www.instagram.com/art4hearts" target="_blank" rel="noopener">Art4Hearts International</a>, a 501(c)(3) with 5,500+ volunteers worldwide. I train PPL at the gym, keep my Wordle and Connections streaks alive, read when I can, and know too many good restaurants in the South Bay.</p>
 
     <div class="mc-links-grid">
       <a class="mc-link-item mc-stagger-item" href="#" data-info="art4hearts">
@@ -823,7 +966,7 @@ body::before {
         </span>
         <span>
           <span class="mc-link-label">Art4Hearts</span>
-          <span class="mc-link-sub">A nonprofit I volunteer with</span>
+          <span class="mc-link-sub">Chapter Director · 5,500+ volunteers worldwide</span>
         </span>
       </a>
       <a class="mc-link-item mc-stagger-item" href="#" data-info="wordle">
@@ -835,17 +978,6 @@ body::before {
         <span>
           <span class="mc-link-label">Wordle &amp; Connections</span>
           <span class="mc-link-sub">I play daily to keep my streak</span>
-        </span>
-      </a>
-      <a class="mc-link-item mc-stagger-item" href="#" data-info="books">
-        <span class="mc-link-initial" style="background:#1a3a5c;">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" stroke="none">
-            <path d="M4 4.5A1.5 1.5 0 0 1 5.5 3H11v17H5.5A1.5 1.5 0 0 1 4 18.5z"/><path d="M13 3h5.5A1.5 1.5 0 0 1 20 4.5v14a1.5 1.5 0 0 1-1.5 1.5H13z"/><rect x="10.5" y="3" width="3" height="17" fill="rgba(255,255,255,0.2)"/>
-          </svg>
-        </span>
-        <span>
-          <span class="mc-link-label">Books</span>
-          <span class="mc-link-sub">What I've been reading</span>
         </span>
       </a>
       <a class="mc-link-item mc-stagger-item" href="#" data-info="food">
@@ -899,13 +1031,13 @@ body::before {
           </div>
           <img class="mc-book-cover" src="https://covers.openlibrary.org/b/isbn/9781400033416-M.jpg" alt="Beloved" loading="lazy"/>
         </div>
-        <div class="mc-book-card" style="background:#001635; color:#d8eaf8; width:373px;">
+        <div class="mc-book-card" style="background:#520b15; color:#f8dcd9; width:373px;">
           <div class="mc-book-info">
-            <span class="mc-book-title">All the Light We Cannot See</span>
-            <span class="mc-book-author">Anthony Doerr</span>
-            <span class="mc-book-year">read 2026</span>
+            <span class="mc-book-title">The Nightingale</span>
+            <span class="mc-book-author">Kristin Hannah</span>
+            <span class="mc-book-year">read aug 2026</span>
           </div>
-          <img class="mc-book-cover" src="https://covers.openlibrary.org/b/isbn/9781476746586-M.jpg" alt="All the Light We Cannot See" loading="lazy"/>
+          <img class="mc-book-cover" src="https://covers.openlibrary.org/b/isbn/9780312577223-M.jpg" alt="The Nightingale" loading="lazy"/>
         </div>
         <div class="mc-book-card" style="background:#0d1a40; color:#d8e4f8; width:401px;">
           <div class="mc-book-info">
@@ -995,9 +1127,9 @@ body::before {
     art4hearts: {
       accent: '#e0266f',
       icon: icon('<path d="M12 20.5c-4-3-7.5-6.2-7.5-10A4.5 4.5 0 0 1 12 7a4.5 4.5 0 0 1 7.5 3.5c0 3.8-3.5 7-7.5 10z"/>'),
-      tag: 'Volunteering / Nonprofit',
+      tag: 'Leadership / Nonprofit',
       title: 'Art4Hearts International',
-      body: 'Art4Hearts International is a nonprofit that uses art as a way to bring comfort, healing, and connection to people facing trauma and adversity — running art-making workshops and community programs under the motto "creating smiles through art, one heart at a time."',
+      body: "I'm Chapter Director of the Saratoga High chapter of Art4Hearts International — a 501(c)(3) with 5,500+ volunteers worldwide and 22K Instagram followers. They run art workshops for people in crisis: kids in hospitals, families in shelters, communities dealing with trauma. I handle chapter operations, manage outreach, and help direct our programs.",
       links: [
         { text: 'Instagram ↗', href: 'https://www.instagram.com/art4hearts' },
         { text: 'art4heartsinternational.org ↗', href: 'https://art4heartsinternational.org/' },
@@ -1045,7 +1177,7 @@ body::before {
       title: 'Weightlifting',
       body: "Basketball got me into the weight room, but lifting has become its own thing for me — I put in extra work outside of team practices, following my own push/pull/legs (PPL) split throughout the week. And yes, I mog my brother on every machine. Here's the actual routine I run:",
       links: [
-        { text: 'My PPL routine ↗', href: 'https://docs.google.com/document/d/18817g4gzQ7AMuSncTq-QOCjtzH-eZRZr/edit?usp=sharing&ouid=106465264769409867045&rtpof=true&sd=true' },
+        { text: 'My PPL routine ↗', href: 'https://docs.google.com/document/d/1KuQI_JTqal5-SGHNBOoL_gmKqtxKIWv6_YlCrmuROzY/edit?tab=t.0' },
       ],
     },
     write: {
@@ -1191,6 +1323,41 @@ body::before {
       openLightbox(el.getAttribute('data-img'));
     });
   });
+})();
+
+// ── Smooth scroll (Lenis-style glide) ──
+(function () {
+  var maxScroll = function () { return document.documentElement.scrollHeight - window.innerHeight; };
+  var target  = window.scrollY;
+  var current = window.scrollY;
+  var ticking = false;
+  var clamp   = function (v) { return Math.min(Math.max(v, 0), maxScroll()); };
+
+  var step = function () {
+    current += (target - current) * 0.045;
+    if (Math.abs(target - current) < 0.05) current = target;
+    window.scrollTo(0, current);
+    if (current !== target) requestAnimationFrame(step);
+    else ticking = false;
+  };
+
+  window.addEventListener('wheel', function (e) {
+    // If the lightbox is open, don't intercept
+    var lb = document.getElementById('award-lightbox');
+    if (lb && lb.classList.contains('is-open')) return;
+    e.preventDefault();
+    var delta = e.deltaY;
+    if (e.deltaMode === 1) delta *= 18;
+    else if (e.deltaMode === 2) delta *= window.innerHeight;
+    delta = Math.max(Math.min(delta, 220), -220);
+    target = clamp(target + delta);
+    if (!ticking) { ticking = true; requestAnimationFrame(step); }
+  }, { passive: false });
+
+  window.addEventListener('resize', function () { target = clamp(target); });
+  window.addEventListener('scroll', function () {
+    if (!ticking) { target = window.scrollY; current = window.scrollY; }
+  }, { passive: true });
 })();
 </script>
 
