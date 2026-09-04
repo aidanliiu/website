@@ -714,10 +714,10 @@ body::after {
 .mc-gallery-cta svg { transition: transform 0.2s var(--ease); }
 .mc-gallery-cta:hover svg { transform: translateX(3px); }
 
-/* ── Works divider ── */
-.mc-works-divider {
+/* ── Works header (inside section) ── */
+.mc-works-header {
   display: flex; align-items: center; justify-content: space-between;
-  padding: 28px 0 0;
+  margin-bottom: 22px;
 }
 .mc-works-label {
   font-size: 12.5px; color: var(--ink-2);
@@ -816,14 +816,12 @@ body::after {
     </div>
   </section>
 
-  <!-- ── Works divider ── -->
-  <div class="mc-works-divider">
-    <span class="mc-works-label">Some things I've worked on <span class="mc-arrow-down">↓</span></span>
-    <span class="mc-page-timer" id="mc-page-timer">00:00</span>
-  </div>
-
   <!-- ── Work ── -->
   <section class="mc-section mc-reveal">
+    <div class="mc-works-header">
+      <span class="mc-works-label">Some things I've worked on <span class="mc-arrow-down">↓</span></span>
+      <span class="mc-page-timer" id="mc-page-timer">00:00</span>
+    </div>
     <h2 class="mc-sh mc-sh--cycle">My <span class="mc-cycle-wrap"><span class="mc-cycle-track"><span>works</span><span>projects</span><span>research</span><span>code</span></span></span></h2>
 
     <div class="mc-proj-list">
